@@ -1,0 +1,28 @@
+/* Part 13 - Department Spending Patterns page + section chart.
+   Reuses the shared theme variables, the Part 3 dashboard classes and the
+   Part 4 filter classes; only the angled-label chart canvas is new. */
+
+/* Sub-heading above the optional bar chart inside the section. */
+.dept-chart {
+  margin-top: 4px;
+}
+
+.dept-chart__title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+/* Taller than .chart-card__canvas so rotated department labels on the
+   X-axis stay readable; stacks with a shorter canvas on phones. */
+.dept-chart__canvas {
+  height: 300px;
+  margin-top: 8px;
+}
+
+@media (max-width: 640px) {
+  .dept-chart__canvas {
+    height: 260px;
+  }
+}

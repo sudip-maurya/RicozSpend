@@ -1,0 +1,7 @@
+Client/node_modules/
+Client/dist/
+Client/dist-ssr/
+Client/.env
+
+Server/node_modules/
+Server/.env

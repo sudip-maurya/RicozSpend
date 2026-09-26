@@ -1,0 +1,414 @@
+/* Part 2 - authentication & user management styles.
+   Uses the same CSS variables as src/index.css so the existing theme
+   (light + dark via prefers-color-scheme) is preserved. */
+
+:root {
+  --danger: #d64545;
+  --danger-bg: rgba(214, 69, 69, 0.08);
+  --danger-border: rgba(214, 69, 69, 0.4);
+  --success: #1f8a5b;
+  --success-bg: rgba(31, 138, 91, 0.1);
+  --success-border: rgba(31, 138, 91, 0.4);
+  --radius: 12px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --danger: #f87171;
+    --danger-bg: rgba(248, 113, 113, 0.12);
+    --danger-border: rgba(248, 113, 113, 0.45);
+    --success: #4ade80;
+    --success-bg: rgba(74, 222, 128, 0.12);
+    --success-border: rgba(74, 222, 128, 0.4);
+  }
+}
+
+/* ---------------------------------------------------------------- auth page */
+.auth-page {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  box-sizing: border-box;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 32px;
+  text-align: left;
+}
+
+.auth-card--loading {
+  text-align: center;
+  color: var(--text);
+  font-size: 15px;
+}
+
+.auth-card__title {
+  font-size: 32px;
+  letter-spacing: -0.5px;
+  margin: 0 0 4px;
+}
+
+.auth-card__subtitle {
+  font-size: 15px;
+  margin: 0 0 24px;
+  color: var(--text);
+}
+
+.auth-card__footer {
+  margin: 20px 0 0;
+  font-size: 15px;
+  text-align: center;
+  color: var(--text);
+}
+
+.auth-card__footer a,
+.auth-card a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.auth-card__footer a:hover,
+.auth-card a:hover {
+  text-decoration: underline;
+}
+
+/* -------------------------------------------------------------------- forms */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-field__label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-h);
+}
+
+.form-field input {
+  font: inherit;
+  font-size: 16px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-h);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-field input:focus {
+  outline: none;
+  border-color: var(--accent-border);
+  box-shadow: 0 0 0 3px var(--accent-bg);
+}
+
+.form-field input:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.form-field__error {
+  font-size: 13px;
+  color: var(--danger);
+}
+
+/* ------------------------------------------------------------------ alerts */
+.alert {
+  font-size: 15px;
+  line-height: 1.4;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  margin: 0 0 16px;
+}
+
+.alert--error {
+  color: var(--danger);
+  background: var(--danger-bg);
+  border-color: var(--danger-border);
+}
+
+.alert--success {
+  color: var(--success);
+  background: var(--success-bg);
+  border-color: var(--success-border);
+}
+
+.alert--info {
+  color: var(--text-h);
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+}
+
+/* small helper blocks inside auth cards (notes, resend controls) */
+.auth-card__note {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text);
+  margin: 0 0 16px;
+}
+
+.auth-card__note a {
+  color: var(--accent);
+  text-decoration: none;
+  word-break: break-word;
+}
+
+.auth-card__note a:hover {
+  text-decoration: underline;
+}
+
+.auth-card__block {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0 0 16px;
+}
+
+.auth-card__block .alert {
+  margin: 0;
+}
+
+/* ------------------------------------------------------------------ buttons */
+.btn {
+  font: inherit;
+  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity 0.2s, border-color 0.2s;
+}
+
+.btn--primary {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 500;
+  width: 100%;
+}
+
+.btn--primary:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.btn--ghost {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--text-h);
+}
+
+.btn--ghost:hover {
+  border-color: var(--accent-border);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ------------------------------------------- authenticated application shell */
+.app-shell {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  text-align: left;
+}
+
+.app-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+.app-nav__brand {
+  font-weight: 600;
+  letter-spacing: -0.3px;
+  color: var(--text-h);
+}
+
+.app-nav__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.app-nav__link {
+  font-size: 15px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.app-nav__link:hover {
+  color: var(--text-h);
+}
+
+.app-nav__link--active {
+  color: var(--accent);
+  background: var(--accent-bg);
+}
+
+.app-nav__user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.app-nav__identity {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  color: var(--text-h);
+}
+
+.role-badge {
+  font-size: 12px;
+  line-height: 1.6;
+  padding: 1px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.role-badge--admin {
+  color: var(--accent);
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+}
+
+.app-main {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 32px 24px 48px;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.page-title {
+  font-size: 32px;
+  letter-spacing: -0.5px;
+  margin: 0;
+}
+
+.page-subtitle {
+  margin: 0;
+  color: var(--text);
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  text-align: left;
+}
+
+.card--muted {
+  background: var(--code-bg);
+}
+
+.card h2 {
+  margin: 0;
+  font-size: 18px;
+  letter-spacing: -0.2px;
+}
+
+.card__text {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+}
+
+.info-list > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed var(--border);
+}
+
+.info-list > div:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.info-list dt {
+  font-size: 14px;
+  color: var(--text);
+}
+
+.info-list dd {
+  margin: 0;
+  font-size: 15px;
+  color: var(--text-h);
+  text-align: right;
+  word-break: break-word;
+}
+
+@media (max-width: 640px) {
+  .auth-card,
+  .app-main {
+    padding: 24px 18px;
+  }
+
+  .app-nav {
+    padding: 12px 16px;
+  }
+
+  .page-title,
+  .auth-card__title {
+    font-size: 26px;
+  }
+}
+

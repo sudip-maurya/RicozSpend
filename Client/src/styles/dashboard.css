@@ -1,0 +1,717 @@
+/* Part 3 - Dashboard & spend overview. Uses the shared RicozSpend theme
+   variables from index.css and the auth.css layout classes. */
+
+.dashboard-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* --- Date filter --- */
+.date-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.date-filter__select,
+.date-filter__date {
+  font: inherit;
+  font-size: 15px;
+  color: var(--text-h);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+
+.date-filter__select:focus,
+.date-filter__date:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.date-filter__custom {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.date-filter__dash {
+  color: var(--text);
+}
+
+/* --- KPI cards --- */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.kpi-card__value {
+  font-size: 30px;
+  font-weight: 600;
+  color: var(--text-h);
+  margin: 8px 0 0;
+  overflow-wrap: anywhere;
+}
+
+.kpi-card__value--text {
+  font-size: 24px;
+}
+
+.kpi-card__hint {
+  margin-top: 6px;
+  font-size: 14px;
+  color: var(--text);
+}
+
+/* --- Charts --- */
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.chart-card__canvas {
+  height: 260px;
+  margin-top: 12px;
+}
+
+.chart-card--wide {
+  grid-column: 1 / -1;
+}
+
+/* --- Recent transactions table --- */
+.recent-card {
+  margin-top: 24px;
+}
+
+.recent-table-wrap {
+  margin-top: 12px;
+  overflow-x: auto;
+}
+
+.recent-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.recent-table th,
+.recent-table td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.recent-table th {
+  color: var(--text-h);
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.recent-table tbody tr:hover {
+  background: var(--social-bg);
+}
+
+.recent-table__amount {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Empty state --- */
+.dashboard-empty {
+  margin-top: 24px;
+  text-align: center;
+  padding: 40px 24px;
+}
+
+.dashboard-empty .card__text {
+  margin: 8px 0 20px;
+}
+
+/* --- Misc --- */
+.dashboard-loading {
+  margin-top: 24px;
+}
+
+.dashboard-alert {
+  margin-top: 20px;
+  padding: 12px 16px;
+  border: 1px solid var(--accent-border);
+  background: var(--accent-bg);
+  border-radius: 8px;
+  color: var(--text-h);
+}
+
+.coming-soon-card {
+  max-width: 560px;
+}
+
+/* --- Part 7: Unusual spending alerts --- */
+.alerts-card {
+  margin-top: 24px;
+}
+
+.alerts-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.alerts-badge {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  padding: 2px 10px;
+  border-radius: 999px;
+  color: var(--danger);
+  background: var(--danger-bg);
+  border: 1px solid var(--danger-border);
+  white-space: nowrap;
+}
+
+.alerts-error {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.alerts-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 4px 0 16px;
+}
+
+.alerts-summary__item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--social-bg);
+  min-width: 180px;
+}
+
+.alerts-summary__label {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.alerts-summary__value {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-h);
+  font-variant-numeric: tabular-nums;
+}
+
+.alerts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.alert-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--danger-border);
+  border-left: 4px solid var(--danger);
+  border-radius: 8px;
+  background: var(--danger-bg);
+  text-align: left;
+}
+
+.alert-card__top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.alert-card__vendor {
+  font-weight: 600;
+  color: var(--text-h);
+  overflow-wrap: anywhere;
+}
+
+.alert-card__amount {
+  font-weight: 600;
+  color: var(--danger);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.alert-card__meta {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.alert-card__meta > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px dashed var(--border);
+}
+
+.alert-card__meta > div:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.alert-card__meta dt {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.alert-card__meta dd {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-h);
+  text-align: right;
+}
+
+.alert-card__reason {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--text);
+}
+
+.alert-card__reason strong {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .alerts-summary {
+    flex-direction: column;
+  }
+}
+
+/* --- Part 9: vendor comparison (descriptive per-vendor spend / txns / share) --- */
+.vendor-compare-card {
+  margin-top: 24px;
+}
+
+/* Reuses the Part 7 badge shape, re-tinted like insights so it is not "alarming". */
+.vendor-compare-card .alerts-badge {
+  color: var(--accent);
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+}
+
+.vendor-compare__share {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.vendor-compare__share-value {
+  font-weight: 600;
+  color: var(--text-h);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.vendor-compare__share-bar {
+  display: block;
+  width: 90px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--accent-bg);
+  overflow: hidden;
+}
+
+.vendor-compare__share-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+.insights-card {
+/* --- Part 8: automatic spend insights --- */
+  margin-top: 24px;
+}
+
+/* Reuse the Part 7 badge shape, re-tinted so insights are not "alarming". */
+.insights-card .alerts-badge {
+  color: var(--accent);
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+}
+
+.insights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.insight-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: 8px;
+  background: var(--social-bg);
+  text-align: left;
+}
+
+/* Tone comes from the server rule: increase = attention, decrease = positive. */
+.insight-card--warning {
+  border-left-color: var(--danger);
+}
+
+.insight-card--positive {
+  border-left-color: var(--success);
+}
+
+.insight-card__label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.insight-card__message {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--text-h);
+}
+
+.insight-card--warning .insight-card__message {
+  color: var(--danger);
+}
+
+.insight-card--positive .insight-card__message {
+  color: var(--success);
+}
+
+.insight-card__detail {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.insight-contribution {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.insight-contribution__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 90px auto;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.insight-contribution__name {
+  color: var(--text-h);
+  overflow-wrap: anywhere;
+}
+
+.insight-contribution__bar {
+  display: block;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--accent-bg);
+  overflow: hidden;
+}
+
+.insight-contribution__fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+.insight-contribution__share {
+  font-weight: 600;
+  color: var(--text-h);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Responsive: laptop / tablet / mobile --- */
+@media (max-width: 1024px) {
+  .kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .chart-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .date-filter {
+    align-items: stretch;
+  }
+
+  .date-filter__select,
+  .date-filter__date {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .date-filter__custom {
+    flex-wrap: wrap;
+  }
+
+  .date-filter__date {
+    flex: 1 1 140px;
+  }
+
+  /* Part 8: one insight per row on phones (260px min would overflow). */
+  .insights-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .insight-contribution__row {
+    grid-template-columns: minmax(0, 1fr) 60px auto;
+  }
+}
+
+@media (max-width: 560px) {
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --- Part 14: alerts & insights center --- */
+.aic-toolbar {
+  margin: 0 0 16px;
+}
+
+.aic-section-empty {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.aic-summary__stamp {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* Summary tile counts take their severity colour (readability first). */
+.aic-count--critical {
+  color: var(--danger);
+}
+
+.aic-count--warning {
+  color: var(--warning);
+}
+
+.aic-count--insight {
+  color: var(--accent);
+}
+
+.aic-count--info {
+  color: var(--info);
+}
+
+/* Severity pill - mirrors the Part 7 badge shape, tinted per severity. */
+.aic-severity {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.aic-severity--critical {
+  color: var(--danger);
+  background: var(--danger-bg);
+  border-color: var(--danger-border);
+}
+
+.aic-severity--warning {
+  color: var(--warning);
+  background: var(--warning-bg);
+  border-color: var(--warning-border);
+}
+
+.aic-severity--insight {
+  color: var(--accent);
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+}
+
+.aic-severity--info {
+  color: var(--info);
+  background: var(--info-bg);
+  border-color: var(--info-border);
+}
+
+/* Cards reuse the insight-card shape, re-tinted by server severity. */
+.aic-card--critical {
+  border-color: var(--danger-border);
+  border-left-color: var(--danger);
+  background: var(--danger-bg);
+}
+
+.aic-card--warning {
+  border-color: var(--warning-border);
+  border-left-color: var(--warning);
+  background: var(--warning-bg);
+}
+
+.aic-card--insight {
+  border-left-color: var(--accent);
+}
+
+.aic-card--info {
+  border-left-color: var(--info);
+}
+
+.aic-card__top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.aic-card__spacer {
+  flex: 1;
+}
+
+.aic-card__amount {
+  font-weight: 600;
+  color: var(--text-h);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.aic-card__dismiss {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.aic-card__dismiss:hover {
+  color: var(--danger);
+  border-color: var(--danger-border);
+}
+
+.aic-card__dismiss:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.aic-card__title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--text-h);
+}
+
+.aic-card__message {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.aic-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.aic-chip {
+  font-size: 12px;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 1px 8px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Facts list = scalar meta entries rendered as label/value rows. */
+.aic-facts {
+  margin: 0;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.aic-facts__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.aic-facts__row dt {
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.aic-facts__row dd {
+  margin: 0;
+  font-weight: 600;
+  color: var(--text-h);
+  text-align: right;
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 640px) {
+  .aic-card__top {
+    flex-wrap: wrap;
+  }
+
+  .aic-card__amount {
+    margin-left: auto;
+  }
+}

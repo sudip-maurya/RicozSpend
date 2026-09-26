@@ -1,0 +1,471 @@
+/* Part 4 - Spend / Transactions page, modals and states.
+   Reuses the shared theme variables from index.css / auth.css
+   (--accent, --border, --danger, --success, .card, .btn, .form-field...). */
+
+.btn {
+  font: inherit;
+  font-size: 15px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--accent-border);
+  background: var(--accent-bg);
+  color: var(--accent);
+  cursor: pointer;
+  transition: filter 0.2s;
+}
+
+.btn:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn--ghost {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--text-h);
+}
+
+.btn--danger {
+  background: var(--danger-bg);
+  border-color: var(--danger-border);
+  color: var(--danger);
+}
+
+/* ----------------------------------------------------------------- toolbar */
+.txn-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.txn-toolbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.txn-search {
+  font: inherit;
+  font-size: 15px;
+  color: var(--text-h);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 12px;
+  min-width: 220px;
+}
+
+.txn-search:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ----------------------------------------------------------------- filters */
+.txn-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.txn-filters .form-field {
+  gap: 4px;
+}
+
+.txn-filter__select,
+.txn-filter__date {
+  font: inherit;
+  font-size: 15px;
+  color: var(--text-h);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+
+.txn-filter__select:focus,
+.txn-filter__date:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.txn-filter__date {
+  flex: 0 1 150px;
+}
+
+.txn-filter__dash {
+  color: var(--text);
+  padding-bottom: 9px;
+}
+
+/* ------------------------------------------------------------------- table */
+.txn-table-wrap {
+  overflow-x: auto;
+}
+
+.txn-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.txn-table th,
+.txn-table td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.txn-table th {
+  color: var(--text-h);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.txn-table tbody tr:hover {
+  background: var(--social-bg);
+}
+
+/* Plain-text button inside the vendor cell so every role can open a record's
+   details; keeps the existing table typography and hover behavior. */
+.txn-vendor {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.txn-vendor:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.txn-table__amount {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.txn-table__actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* Sortable column headers (buttons that look like headers) */
+.txn-sort {
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-h);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.txn-sort:hover {
+  color: var(--accent);
+}
+
+.txn-sort__arrow {
+  font-size: 12px;
+  color: var(--accent);
+}
+
+/* ----------------------------------------------------------------- states  */
+.txn-state {
+  text-align: center;
+  padding: 40px 24px;
+  color: var(--text);
+}
+
+.txn-state--error {
+  color: var(--danger);
+}
+
+/* --------------------------------------------------------------- pagination */
+.txn-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.txn-pagination__controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.txn-pagination__page {
+  min-width: 28px;
+  text-align: center;
+}
+
+/* ------------------------------------------------------------------ modals */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 50;
+}
+
+.modal {
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius, 12px);
+  box-shadow: var(--shadow);
+  padding: 24px;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+.modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.modal__head h2 {
+  margin: 0;
+}
+
+.modal__close {
+  font-size: 22px;
+  line-height: 1;
+  background: none;
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.modal__close:hover {
+  color: var(--text-h);
+}
+
+.modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+/* -------------------------------------------------------------- txn form  */
+.txn-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.txn-form__row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.txn-form .form-field input,
+.txn-form .form-field textarea {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.txn-form__hint {
+  font-size: 13px;
+  color: var(--text);
+  margin: 0;
+}
+
+/* --------------------------------------------------------------- view modal */
+.txn-view {
+  margin: 8px 0 0;
+}
+
+/* ------------------------------------------- Part 9: budget vs actual (status) */
+.budget-status {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.budget-status--under {
+  color: var(--success);
+  border-color: var(--success-border);
+  background: var(--success-bg);
+}
+
+.budget-status--near {
+  color: var(--accent);
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+}
+
+.budget-status--over {
+  color: var(--danger);
+  border-color: var(--danger-border);
+  background: var(--danger-bg);
+}
+
+.txn-view__amount {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* ------------------------------------------------------------ delete prompt */
+.txn-delete-text {
+  margin: 0;
+  font-size: 15px;
+  color: var(--text-h);
+}
+
+/* ------------------------------------------------------- CSV import (Part 5) */
+.modal--wide {
+  max-width: 820px;
+}
+
+.import-select {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.import-sample {
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.5;
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  margin: 0;
+  overflow-x: auto;
+  text-align: left;
+}
+
+.import-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 12px 0 16px;
+}
+
+.import-summary__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 12px 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--social-bg);
+}
+
+.import-summary__value {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.import-summary__label {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.import-summary__item--valid .import-summary__value {
+  color: var(--success);
+}
+
+.import-summary__item--invalid .import-summary__value {
+  color: var(--danger);
+}
+
+.import-summary__item--duplicate .import-summary__value {
+  color: var(--accent);
+}
+
+.import-preview__table {
+  max-height: 320px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.import-status {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.import-status--valid {
+  color: var(--success);
+  border-color: var(--success-border);
+  background: var(--success-bg);
+}
+
+.import-status--invalid {
+  color: var(--danger);
+  border-color: var(--danger-border);
+  background: var(--danger-bg);
+}
+
+.import-status--duplicate {
+  color: var(--accent);
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+}
+
+/* -------------------------------------------------------------- responsive */
+@media (max-width: 768px) {
+  .txn-toolbar,
+  .txn-filters {
+    align-items: stretch;
+  }
+
+  .txn-search {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .txn-form__row {
+    grid-template-columns: 1fr;
+  }
+
+  .txn-filter__date {
+    flex: 1 1 130px;
+  }
+
+  .import-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
