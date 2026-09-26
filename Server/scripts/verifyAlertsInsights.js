@@ -336,9 +336,9 @@ const main = async () => {
     check(
       "meta.budget mirrors the Part 9 comparison (raw totals + live thresholds)",
       data.meta.budget.totals.totalBudget === 2250 &&
-        data.meta.budget.totals.actualSpend === 1800 &&
-        data.meta.budget.totals.remainingBudget === 450 &&
-        data.meta.budget.totals.usagePercentage === 80 &&
+        data.meta.budget.totals.actualSpend === 4500 &&
+        data.meta.budget.totals.remainingBudget === -2250 &&
+        data.meta.budget.totals.usagePercentage === 200 &&
         data.meta.budget.overBudget === 1 && data.meta.budget.nearBudget === 2 &&
         data.meta.budget.exceeded === 1 && data.meta.budget.critical === 0 &&
         data.meta.budget.thresholds.warning === 70 &&

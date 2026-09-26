@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 
+import api from "../api/client";
 import { useAuth } from "../context/authContext";
 import { resendVerification } from "../services/authService";
 import { getErrorMessage, getFieldErrors, getStatusCode } from "../utils/apiError";
@@ -24,6 +25,12 @@ function Login() {
 
   // Where to go after login (set by ProtectedRoute when a page was blocked).
   const redirectTo = location.state?.from || "/dashboard";
+
+  // Wake a sleeping Render service without delaying or changing the Login UI.
+  // The shared API client supplies the configured Vercel/Render base URL.
+  useEffect(() => {
+    api.get("/api/health").catch(() => {});
+  }, []);
 
   if (isRestoring) {
     return (

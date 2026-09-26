@@ -23,17 +23,26 @@ app.use((req, res, next) => {
 });
 
 /* --------------------- P1-2: CORS origin whitelist ------------------------
- * Allowed origins come from CLIENT_URL (comma-separated). With none
- * configured we fall back to permissive mode for local development.
+ * Allowed origins come from CLIENT_URL (comma-separated). Render must set this
+ * to the production Vercel origin; local development remains permissive when
+ * the variable is not configured.
  */
 const allowedOrigins = String(process.env.CLIENT_URL || "")
   .split(",")
-  .map((origin) => origin.trim())
+  .map((origin) => origin.trim().replace(/\/+$/, ""))
   .filter(Boolean);
 
 app.use(
   cors({
-    origin: allowedOrigins.length > 0 ? allowedOrigins : true,
+    origin(origin, callback) {
+      // Requests without an Origin header (Render health checks, curl, etc.)
+      // are not browser cross-origin requests and should continue to work.
+      if (!origin || allowedOrigins.length === 0) {
+        return callback(null, true);
+      }
+
+      return callback(null, allowedOrigins.includes(origin.replace(/\/+$/, "")));
+    },
     credentials: false,
   })
 );
@@ -75,6 +84,12 @@ app.get("/", (req, res) => {
   res.json({
     message: "RicozSpend Backend is Running"
   });
+});
+
+// Public, dependency-free liveness endpoint. The Login page calls this once
+// in the background so a sleeping Render service can wake before sign-in.
+app.get("/api/health", (req, res) => {
+  res.json({ status: "ok" });
 });
 
 // Part 2 - authentication & user management

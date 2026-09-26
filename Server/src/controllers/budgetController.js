@@ -223,21 +223,31 @@ const deleteBudget = async (req, res) => {
 
 /* ---------------------------------------------- budget vs actual (Part 9) */
 
-const UNDER_BUDGET_LABEL = "Under Budget";
-const NEAR_BUDGET_LABEL = "Near Budget";
+const ON_TRACK_LABEL = "On Track";
+const WARNING_LABEL = "Warning";
+const CRITICAL_LABEL = "Critical";
 const OVER_BUDGET_LABEL = "Over Budget";
+
+// Deprecated aliases kept for backwards compatibility
+const UNDER_BUDGET_LABEL = ON_TRACK_LABEL;
+const NEAR_BUDGET_LABEL = WARNING_LABEL;
 
 /**
  * Purely descriptive label - no ranking, scoring or recommendations.
- * P1-3: driven by the admin-configurable alert rules (single source of truth
- * via budgetAlertLevel) instead of hardcoded 80%/100% thresholds, so the
- * Budget page can never disagree with the Alerts Center.
+ * Driven by the admin-configurable alert rules (single source of truth
+ * via budgetAlertLevel). "Over Budget" only appears when usage >= 100%.
+ * Thresholds:
+ *   < 70% (or < warning)       -> "On Track"
+ *   70–92% (warning–critical)   -> "Warning"
+ *   92–100% (critical–exceeded) -> "Critical"
+ *   >= 100% (exceeded)          -> "Over Budget"
  */
 const budgetStatus = (usage, rules) => {
   const level = budgetAlertLevel(usage, rules);
-  if (level === "exceeded" || level === "critical") return OVER_BUDGET_LABEL;
-  if (level === "warning") return NEAR_BUDGET_LABEL;
-  return UNDER_BUDGET_LABEL;
+  if (level === "exceeded" || usage >= 100) return OVER_BUDGET_LABEL;
+  if (level === "critical") return CRITICAL_LABEL;
+  if (level === "warning") return WARNING_LABEL;
+  return ON_TRACK_LABEL;
 };
 
 /**
@@ -307,18 +317,22 @@ const computeBudgetComparison = async (scope, filters = {}, rules = null) => {
 
   // One transaction query covering every period present in the result set.
   const periods = [...new Set(budgets.map((budget) => budget.period))];
-  const departments = [...new Set(budgets.map((budget) => budget.department))];
   const windows = periods.map(monthWindow);
+
+  const txMatch = {
+    ...scope,
+    $or: windows.map((window) => ({ date: { $gte: window.from, $lt: window.to } })),
+  };
+  if (appliedFilters.department) {
+    txMatch.department = exactFilter(appliedFilters.department);
+  }
+  if (appliedFilters.category) {
+    txMatch.category = exactFilter(appliedFilters.category);
+  }
 
   const groups = await Transaction.aggregate([
     {
-      $match: {
-        // Shared workspace dataset for Admin and Viewer alike (`user` stays
-        // audit information: it says who created a record, never who sees it).
-        ...scope,
-        department: { $in: departments.map(exactFilter) },
-        $or: windows.map((window) => ({ date: { $gte: window.from, $lt: window.to } })),
-      },
+      $match: txMatch,
     },
     {
       $group: {
@@ -384,13 +398,14 @@ const computeBudgetComparison = async (scope, filters = {}, rules = null) => {
   const sums = rows.reduce(
     (accumulator, row) => ({
       totalBudget: accumulator.totalBudget + row.budget,
-      actualSpend: accumulator.actualSpend + row.actual,
     }),
-    { totalBudget: 0, actualSpend: 0 }
+    { totalBudget: 0 }
   );
 
   const totalBudget = round2(sums.totalBudget);
-  const totalActual = round2(sums.actualSpend);
+  const totalActual = round2(
+    groups.reduce((accumulator, group) => accumulator + Number(group.total), 0)
+  );
 
   return {
     filters: appliedFilters,
@@ -439,6 +454,9 @@ module.exports = {
   getBudgetVsActual,
   computeBudgetComparison,
   budgetStatus,
+  ON_TRACK_LABEL,
+  WARNING_LABEL,
+  CRITICAL_LABEL,
   UNDER_BUDGET_LABEL,
   NEAR_BUDGET_LABEL,
   OVER_BUDGET_LABEL,

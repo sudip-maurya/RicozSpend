@@ -23,9 +23,12 @@ const EMPTY_FILTERS = { period: "", department: "", category: "" };
 
 /** Server status label -> existing badge variant. */
 const STATUS_CLASS = {
+  "On Track": "budget-status--under",
+  "Warning": "budget-status--near",
+  "Critical": "budget-status--critical",
+  "Over Budget": "budget-status--over",
   "Under Budget": "budget-status--under",
   "Near Budget": "budget-status--near",
-  "Over Budget": "budget-status--over",
 };
 
 /** 72.46 -> "72.46%" (display only). */

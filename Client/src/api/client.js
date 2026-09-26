@@ -1,9 +1,22 @@
 import axios from 'axios'
 import { SESSION_EXPIRED_EVENT, clearSession, getToken } from '../utils/authStorage'
 
-// Base URL of the Express backend in SERVER/.
-// Read from Client/.env (VITE_API_URL); falls back to the local dev server.
-const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+// Base URL of the Express backend in Server/.
+// VITE_API_URL is supplied by Vercel for production and Client/.env.development for local development.
+const configuredBaseURL = import.meta.env.VITE_API_URL?.trim().replace(/\/+$/, '')
+
+if (
+  typeof window !== 'undefined' &&
+  window.location.hostname !== 'localhost' &&
+  window.location.hostname !== '127.0.0.1' &&
+  (!configuredBaseURL || /^https?:\/\/(?:localhost|127(?:\.0{1,3}){3})(?::\d+)?(?:\/|$)/i.test(configuredBaseURL))
+) {
+  console.warn(
+    '[api] VITE_API_URL is not set to the production backend URL. Requests may fail.'
+  )
+}
+
+const baseURL = configuredBaseURL || 'http://localhost:5000'
 
 // Login/signup answer 401 for bad credentials; that must not clear a session.
 const PUBLIC_AUTH_ENDPOINTS = ['/api/auth/login', '/api/auth/signup']

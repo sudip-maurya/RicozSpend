@@ -1,16 +1,19 @@
-# React + Vite
+# RicozSpend client
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## API configuration
 
-Currently, two official plugins are available:
+All browser API requests use the single `VITE_API_URL` setting in
+`src/api/client.js`.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Local development: `Client/.env.development` sets `VITE_API_URL=http://localhost:5000`.
+- Vercel production: set `VITE_API_URL` in the Vercel project environment to
+the public Render service origin, for example
+`https://<your-render-service>.onrender.com`. Do not add `/api` and do not
+use a trailing slash.
 
-## React Compiler
+The production build stops with a clear configuration error if `VITE_API_URL`
+is absent, rather than silently sending API requests to a visitor's localhost.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+The Render service must also set `CLIENT_URL` to the exact Vercel production
+origin, for example `https://<your-vercel-project>.vercel.app`. If more than
+one frontend origin must be allowed, provide comma-separated origins.

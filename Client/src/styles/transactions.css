@@ -317,16 +317,24 @@
   white-space: nowrap;
 }
 
-.budget-status--under {
+.budget-status--under,
+.budget-status--ontrack {
   color: var(--success);
   border-color: var(--success-border);
   background: var(--success-bg);
 }
 
-.budget-status--near {
+.budget-status--near,
+.budget-status--warning {
   color: var(--accent);
   border-color: var(--accent-border);
   background: var(--accent-bg);
+}
+
+.budget-status--critical {
+  color: var(--warning);
+  border-color: var(--warning-border);
+  background: var(--warning-bg);
 }
 
 .budget-status--over {
