@@ -27,7 +27,7 @@ const {
   isVerificationRequired,
   isVerificationTokenExpired,
 } = require("../utils/verificationToken");
-const { canExposeDevLink, sendVerificationEmail } = require("../services/emailService");
+const { canExposeDevLink, isSmtpConfigured, sendVerificationEmail } = require("../services/emailService");
 
 const DUPLICATE_KEY_ERROR = 11000;
 const INVALID_CREDENTIALS_MESSAGE = "Invalid email or password";
@@ -36,22 +36,12 @@ const RESEND_GENERIC_MESSAGE =
   "If an account with that email is waiting for verification, a new verification link has been sent.";
 
 /**
- * Issue a fresh verification token, store its hash + expiry, and email the link.
- * Never throws: mail problems must not break signup/resend.
+ * Issue a fresh verification token, store its hash + expiry on the user, and return the verification URL.
  */
-const issueVerificationEmail = async (user) => {
+const issueVerificationToken = async (user) => {
   const { token, hash, expiresAt } = generateVerificationToken();
   await user.setEmailVerificationToken({ hash, expiresAt });
-
-  const url = buildVerificationUrl(token);
-  const result = await sendVerificationEmail({
-    to: user.email,
-    name: user.name,
-    url,
-    expiresInLabel: getVerificationExpiryLabel(),
-  });
-
-  return { url, ...result };
+  return buildVerificationUrl(token);
 };
 
 /** Map a Mongoose ValidationError to the same shape as our manual validation. */
@@ -105,21 +95,32 @@ const signup = async (req, res) => {
       isEmailVerified: false,
     });
 
-    const verification = await issueVerificationEmail(user);
+    const url = await issueVerificationToken(user);
 
-    return res.status(201).json({
+    res.status(201).json({
       message: "Account created successfully. Please check your email to verify your address.",
       user: user.toSafeObject(),
       emailVerification: {
         required: isVerificationRequired(),
         requiredBeforeLogin: isVerificationRequired(),
-        emailSent: verification.delivered,
-        deliveryMode: verification.mode,
+        emailSent: true,
+        deliveryMode: isSmtpConfigured() ? "smtp" : "console",
         expiresIn: getVerificationExpiryLabel(),
         // Dev convenience only (no SMTP + not production): lets you verify without a mail server.
-        devVerificationUrl: canExposeDevLink() ? verification.url : undefined,
+        devVerificationUrl: canExposeDevLink() ? url : undefined,
       },
     });
+
+    sendVerificationEmail({
+      to: user.email,
+      name: user.name,
+      url,
+      expiresInLabel: getVerificationExpiryLabel(),
+    }).catch((error) => {
+      console.error("[auth] Failed to send verification email:", error.message);
+    });
+
+    return;
   } catch (error) {
     if (error.code === DUPLICATE_KEY_ERROR) {
       return res.status(409).json({
@@ -311,16 +312,27 @@ const resendVerification = async (req, res) => {
       });
     }
 
-    const verification = await issueVerificationEmail(user);
+    const url = await issueVerificationToken(user);
 
-    return res.json({
+    res.json({
       code: "RESEND_ACCEPTED",
       message: RESEND_GENERIC_MESSAGE,
-      emailSent: verification.delivered,
-      deliveryMode: verification.mode,
+      emailSent: true,
+      deliveryMode: isSmtpConfigured() ? "smtp" : "console",
       expiresIn: getVerificationExpiryLabel(),
-      devVerificationUrl: canExposeDevLink() ? verification.url : undefined,
+      devVerificationUrl: canExposeDevLink() ? url : undefined,
     });
+
+    sendVerificationEmail({
+      to: user.email,
+      name: user.name,
+      url,
+      expiresInLabel: getVerificationExpiryLabel(),
+    }).catch((error) => {
+      console.error("[auth] Failed to send verification email:", error.message);
+    });
+
+    return;
   } catch (error) {
     console.error("[auth] Resend verification failed:", error.message);
     return res.status(500).json({ message: GENERIC_SERVER_ERROR });
