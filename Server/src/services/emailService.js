@@ -7,6 +7,11 @@
  * tested without a mail provider.
  */
 
+const dns = require("node:dns");
+if (typeof dns.setDefaultResultOrder === "function") {
+  dns.setDefaultResultOrder("ipv4first");
+}
+
 const nodemailer = require("nodemailer");
 
 const isSmtpConfigured = () => Boolean(process.env.SMTP_HOST);
