@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import DepartmentSpendingPatterns from "./pages/DepartmentSpendingPatterns";
 import ImportTransactions from "./pages/ImportTransactions";
 import Insights from "./pages/Insights";
+import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import Profile from "./pages/Profile";
@@ -18,13 +19,15 @@ import Transactions from "./pages/Transactions";
 import SpendAnalysis from "./pages/SpendAnalysis";
 import VerifyEmail from "./pages/VerifyEmail";
 import "./styles/auth.css";
+import "./styles/landing.css";
 
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Login />} />
+          {/* Public informational landing page */}
+          <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           {/* Part 2: public page that consumes the emailed verification token */}

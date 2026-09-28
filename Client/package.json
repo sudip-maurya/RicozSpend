@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "verify:frontend": "vite build --ssr scripts/verifyFrontend.jsx --outDir dist-ssr --emptyOutDir && node dist-ssr/verifyFrontend.js",
+    "verify:landing": "vite build --ssr scripts/verifyLanding.jsx --outDir dist-ssr --emptyOutDir && node dist-ssr/verifyLanding.js",
     "verify:alerts": "vite build --ssr scripts/verifyAlertsInsights.jsx --outDir dist-ssr --emptyOutDir && node dist-ssr/verifyAlertsInsights.js",
     "verify:admins": "vite build --ssr scripts/verifyAdminManagement.jsx --outDir dist-ssr --emptyOutDir && node dist-ssr/verifyAdminManagement.js"
   },
