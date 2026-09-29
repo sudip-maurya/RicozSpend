@@ -1,16 +1,8 @@
-/**
- * Dependency-free sliding-window rate limiter (P1-1).
- *
- * Caps how many requests a single IP can make to a route group inside a time
- * window. State lives in memory (per process); for a multi-instance deployment
- * replace with a shared store (e.g. Redis). Answers 429 with a JSON message
- * and standard X-RateLimit-* headers when the cap is exceeded.
- */
+/** In-memory sliding-window rate limiter. */
 
 const buckets = new Map();
 
-// Prune stale buckets once a minute so the map cannot grow without bound.
-// unref() keeps this timer from holding the process open on its own.
+// Prune expired rate limit buckets
 setInterval(() => {
   const now = Date.now();
   for (const [key, bucket] of buckets) {

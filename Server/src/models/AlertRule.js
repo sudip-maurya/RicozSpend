@@ -6,18 +6,7 @@ const {
   effectiveAlertRules,
 } = require("../utils/alertRules");
 
-/**
- * Admin-configurable alert rules (Part 15).
- *
- * ONE document per workspace (`organizationId` is unique), so every account in
- * the same workspace shares the same thresholds - exactly like transactions and
- * budgets. A workspace with no document simply uses DEFAULT_ALERT_RULES, so
- * nothing has to be seeded for the alerts to work.
- *
- * Field ranges + defaults come from utils/alertRules.js, which is also used by
- * the API validation and the Alert Rules editor, so schema and validation can never
- * disagree.
- */
+/** Configurable alert rules schema. */
 
 const ruleFieldSchema = {};
 
@@ -41,7 +30,7 @@ const alertRuleSchema = new mongoose.Schema(
       index: true,
     },
     ...ruleFieldSchema,
-    /** Audit only: which Admin saved the current values. */
+    // Audit reference to admin user
     updatedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -59,15 +48,12 @@ const alertRuleSchema = new mongoose.Schema(
   }
 );
 
-/** Whitelisted representation: only the five rules, as plain numbers. */
+/** Plain object representation of alert rules. */
 alertRuleSchema.methods.toRuleObject = function toRuleObject() {
   return effectiveAlertRules(this);
 };
 
-/**
- * Effective rules for a workspace: the saved document merged over the defaults
- * (never null), so a missing/incomplete document can never break the alerts.
- */
+/** Find effective rules or default rules for workspace. */
 alertRuleSchema.statics.findEffectiveRules = async function findEffectiveRules(organizationId) {
   const doc = await this.findOne({ organizationId });
   return effectiveAlertRules(doc);

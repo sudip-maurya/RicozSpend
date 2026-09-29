@@ -21,13 +21,7 @@ const toClientUser = (apiUser) =>
       }
     : null;
 
-/**
- * Authentication state for the whole app (Part 2).
- *
- * - keeps the current user, role and token
- * - restores the session from the stored JWT after a refresh
- * - clears everything on logout or when the token expires
- */
+/** Authentication state for the whole app (Part 2). */
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => toClientUser(getStoredUser()));
   const [token, setToken] = useState(() => getToken());
@@ -112,8 +106,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const logout = useCallback(() => {
-    // P1-5: revoke the JWT server-side; never let a failed request keep the
-    // local session alive (offline logout must still work).
+    // P1-5: revoke the JWT server-side
     logoutRequest().catch(() => {});
     clearAuthState();
   }, [clearAuthState]);

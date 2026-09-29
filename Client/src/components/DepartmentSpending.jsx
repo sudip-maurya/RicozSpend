@@ -15,25 +15,7 @@ import { formatMoney } from "../utils/format";
 import "../styles/dashboard.css";
 import "../styles/departments.css";
 
-/**
- * Department Spending Patterns section (Part 10, extended for Part 13).
- *
- * Descriptive only: for every department / cost centre it shows the total
- * spend, the number of transactions, the share of total spend, the highest-
- * spending department and the average spend per department. All values come
- * from /api/analytics/department-spending, which aggregates the shared
- * workspace's real transactions - nothing is hardcoded and there is no
- * ranking or recommendation language.
- *
- * Part 13 adds the optional bar chart (`showChart`, off by default) used by
- * the dedicated Department Spending Patterns page: X-axis = department,
- * Y-axis = total spend, straight from the same rows as the table. The
- * existing Spend Analysis page keeps its Part 6/10 layout unchanged.
- *
- * Mirrors the Part 9 VendorComparison section (same layout, same classes, same
- * filter contract) so the host page only needs to pass its existing filters.
- * Read-only for every role: no create/edit/delete controls anywhere.
- */
+/** Department Spending Patterns section (Part 10, extended for Part 13). */
 const EMPTY_FILTERS = {};
 
 /** 72.46 / 0 -> "72.46%" - display only, sharing a single local helper. */
@@ -49,13 +31,10 @@ function DepartmentSpending({ filters = EMPTY_FILTERS, showChart = false }) {
   const [error, setError] = useState("");
   const [reloadKey, setReloadKey] = useState(0);
 
-  // Destructured into primitives so the effect re-runs only when a filter
-  // value actually changes (and eslint's exhaustive-deps stays happy).
+  // Destructured into primitives so the effect only re-runs when a filter value changes.
   const { from = "", to = "", category = "", department = "", vendor = "" } = filters || {};
 
-  // Same in-effect async + isActive guard pattern as the Dashboard (Part 3),
-  // Spend Analysis (Part 6), Unusual Spending (Part 7), Insights (Part 8) and
-  // Vendor Comparison (Part 9).
+  // Same in-effect async + isActive guard pattern as the Dashboard (Part 3)
   useEffect(() => {
     let isActive = true;
 
@@ -89,9 +68,7 @@ function DepartmentSpending({ filters = EMPTY_FILTERS, showChart = false }) {
   const departments = data?.departments || [];
   const noData = Boolean(data && departments.length === 0);
 
-  // Part 13 summary stats. The server computes both fields from the same
-  // aggregation; the local fallbacks reuse the identical math (rows arrive
-  // sorted by spend descending) so the section never shows blanks.
+  // Part 13 summary stats. The server computes both fields from the same aggregation
   const highestDepartment = data?.highestSpendingDepartment || departments[0] || null;
   const averagePerDepartment =
     typeof data?.averageSpendPerDepartment === "number"
@@ -149,8 +126,7 @@ function DepartmentSpending({ filters = EMPTY_FILTERS, showChart = false }) {
             </div>
           </div>
 
-          {/* Part 13: bar chart (X = department, Y = total spend) from the
-              exact same rows as the table - only the dedicated page opts in. */}
+          {/* Part 13: bar chart (X = department, Y = total spend) from the same rows as the table. */}
           {showChart && (
             <div className="dept-chart">
               <h3 className="dept-chart__title">Total Spend by Department</h3>

@@ -1,12 +1,6 @@
-/**
- * Shared aggregation helpers (P2-6).
- *
- * `shapeGroups` was implemented identically in dashboardController.js and
- * analyticsController.js; both now import it from here so the shaping logic
- * cannot drift between the two surfaces.
- */
+/** Aggregation group shaping helpers. */
 
-/** [{ _id, total, count }] -> [{ name, total, count }] sorted desc by total. */
+/** Format aggregation group results. */
 const shapeGroups = (rows) =>
   rows.map((row) => ({
     name: row._id || "Unknown",

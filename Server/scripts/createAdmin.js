@@ -1,15 +1,4 @@
-/**
- * Create (or promote) an Admin user in the existing MongoDB Atlas database.
- *
- * Public signup can only ever create Viewers, so the very first Admin has to be
- * seeded from the server side.
- *
- * Usage (from the Server/ folder):
- *   npm run create-admin -- "Sudip Maurya" admin@example.com "YourPassword123"
- *   (or set ADMIN_NAME / ADMIN_EMAIL / ADMIN_PASSWORD in Server/.env)
- *
- * No password is ever printed by this script.
- */
+// Create or promote Admin user
 
 const path = require("path");
 const dotenv = require("dotenv");
@@ -51,7 +40,6 @@ const run = async () => {
       console.log(`User ${email} is already a verified Admin. Nothing to do.`);
     } else {
       existingUser.role = ROLES.ADMIN;
-      // Seeded by an operator, so there is no signup email to verify.
       existingUser.isEmailVerified = true;
       await existingUser.save();
       console.log(`Promoted existing user ${email} to Admin (email marked verified).`);

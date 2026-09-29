@@ -8,29 +8,7 @@ import { formatDateTime, formatMoney } from "../utils/format";
 import "../styles/dashboard.css";
 import "../styles/transactions.css";
 
-/**
- * Alerts & Insights Center page (Part 14).
- *
- * One read-only page that gathers every deterministic alert the app can derive
- * from the data it already has (see Server/src/controllers/insightsController.js).
- * The severity rules are the Admin-configured thresholds (Alerts Center -> Alert Rules editor), which the payload publishes read-only in `meta.rules` so the
- * section hints always show the live values:
- *
- *  - critical : budget usage >= the critical (or exceeded) rule
- *  - warning  : budget usage >= the warning rule, unusual transactions,
- *               month-over-month increase at or above the configured percentage
- *  - insight  : month-over-month decrease, top category/department/vendor, contributions
- *  - info     : activity snapshot, increase below the alert level + honest empty states
- *
- * Nothing here is AI-generated, stored or invented: the payload comes from
- * GET /api/insights (which reuses the Part 7/8/9 helpers), every amount is a
- * raw number formatted client-side with formatMoney, and messages are
- * currency-free facts. The only local state is the severity/period filter and
- * a session-scoped dismissal list - no write endpoint. Admin and Viewer see
- * the exact same page (ProtectedRoute with no role restriction) and it
- * contains no create/edit/delete control: the rules live in the Admin-only
- * Alert Rules editor, opened from the button in this page's header.
- */
+/** Alerts & Insights Center page (Part 14). */
 
 const SEVERITIES = ["critical", "warning", "insight", "info"];
 
@@ -58,10 +36,7 @@ const SECTIONS = [
   { key: "activity", title: "Activity & Status" },
 ];
 
-/**
- * Section subtitle built from the live rules, so a saved threshold change in
- * the Alert Rules editor is reflected here without touching the page.
- */
+/** Section subtitle built from the live rules */
 const sectionHint = (key, rules) => {
   switch (key) {
     case "budget":
@@ -111,10 +86,7 @@ const formatFact = (key, value) => {
   return String(value);
 };
 
-/**
- * Primitive meta entries only: objects/arrays (totals, contributions) already
- * appear inside the message text, and `reason` duplicates the message too.
- */
+/** Primitive meta entries only */
 const factEntries = (meta) =>
   Object.entries(meta || {}).filter(
     ([key, value]) =>
@@ -125,10 +97,7 @@ const factEntries = (meta) =>
       typeof value !== "object"
   );
 
-/**
- * Alerts & insights center page (Part 14): severity + period filters,
- * session dismiss/restore and the four grouped sections.
- */
+/** Alerts & insights center page (Part 14) */
 function AlertsInsightsCenter() {
   const { isAdmin } = useAuth();
   const [showRules, setShowRules] = useState(false);
@@ -138,8 +107,7 @@ function AlertsInsightsCenter() {
   const [reloadKey, setReloadKey] = useState(0);
   const [severity, setSeverity] = useState("all");
   const [period, setPeriod] = useState("all");
-  // Session-scoped dismissals: never sent to the server (there is no write
-  // endpoint at all) - they simply hide cards until the session is restored.
+  // Session-scoped dismissals
   const [dismissed, setDismissed] = useState([]);
 
   useEffect(() => {
@@ -185,12 +153,10 @@ function AlertsInsightsCenter() {
     [allAlerts, dismissed]
   );
 
-  // Part 15: the live thresholds behind the alerts (falls back to the defaults
-  // while loading, so the hints never render blank).
+  // Part 15: the live thresholds behind the alerts
   const rules = data?.meta?.rules || DEFAULT_ALERT_RULES;
 
-  // Summary counts always describe what is currently visible (after dismissals),
-  // so the tiles can never disagree with the cards below them.
+  // Summary counts always describe what is currently visible (after dismissals)
   const counts = useMemo(() => {
     const result = { total: 0, critical: 0, warning: 0, insight: 0, info: 0 };
 
@@ -202,8 +168,7 @@ function AlertsInsightsCenter() {
     return result;
   }, [activeAlerts]);
 
-  // periodKey null = "overall" fact (insights/activity) that always applies,
-  // so period filtering keeps those cards visible alongside the chosen period.
+  // periodKey null = "overall" fact (insights/activity) that always applies
   const matchesFilters = (alert) =>
     (severity === "all" || alert.severity === severity) &&
     (period === "all" || alert.periodKey === period || alert.periodKey === null);

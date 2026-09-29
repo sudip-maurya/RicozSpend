@@ -1,29 +1,15 @@
-/**
- * CSV parsing + validation for transaction import (Part 5).
- *
- * Dependency-free on purpose: the uploaded CSV is read as TEXT on the client
- * and posted as JSON ({ csv: "..." }), so no multer/file-upload middleware is
- * needed and the existing JSON + JWT flow stays intact.
- *
- * Supported header row (case-insensitive, extra spaces tolerated):
- *   Amount, Vendor, Category, Department, Date, Description (optional)
- * Supported date formats: DD/MM/YYYY (primary) and YYYY-MM-DD.
- */
+/** CSV parsing and validation for transaction imports. */
 
 const REQUIRED_HEADERS = ["amount", "vendor", "category", "department", "date"];
 const OPTIONAL_HEADERS = ["description"];
 const VALID_HEADERS = [...REQUIRED_HEADERS, ...OPTIONAL_HEADERS];
 
-const MAX_ROWS = 5000; // safety cap so one upload cannot flood the database
-const MAX_CSV_LENGTH = 2 * 1024 * 1024; // 2 MB of CSV text
+const MAX_ROWS = 5000;
+const MAX_CSV_LENGTH = 2 * 1024 * 1024;
 
 const cleanText = (value) => (typeof value === "string" ? value.trim() : "");
 
-/**
- * Parse a CSV string into rows of cell values.
- * Handles: quoted fields, commas/quotes inside quotes, CRLF/LF, blank rows
- * (they are kept so preview row numbers match the file - callers skip them).
- */
+/** Parse CSV string into rows and cells. */
 const parseCsv = (text) => {
   const rows = [];
   let row = [];
@@ -36,7 +22,7 @@ const parseCsv = (text) => {
     if (inQuotes) {
       if (char === '"') {
         if (text[i + 1] === '"') {
-          cell += '"'; // escaped quote inside a quoted field
+          cell += '"';
           i += 1;
         } else {
           inQuotes = false;
@@ -63,7 +49,6 @@ const parseCsv = (text) => {
     }
   }
 
-  // Final cell/row when the file does not end with a newline.
   if (cell !== "" || row.length > 0) {
     row.push(cell);
     rows.push(row);
@@ -72,11 +57,7 @@ const parseCsv = (text) => {
   return rows;
 };
 
-/**
- * Map the header row to column indexes. Accepts capitalisation/spacing
- * differences ("Vendor Name", " amount ", "DEPARTMENT"...).
- * @returns {{ columns: object, missing: string[] }}
- */
+/** Map header row names to column indices. */
 const mapHeaders = (headerRow) => {
   const columns = {};
   const unknown = [];
@@ -96,7 +77,7 @@ const mapHeaders = (headerRow) => {
   return { columns, missing, unknown };
 };
 
-/** Parse DD/MM/YYYY (primary) or YYYY-MM-DD into a UTC-midnight Date or null. */
+/** Parse DD/MM/YYYY or YYYY-MM-DD to UTC Date or null. */
 const parseCsvDate = (value) => {
   const text = cleanText(value);
 
@@ -117,7 +98,6 @@ const parseCsvDate = (value) => {
   month = Number(month);
   year = Number(year);
 
-  // Strict range check first, then a round-trip check so 31/02/2026 is invalid.
   if (month < 1 || month > 12 || day < 1 || day > 31) return null;
 
   const date = new Date(Date.UTC(year, month - 1, day));
@@ -132,15 +112,11 @@ const parseCsvDate = (value) => {
   return date;
 };
 
-/**
- * Validate one CSV row with the SAME rules as Part 4 (single-transaction).
- * @returns {{ errors: string[], data?: object }}
- */
+/** Validate single CSV row against transaction schema. */
 const validateRow = (cells, columns) => {
   const errors = [];
   const get = (name) => cleanText(cells[columns[name]]);
 
-  // Amount: required, numeric, > 0.
   const rawAmount = get("amount");
   if (rawAmount === "") {
     errors.push("Amount is required");
@@ -166,7 +142,6 @@ const validateRow = (cells, columns) => {
 
   if (errors.length > 0) return { errors };
 
-  // Values are NOT silently altered beyond trimming (done by `get`).
   return {
     errors,
     data: {
@@ -180,10 +155,7 @@ const validateRow = (cells, columns) => {
   };
 };
 
-/**
- * Deterministic duplicate key from real transaction fields
- * (description is optional, so it is deliberately excluded).
- */
+/** Generate unique key for transaction deduplication. */
 const buildDuplicateKey = (transaction) =>
   [
     cleanText(transaction.vendor).toLowerCase(),

@@ -1,16 +1,4 @@
-/**
- * Client-side verification for Part 2 (runs through vite's SSR build).
- *
- * It renders the exact same route tree as src/App.jsx with a MemoryRouter and
- * checks the behaviour that matters for authentication:
- *   - unauthenticated user cannot reach /dashboard or /profile (redirect to Login)
- *   - Viewer is redirected away from the Admin-only page
- *   - Admin can open the Admin-only page
- *   - Profile/Dashboard show the signed-in user's data
- *   - the stored session survives a refresh (authStorage round trip)
- *
- * Run with: npm run verify:frontend
- */
+/** Client-side verification for Part 2 (runs through vite's SSR build). */
 
 import { StrictMode } from "react";
 import { renderToString } from "react-dom/server";
@@ -158,9 +146,7 @@ const main = () => {
   check("Signup page offers no Admin role selector", !signupHtml.includes('value="Admin"'));
 
   // ------------------------------------------- protected pages: not signed in
-  // NOTE: <Navigate> performs the redirect inside an effect, which does not run
-  // during server rendering, so the redirect *decision* is asserted through the
-  // pure helper and the render is asserted to contain no protected content.
+  // NOTE: <Navigate> redirects inside an effect, so SSR renders no protected content.
   section("11/14. Unauthenticated user is blocked and sent to Login");
 
   check(

@@ -1,11 +1,4 @@
-/**
- * Authentication session storage (Part 2).
- *
- * The JWT issued by the backend is kept in localStorage under a namespaced key
- * and attached to every API request by src/api/client.js. Keeping all storage
- * access in one place means logout really does clear everything, and that a
- * corrupted value can never crash the app.
- */
+/** Authentication session storage (Part 2). */
 
 const TOKEN_KEY = "ricozspend.auth.token";
 const USER_KEY = "ricozspend.auth.user";

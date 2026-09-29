@@ -1,23 +1,4 @@
-/**
- * Development / testing sample data for RicozSpend.
- *
- * Creates realistic spend transactions and budgets for one account through the
- * EXISTING APIs (/api/transactions and /api/budgets), so every record passes
- * the same validation, ownership and duplicate rules as a normal entry - no
- * mock layer, no shortcuts into the models for writes.
- *
- * Every sample transaction carries the marker "[sample]" in its description,
- * and the sample budgets use a fixed set of department/category slots, so the
- * data is clearly identifiable and can be removed again with --clean.
- *
- * Usage (from Server/):
- *   npm run seed:sample                       # seed for the default Admin
- *   npm run seed:sample -- --email=you@x.com  # seed for another account
- *   npm run seed:sample -- --force            # replace an earlier sample set
- *   npm run seed:sample:clean                 # remove the sample data again
- *
- * Safety: refuses to run when NODE_ENV=production unless --force is given.
- */
+// Development sample data seeder
 
 const path = require("path");
 const dotenv = require("dotenv");
@@ -51,11 +32,10 @@ const CLEAN_ONLY = hasFlag("clean");
 const FORCE = hasFlag("force");
 const TARGET_EMAIL = argValue("email") || process.env.SEED_EMAIL || "admin@example.com";
 
-/* ------------------------------------------------------------------ dates */
-
+// Dates
 const today = new Date();
 
-/** "YYYY-MM" for the current UTC month minus `offset` months. */
+// Current UTC month minus offset
 const monthKey = (offset) => {
   const date = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth() - offset, 1));
   return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}`;
@@ -65,12 +45,9 @@ const isoDate = (month, day) => `${month}-${String(day).padStart(2, "0")}`;
 
 const BUDGET_PERIOD = monthKey(0);
 
-/* ------------------------------------------------------- sample definitions
- * [monthOffset, day, vendor, category, department, amount, description]
- * Month 0 = the current month, so the default dashboard filter always has data.
- */
+// Sample transactions: [monthOffset, day, vendor, category, department, amount, description]
 const SAMPLE_TRANSACTIONS = [
-  // Current month - all departments/categories, small and high-value amounts.
+  // Current month
   [0, 3, "Dell Technologies", "IT", "IT", 450000, "Laptop rollout - 40 units"],
   [0, 7, "Microsoft", "IT", "IT", 85000, "Microsoft 365 annual licences"],
   [0, 9, "AWS", "IT", "IT", 65000, "Cloud hosting and storage"],
@@ -91,7 +68,7 @@ const SAMPLE_TRANSACTIONS = [
   [0, 10, "Tata Power", "Utilities", "Finance", 18000, "Electricity"],
   [0, 16, "Reliance Jio", "Utilities", "Finance", 6500, "Connectivity"],
   [0, 21, "IndiGo", "Travel", "Sales", 30000, "Client visit flights"],
-  // Previous months - monthly trend, insight history and unusual-spend history.
+  // Previous months
   [1, 8, "Dell Technologies", "IT", "IT", 220000, "Server refresh"],
   [1, 12, "Microsoft", "IT", "IT", 45000, "Licence renewal"],
   [1, 15, "Staples", "Office Supplies", "Operations", 22000, "Printer supplies"],
@@ -112,10 +89,7 @@ const SAMPLE_TRANSACTIONS = [
   [3, 25, "Canva", "Marketing", "Marketing", 9000, "Design tool seats"],
 ];
 
-/**
- * Budget slots for the current month. Combined with the sample spend these
- * produce every status: over, near and under budget.
- */
+// Budget slots for current month
 const SAMPLE_BUDGETS = [
   { department: "IT", category: "", amount: 700000 },
   { department: "Marketing", category: "", amount: 300000 },
@@ -125,7 +99,7 @@ const SAMPLE_BUDGETS = [
   { department: "Sales", category: "Travel", amount: 60000 },
 ];
 
-/* ---------------------------------------------------------------- helpers */
+// Helpers
 
 const api = async (method, endpoint, { body, token } = {}) => {
   const headers = { "Content-Type": "application/json" };
@@ -154,7 +128,7 @@ const orgOf = (user) => user?.organizationId || DEFAULT_ORGANIZATION_ID;
 const countSampleTransactions = (user) =>
   Transaction.countDocuments({ organizationId: orgOf(user), description: SAMPLE_PATTERN });
 
-/** Sample budgets currently stored in the workspace in the managed slots. */
+// Count sample budgets
 const countSampleBudgets = async (user) => {
   const slots = SAMPLE_BUDGETS.map((budget) => ({
     department: new RegExp(`^${budget.department}$`, "i"),
@@ -168,10 +142,7 @@ const countSampleBudgets = async (user) => {
   });
 };
 
-/**
- * Remove the sample set: transactions through the marker query, budgets through
- * the existing DELETE /api/budgets endpoint (Admin only).
- */
+// Clean sample data
 const cleanSampleData = async (user, token) => {
   const transactions = await Transaction.deleteMany({
     organizationId: orgOf(user),
@@ -195,7 +166,7 @@ const cleanSampleData = async (user, token) => {
   return { transactions: transactions.deletedCount, budgets };
 };
 
-/** Prints the current budget statuses so over/near/under are visible. */
+// Print budget statuses
 const printBudgetOutcomes = async (token) => {
   const comparison = await api("GET", `/api/budgets/comparison?period=${BUDGET_PERIOD}`, { token });
 
@@ -206,8 +177,6 @@ const printBudgetOutcomes = async (token) => {
     );
   }
 };
-
-/* ------------------------------------------------------------------- main */
 
 const main = async () => {
   if (process.env.NODE_ENV === "production" && !FORCE) {
@@ -260,8 +229,7 @@ const main = async () => {
     console.log(`Replaced the previous sample set: ${removed.transactions} transactions, ${removed.budgets} budgets removed.`);
   }
 
-  // Transactions through the existing API -> same validation/ownership as a
-  // normal entry, and they show up everywhere automatically.
+  // Create transactions via API
   const failures = [];
   let createdTransactions = 0;
 
@@ -288,7 +256,7 @@ const main = async () => {
   console.log(`Created ${createdTransactions}/${SAMPLE_TRANSACTIONS.length} sample transactions.`);
   failures.slice(0, 5).forEach((entry) => console.error(`   FAILED ${entry}`));
 
-  // Budgets through the existing API (Admin-only by design).
+  // Create budgets via API
   if (target.role === ROLES.ADMIN) {
     let createdBudgets = 0;
 
@@ -311,7 +279,7 @@ const main = async () => {
     console.log("Budgets skipped: only Admin accounts can manage budgets.");
   }
 
-  // Quick sanity output: what the dashboard now reports for this account.
+  // Verify dashboard summary
   const dashboard = await api("GET", "/api/dashboard/summary?range=month", { token });
   console.log(
     `Dashboard (this month): ${dashboard.data?.transactionCount} transactions, total ${dashboard.data?.totalSpend}, top vendor ${dashboard.data?.topVendor?.name ?? "n/a"}.`

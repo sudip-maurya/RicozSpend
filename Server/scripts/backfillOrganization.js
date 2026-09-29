@@ -1,16 +1,5 @@
-/**
- * Development / testing: backfill the shared workspace on existing documents.
- *
- * Every current account, transaction and budget belongs to the same RicozSpend
- * organization, so this sets organizationId to the default workspace wherever
- * it is missing. Nothing else is touched: no users, authentications, roles or
- * spend values are changed, and no documents are deleted.
- *
- * The script is idempotent - running it again changes nothing.
- *
- * Usage (from Server/):
- *   node scripts/backfillOrganization.js
- */
+// Backfill organizationId on legacy documents
+
 
 const path = require("path");
 const dotenv = require("dotenv");

@@ -23,20 +23,14 @@ import "../styles/analysis.css";
 
 const EMPTY_FILTERS = { from: "", to: "", category: "", department: "", vendor: "" };
 
-/**
- * Spend Analysis page (Part 6).
- * Server-side aggregations from /api/analytics/summary, always scoped to the
- * authenticated user, with date/category/department/vendor filters.
- */
+/** Spend Analysis page (Part 6). */
 function SpendAnalysis() {
   const [filters, setFilters] = useState(EMPTY_FILTERS);
   const [summary, setSummary] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Load the analysis whenever any filter changes. Same in-effect async +
-  // isActive guard pattern as the Dashboard (Part 3) and Transactions (Part 4).
-  // `filters` is replaced as a whole on every change, so depending on it is safe.
+  // Load the analysis whenever any filter changes.
   useEffect(() => {
     let isActive = true;
 

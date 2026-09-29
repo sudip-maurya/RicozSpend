@@ -1,25 +1,10 @@
-/**
- * Part 13 verification - Department Spending Patterns.
- *
- * Creates an ISOLATED workspace (organizationId "part13-verify-*") with known
- * transactions, then checks /api/analytics/department-spending end to end:
- * totals/counts/percentages, highest-spending department, average per
- * department, the date/department/category filters, the empty-data state,
- * Admin + Viewer shared READ access, the absence of any write route, and
- * regression smoke tests for the existing dashboard/transactions/analytics.
- *
- * Fixtures live only in the temporary org and are removed afterwards (also
- * on crash), so the default RicozSpend workspace is never touched.
- *
- * Run from Server/: npm run verify:departments
- */
+/** Part 13 verification - Department Spending Patterns. */
 const path = require("path");
 const dotenv = require("dotenv");
 
 dotenv.config({ path: path.join(__dirname, "..", ".env") });
 
-// P3-3: these scripts write/delete data - refuse to run against production
-// unless explicitly forced, so a staging .env can never nuke real data.
+// P3-3: these scripts write/delete data - refuse to run against production unless explicitly forced
 if (process.env.NODE_ENV === "production" && !process.argv.includes("--force")) {
   console.error("Refusing to run this verification script with NODE_ENV=production (pass --force to override).");
   process.exit(1);
@@ -80,13 +65,7 @@ const api = async (method, endpoint, { token, body } = {}) => {
 /** Department row by name from a department-spending payload. */
 const row = (data, name) => (data?.departments || []).find((entry) => entry.name === name);
 
-/**
- * Known dataset (absolute dates keep the date-filter assertions stable):
- *   IT        1000 + 500 = 1500 (75%), 2 txns - highest spender
- *   Marketing  300       =  300 (15%), 1 txn
- *   HR         200       =  200 (10%), 1 txn
- *   Total     2000, 4 txns, 3 departments, average 666.67
- */
+/** Known dataset (absolute dates keep the date-filter assertions stable) */
 const FIXTURES = [
   { date: "2026-09-05", department: "IT", category: "IT", amount: 1000 },
   { date: "2026-09-12", department: "IT", category: "IT", amount: 500 },

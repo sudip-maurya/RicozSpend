@@ -1,8 +1,7 @@
 import axios from 'axios'
 import { SESSION_EXPIRED_EVENT, clearSession, getToken } from '../utils/authStorage'
 
-// Base URL of the Express backend in Server/.
-// VITE_API_URL is supplied by Vercel for production and Client/.env.development for local development.
+// Base URL of the Express backend (VITE_API_URL; env.development locally).
 const configuredBaseURL = import.meta.env.VITE_API_URL?.trim().replace(/\/+$/, '')
 
 if (
@@ -39,8 +38,7 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-// Part 2: an expired/invalid token clears the stored session and tells the
-// AuthProvider, which redirects the user back to the Login page.
+// Part 2: an expired/invalid token clears the stored session (AuthProvider redirects to Login).
 api.interceptors.response.use(
   (response) => response,
   (error) => {

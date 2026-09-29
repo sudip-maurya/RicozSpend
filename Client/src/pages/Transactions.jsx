@@ -62,13 +62,7 @@ const EMPTY_DATA = {
   facets: { categories: [], departments: [], vendors: [] },
 };
 
-/**
- * Spend / Transactions page (Part 4).
- * Shared company dataset: search, filters, sorting and pagination over the
- * workspace's transactions, all handled server-side via /api/transactions.
- * RBAC: Viewer is read-only per the business deck - add/edit/delete/import
- * controls are hidden AND rejected by the backend with HTTP 403.
- */
+/** Spend / Transactions page (Part 4). */
 function Transactions() {
   const { isAdmin } = useAuth();
   const [filters, setFilters] = useState(DEFAULT_FILTERS);

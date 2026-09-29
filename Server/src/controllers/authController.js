@@ -1,11 +1,4 @@
-/**
- * Authentication controllers (Part 2).
- *
- * Guarantees applied to every response:
- *  - passwords are never returned (only `toSafeObject()` is used)
- *  - `role` is never taken from the request body on signup (always Viewer)
- *  - internal errors are logged server-side and returned as generic messages
- */
+/** Authentication controllers. */
 
 const User = require("../models/User");
 const { ROLES } = User;
@@ -35,16 +28,14 @@ const GENERIC_SERVER_ERROR = "Something went wrong. Please try again.";
 const RESEND_GENERIC_MESSAGE =
   "If an account with that email is waiting for verification, a new verification link has been sent.";
 
-/**
- * Issue a fresh verification token, store its hash + expiry on the user, and return the verification URL.
- */
+/** Issue verification token and return verification URL. */
 const issueVerificationToken = async (user) => {
   const { token, hash, expiresAt } = generateVerificationToken();
   await user.setEmailVerificationToken({ hash, expiresAt });
   return buildVerificationUrl(token);
 };
 
-/** Map a Mongoose ValidationError to the same shape as our manual validation. */
+/** Format Mongoose validation errors. */
 const mongooseValidationErrors = (error) => {
   const errors = {};
 
@@ -57,10 +48,7 @@ const mongooseValidationErrors = (error) => {
   return errors;
 };
 
-/**
- * POST /api/auth/signup
- * Public endpoint. Always creates a Viewer, never an Admin.
- */
+/** POST /api/auth/signup */
 const signup = async (req, res) => {
   const { name, email, password } = req.body || {};
   const { isValid, errors } = validateSignup({ name, email, password });
@@ -85,8 +73,6 @@ const signup = async (req, res) => {
       });
     }
 
-    // `role` is intentionally ignored even if the client sends one: public
-    // signup can only ever create a Viewer account.
     const user = await User.create({
       name: cleanName,
       email: cleanEmail,
@@ -106,7 +92,6 @@ const signup = async (req, res) => {
         emailSent: true,
         deliveryMode: isSmtpConfigured() ? "smtp" : "console",
         expiresIn: getVerificationExpiryLabel(),
-        // Dev convenience only (no SMTP + not production): lets you verify without a mail server.
         devVerificationUrl: canExposeDevLink() ? url : undefined,
       },
     });
@@ -141,10 +126,7 @@ const signup = async (req, res) => {
   }
 };
 
-/**
- * POST /api/auth/login
- * Verifies the bcrypt hash, then issues a JWT containing the user id + role.
- */
+/** POST /api/auth/login */
 const login = async (req, res) => {
   const { email, password } = req.body || {};
   const { isValid, errors } = validateLogin({ email, password });
@@ -160,7 +142,6 @@ const login = async (req, res) => {
     // `password` has `select: false`, so it must be asked for explicitly.
     const user = await User.findOne({ email: normalizeEmail(email) }).select("+password");
 
-    // Same message for "no such user" and "wrong password" on purpose.
     if (!user) {
       return res.status(401).json({ message: INVALID_CREDENTIALS_MESSAGE });
     }
@@ -171,7 +152,6 @@ const login = async (req, res) => {
       return res.status(401).json({ message: INVALID_CREDENTIALS_MESSAGE });
     }
 
-    // MVP RBAC: deactivated accounts cannot log in (missing field = active).
     if (user.isActive === false) {
       return res.status(403).json({
         code: "ACCOUNT_DEACTIVATED",
@@ -179,7 +159,6 @@ const login = async (req, res) => {
       });
     }
 
-    // Part 2 - email verification gate (REQUIRE_EMAIL_VERIFICATION=false disables it).
     if (isVerificationRequired() && !user.isEmailVerified) {
       return res.status(403).json({
         code: "EMAIL_NOT_VERIFIED",
@@ -207,19 +186,13 @@ const login = async (req, res) => {
   }
 };
 
-/**
- * GET /api/auth/me (protected)
- * Returns the safe profile of the currently authenticated user.
- */
+/** GET /api/auth/me */
 const getCurrentUser = async (req, res) =>
   res.json({
     user: req.user.toSafeObject(),
   });
 
-/**
- * POST /api/auth/verify-email  { token }
- * Consumes a one-time verification token (from the emailed link).
- */
+/** POST /api/auth/verify-email */
 const verifyEmail = async (req, res) => {
   const { token } = req.body || {};
 
@@ -272,10 +245,7 @@ const verifyEmail = async (req, res) => {
   }
 };
 
-/**
- * POST /api/auth/resend-verification  { email }
- * Issues a new verification link (throttled) without leaking whether an account exists.
- */
+/** POST /api/auth/resend-verification */
 const resendVerification = async (req, res) => {
   const { email } = req.body || {};
   const cleanEmail = normalizeEmail(email);
@@ -291,7 +261,6 @@ const resendVerification = async (req, res) => {
   try {
     const user = await User.findOne({ email: cleanEmail }).select("+emailVerificationSentAt");
 
-    // Same answer for unknown / already-verified accounts (no account enumeration).
     if (!user || user.isEmailVerified) {
       return res.json({ code: "RESEND_ACCEPTED", message: RESEND_GENERIC_MESSAGE });
     }
@@ -339,12 +308,7 @@ const resendVerification = async (req, res) => {
   }
 };
 
-/**
- * POST /api/auth/logout (protected)
- * Revokes the current JWT server-side by recording its `jti` in the
- * RevokedToken denylist (P1-5); the auth middleware rejects it afterwards.
- * The client still discards its own copy of the token.
- */
+/** POST /api/auth/logout */
 const logout = async (req, res) => {
   try {
     const decoded = verifyToken(req.token);

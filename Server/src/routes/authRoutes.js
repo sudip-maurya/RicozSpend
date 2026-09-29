@@ -1,7 +1,4 @@
-/**
- * Authentication routes (Part 2).
- * Mounted at /api/auth from src/app.js
- */
+/** Authentication routes. */
 
 const express = require("express");
 
@@ -17,15 +14,13 @@ const { protect } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-// Public
+// Public routes
 router.post("/signup", signup);
 router.post("/login", login);
-
-// Part 2 - email verification (public: the token is the credential)
 router.post("/verify-email", verifyEmail);
 router.post("/resend-verification", resendVerification);
 
-// Protected - requires a valid JWT
+// Protected routes
 router.get("/me", protect, getCurrentUser);
 router.post("/logout", protect, logout);
 

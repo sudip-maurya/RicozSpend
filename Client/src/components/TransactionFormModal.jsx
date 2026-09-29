@@ -4,15 +4,7 @@ import { createTransaction, updateTransaction } from "../services/transactionSer
 import { todayInputValue, toDateInputValue } from "../utils/format";
 import "./../styles/transactions.css";
 
-/**
- * Add / Edit transaction modal (Part 4).
- * Opened without `transaction` -> creates a new record (date defaults to today).
- * Opened with `transaction`    -> edits that record (PUT to its id).
- *
- * The parent gives this component a `key` per target transaction, so it is
- * always freshly initialised - no state-reset effect is needed.
- * Validation runs on submit; failed fields show inline messages.
- */
+/** Add / Edit transaction modal (Part 4). */
 function TransactionFormModal({ transaction, facets = { categories: [], departments: [] }, onClose, onSaved }) {
   const isEdit = Boolean(transaction?.id);
 

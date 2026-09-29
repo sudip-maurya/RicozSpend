@@ -1,21 +1,11 @@
-/**
- * Alert Rules API calls (Part 15 - Alerts Center -> Alert Rules editor).
- *
- * Both endpoints are Admin-only: the backend answers HTTP 403 for Viewers, so
- * a Viewer can read every alert but can never change the thresholds.
- * Requests go through src/api/client.js, which attaches the JWT.
- */
+/** Alert Rules API calls (Part 15 - Alerts Center -> Alert Rules editor). */
 
 import api from "../api/client";
 import { getErrorMessage, getFieldErrors } from "../utils/apiError";
 
 const BASE = "/api/alert-rules";
 
-/**
- * GET /api/alert-rules (Admin only)
- * Returns the effective rules, the defaults, the editable field metadata and
- * whether this workspace has saved its own values.
- */
+/** GET /api/alert-rules (Admin only) */
 export const fetchAlertRules = async () => {
   try {
     const { data } = await api.get(BASE);
@@ -27,11 +17,7 @@ export const fetchAlertRules = async () => {
   }
 };
 
-/**
- * PUT /api/alert-rules (Admin only)
- * Saves the five percentages. A 400 answers with per-field messages that the
- * form shows next to the offending input.
- */
+/** PUT /api/alert-rules (Admin only) Saves the five percentages. */
 export const updateAlertRules = async (rules) => {
   try {
     const { data } = await api.put(BASE, rules);

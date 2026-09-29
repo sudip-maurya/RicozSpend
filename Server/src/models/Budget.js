@@ -1,15 +1,6 @@
 const mongoose = require("mongoose");
 
-/**
- * Budget model (Budget vs Actual).
- *
- * DATA OWNERSHIP = WORKSPACE: one planned-spend record per
- * organization + department + category + period, visible to every account in
- * the workspace. Actual spend always comes from the existing Transaction
- * collection - budgets never store or duplicate it. `user`/`createdBy` are
- * audit information (who created it), never read filters.
- * Ownership comes from the workspace (never from the request body).
- */
+/** Budget model for planned spend. */
 const budgetSchema = new mongoose.Schema(
   {
     user: {
@@ -42,7 +33,7 @@ const budgetSchema = new mongoose.Schema(
         message: "Budget amount must be a number greater than 0.",
       },
     },
-    // Calendar month the budget applies to, stored as "YYYY-MM".
+    // Stored as "YYYY-MM"
     period: {
       type: String,
       required: [true, "Budget period is required."],
@@ -65,16 +56,14 @@ const budgetSchema = new mongoose.Schema(
         ret.id = ret._id.toString();
         delete ret._id;
         delete ret.__v;
-        delete ret.user; // never expose which account owns the record
+        delete ret.user;
         return ret;
       },
     },
   }
 );
 
-// One budget per organization + department + category + period
-// (case-insensitive, so "technology" and "Technology" cannot create two
-// budgets for the same slot).
+// Unique compound index
 budgetSchema.index(
   { organizationId: 1, department: 1, category: 1, period: 1 },
   { unique: true, collation: { locale: "en", strength: 2 } }

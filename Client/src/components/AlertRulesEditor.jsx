@@ -3,25 +3,7 @@ import { useEffect, useState } from "react";
 import { fetchAlertRules, updateAlertRules } from "../services/alertRulesService";
 import { formatDateTime } from "../utils/format";
 
-/**
- * Alert Rules editor - the configuration
- * UI itself is unchanged).
- *
- * Edits the five percentage thresholds the Alerts & Insights system uses
- * (budget warning / critical / exceeded, unusual spending, spending increase).
- * Values are read from and saved to the database through GET/PUT
- * /api/alert-rules, which is Admin-only: the parent only mounts this editor for
- * Admin accounts, Viewers keep read-only access to the alerts themselves, and
- * the backend answers 403 for /api/alert-rules regardless.
- *
- * The editable metadata (labels, units, ranges) comes from the API, so the
- * form can never drift from the server-side rules. Validation mirrors the
- * backend so an Admin gets instant feedback; the server still validates
- * everything again on save.
- *
- * `onSaved` (optional) runs after a successful save so the parent can refresh
- * the alerts it displays with the new thresholds.
- */
+/** Alert Rules editor - the configuration UI. */
 
 /** Percentage parsing that accepts the string coming from a number input. */
 const toNumber = (value) => {
@@ -29,10 +11,7 @@ const toNumber = (value) => {
   return text ? Number(text) : Number.NaN;
 };
 
-/**
- * Mirrors validateAlertRules() in Server/src/utils/alertRules.js so the form
- * can reject invalid input before the round-trip.
- */
+/** Mirrors validateAlertRules() in Server/src/utils/alertRules.js. */
 const validateRulesForm = (form, fields) => {
   const errors = {};
   const values = {};

@@ -8,7 +8,7 @@ const {
   NAME_MAX_LENGTH,
 } = require("../utils/validation");
 
-/** Application roles (Part 2: Admin / Viewer only). */
+/** User roles. */
 const ROLES = {
   ADMIN: "Admin",
   VIEWER: "Viewer",
@@ -16,13 +16,10 @@ const ROLES = {
 
 const ROLE_VALUES = Object.values(ROLES);
 
-/** bcrypt cost factor used when hashing passwords. */
+/** Password hash cost factor. */
 const SALT_ROUNDS = 10;
 
-/**
- * User document stored in the existing MongoDB Atlas database.
- * Field names follow the Part 2 spec: name, email, password, role + timestamps.
- */
+/** User schema. */
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -41,7 +38,7 @@ const userSchema = new mongoose.Schema(
       match: [EMAIL_PATTERN, "Please enter a valid email address."],
     },
     password: {
-      // Stored as a bcrypt hash only. `select: false` keeps it out of normal queries.
+      // Excluded by default from queries
       type: String,
       required: [true, "Password is required."],
       minlength: [PASSWORD_MIN_LENGTH, `Password must be at least ${PASSWORD_MIN_LENGTH} characters long.`],
@@ -56,25 +53,18 @@ const userSchema = new mongoose.Schema(
       default: ROLES.VIEWER,
       required: true,
     },
-    /**
-     * Workspace the account belongs to. Ownership of spend data is the
-     * workspace (DATA OWNERSHIP = COMPANY/WORKSPACE); the user id on a
-     * record is audit information only (AUDIT = CREATED BY USER).
-     * Single-workspace deployment: every account shares the default org, and
-     * every spend query is filtered by it so no company can see another's data.
-     */
+    // Organization identifier
     organizationId: {
       type: String,
       trim: true,
       default: "ricozspend-default",
       index: true,
     },
-    // Part 2 - email verification
     isEmailVerified: {
       type: Boolean,
       default: false,
     },
-    /** SHA-256 hash of the verification token (the raw token only lives in the email link). */
+    // SHA-256 token hash
     emailVerificationTokenHash: {
       type: String,
       select: false,
@@ -83,16 +73,12 @@ const userSchema = new mongoose.Schema(
       type: Date,
       select: false,
     },
-    /** Used to throttle "resend verification email" requests. */
+    // Throttling timestamp
     emailVerificationSentAt: {
       type: Date,
       select: false,
     },
-    /**
-     * Account status for Admin user management (MVP).
-     * true = active (can log in / call APIs), false = deactivated (blocked).
-     * Additive only - existing documents without this field are treated as active.
-     */
+    // Account active status
     isActive: {
       type: Boolean,
       default: true,
@@ -103,7 +89,7 @@ const userSchema = new mongoose.Schema(
     versionKey: false,
     toJSON: {
       transform(_doc, ret) {
-        // Never leak the password hash, whatever the caller asked to select.
+        // Exclude password from serialized output
         delete ret.password;
         return ret;
       },
@@ -111,7 +97,7 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-/** Hash the password with bcrypt whenever it is set/changed. */
+/** Hash password before save. */
 userSchema.pre("save", async function hashPassword() {
   if (!this.isModified("password")) {
     return;
@@ -121,7 +107,7 @@ userSchema.pre("save", async function hashPassword() {
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-/** Compare a plain-text candidate password against the stored bcrypt hash. */
+/** Compare password against stored hash. */
 userSchema.methods.matchPassword = function matchPassword(candidatePassword) {
   if (!this.password) {
     return Promise.resolve(false);
@@ -130,7 +116,7 @@ userSchema.methods.matchPassword = function matchPassword(candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-/** Whitelisted, safe representation used by every auth API response. */
+/** Safe user representation for API responses. */
 userSchema.methods.toSafeObject = function toSafeObject() {
   return {
     id: String(this._id),
@@ -139,14 +125,13 @@ userSchema.methods.toSafeObject = function toSafeObject() {
     role: this.role,
     organizationId: this.organizationId || "ricozspend-default",
     isEmailVerified: Boolean(this.isEmailVerified),
-    // Missing (legacy) documents are treated as active.
     isActive: this.isActive !== false,
     createdAt: this.createdAt,
     updatedAt: this.updatedAt,
   };
 };
 
-/** Store a new verification token hash + expiry and remember when it was sent. */
+/** Set email verification token. */
 userSchema.methods.setEmailVerificationToken = function setEmailVerificationToken({ hash, expiresAt }) {
   this.emailVerificationTokenHash = hash;
   this.emailVerificationExpiresAt = expiresAt;
@@ -155,7 +140,7 @@ userSchema.methods.setEmailVerificationToken = function setEmailVerificationToke
   return this.save();
 };
 
-/** Mark the email as verified and remove the one-time token. */
+/** Mark email as verified. */
 userSchema.methods.markEmailVerified = function markEmailVerified() {
   this.isEmailVerified = true;
   this.emailVerificationTokenHash = undefined;

@@ -1,7 +1,4 @@
-/**
- * Turns axios errors into short, user-friendly messages.
- * Raw backend stack traces / driver errors are never shown in the UI.
- */
+/** Turns axios errors into short, user-friendly messages. */
 
 export const getStatusCode = (error) => error?.response?.status ?? null;
 

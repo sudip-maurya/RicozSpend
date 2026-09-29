@@ -1,7 +1,4 @@
-/**
- * Authentication API calls (Part 2).
- * All requests go through src/api/client.js, which attaches the JWT.
- */
+/** Authentication API calls (Part 2). All requests go through src/api/client.js, which attaches the JWT. */
 
 import api from "../api/client";
 
@@ -21,10 +18,6 @@ export const verifyEmail = (token) => api.post(`${BASE}/verify-email`, { token }
 /** Ask the backend to send a new verification email. */
 export const resendVerification = (email) => api.post(`${BASE}/resend-verification`, { email });
 
-/**
- * POST /api/auth/logout (P1-5)
- * Revokes the current JWT server-side. Best-effort: the client always clears
- * its own session even if this request fails (offline logout still works).
- */
+/** POST /api/auth/logout (P1-5) Revokes the current JWT server-side. */
 export const logout = () => api.post(`${BASE}/logout`);
 

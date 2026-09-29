@@ -1,23 +1,10 @@
-/**
- * Analytics controllers (Part 6 - spend analysis & charts).
- *
- * One authenticated endpoint powers the analysis page. Everything is computed
- * with MongoDB aggregations (same approach as the Part 3 dashboard), using the
- * shared read scope (utils/spendScope): every authenticated user reads the
- * workspace's transactions - Admin and Viewer see the same numbers.
- *
- * GET /api/analytics/summary?from=&to=&category=&department=&vendor=
- */
+/** Spend analysis and aggregations controller. */
 
 const Transaction = require("../models/Transaction");
 const AlertRule = require("../models/AlertRule");
-// Reuse the Part 3 date-range presets so the dashboard's own filter drives the
-// insights (no second filtering system).
 const { resolveRange: resolvePresetRange } = require("./dashboardController");
-// Same read scope rule as the dashboard: the shared workspace scope.
 const { spendScope } = require("../utils/spendScope");
 const { shapeGroups } = require("../utils/aggregation");
-// Part 15: the alert thresholds are Admin-configurable (Alerts Center -> Alert Rules editor).
 const {
   DEFAULT_ALERT_RULES,
   unusualMultiplierFor,
@@ -26,23 +13,19 @@ const {
 const DAY_MS = 24 * 60 * 60 * 1000;
 const TOP_VENDOR_LIMIT = 5;
 const GENERIC_SERVER_ERROR = "Something went wrong. Please try again.";
-/** Part 8: only categories worth mentioning, so V1 output stays concise. */
 const MIN_CONTRIBUTION_SHARE = 5;
 const MAX_CONTRIBUTIONS = 5;
 const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 const cleanText = (value) => (typeof value === "string" ? value.trim() : "");
 
-/** Escape user input before building a case-insensitive RegExp. */
+/** Escape user input for RegExp. */
 const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-/** Exact, case-insensitive match for category/department/vendor filters. */
+/** Case-insensitive exact match regex. */
 const exactFilter = (value) => new RegExp(`^${escapeRegex(value)}$`, "i");
 
-/**
- * Resolve the inclusive [from, to] UTC window from YYYY-MM-DD strings.
- * Returns an `error` string for invalid input, or null bounds for all time.
- */
+/** Resolve inclusive [from, to] UTC window from query. */
 const resolveDateRange = (query) => {
   const from = query.from ? new Date(`${cleanText(query.from)}T00:00:00.000Z`) : null;
   const to = query.to ? new Date(`${cleanText(query.to)}T00:00:00.000Z`) : null;
@@ -51,20 +34,12 @@ const resolveDateRange = (query) => {
     return { error: "Invalid date range. Use YYYY-MM-DD for from/to." };
   }
 
-  // "to" is inclusive -> extend to the end of that day (same rule as Part 4).
   const toEnd = to ? new Date(to.getTime() + DAY_MS - 1) : null;
 
   return { from, to: toEnd };
 };
 
-/**
- * Build the $match stage for the current read scope + active filters.
- *
- * `toOperator` lets callers choose how the upper date bound is applied:
- * Part 6 passes an inclusive end-of-day (-> $lte), while Part 8 passes the
- * Part 3 range presets whose `to` is the exclusive next midnight (-> $lt).
- * The default keeps Part 6 behaviour exactly as it was.
- */
+/** Build $match stage for read scope and active filters. */
 const buildMatch = (scope, range, query, toOperator = "$lte") => {
   const match = { ...scope };
 
@@ -86,13 +61,7 @@ const buildMatch = (scope, range, query, toOperator = "$lte") => {
   return match;
 };
 
-/* ------------------------------------------------------------ main handler */
-
-/**
- * GET /api/analytics/summary
- * Returns KPIs + category/department/vendor/monthly aggregations for the
- * authenticated user, honouring the from/to/category/department/vendor filters.
- */
+/** GET /api/analytics/summary */
 const getAnalyticsSummary = async (req, res) => {
   try {
     const range = resolveDateRange(req.query);
@@ -107,8 +76,7 @@ const getAnalyticsSummary = async (req, res) => {
     };
 
     const match = buildMatch(spendScope(req.user), range, req.query);
-    // Filter dropdown options: the scoped distinct values, independent of the
-    // active filters, so the lists stay stable while filtering.
+    // Distinct filter options
     const scope = spendScope(req.user);
 
     const [totals, categories, departments, vendors, monthly, facetCategories, facetDepartments, facetVendors] =
@@ -152,7 +120,6 @@ const getAnalyticsSummary = async (req, res) => {
               count: { $sum: 1 },
             },
           },
-          // Chronological order by year then month (never alphabetical names).
           { $sort: { "_id.year": 1, "_id.month": 1 } },
         ]),
         Transaction.distinct("category", scope),
@@ -179,7 +146,6 @@ const getAnalyticsSummary = async (req, res) => {
       kpis: {
         totalSpend,
         transactionCount,
-        // Safe for zero transactions: dividing by 0 would produce NaN.
         averageTransaction:
           transactionCount > 0 ? Number((totalSpend / transactionCount).toFixed(2)) : 0,
         topVendor: vendorGroups[0] || null,
@@ -206,31 +172,18 @@ const getAnalyticsSummary = async (req, res) => {
   }
 };
 
-/* ------------------------------------------- Part 7 - unusual spending ----- */
-
-/** Business-friendly reason shown with every unusual transaction. */
 const UNUSUAL_REASON = "Transaction is significantly higher than the normal transaction average.";
 
-/**
- * Core Part 7 computation, extracted so the Part 14 Alerts & Insights Center
- * can reuse the exact same rule (average x multiplier) instead of duplicating
- * it. `scope` is the caller's spendScope; `options.multiplier` comes from the
- * Admin-configured "Unusual Spending" rule (default: 50% above average = 1.5x).
- * Returns the same payload the endpoint returns.
- */
+/** Compute unusual spending above average threshold. */
 const computeUnusualSpending = async (scope, options = {}) => {
   const multiplier =
     Number.isFinite(options.multiplier) && options.multiplier > 0
       ? options.multiplier
       : unusualMultiplierFor(DEFAULT_ALERT_RULES);
 
-  // amount > 0 keeps zero/invalid rows (if any ever reach the DB) out of the
-  // average so they can never skew or break the calculation.
   const match = { ...scope, amount: { $gt: 0 } };
 
-  // P2-8: optional date window so the dashboard can scope unusual spending to
-  // its selected range. Accepts the dashboard presets (exclusive upper bound)
-  // or explicit from/to dates (inclusive), via resolveInsightRange.
+  // Optional date window
   if (options.from || options.to) {
     match.date = {};
     if (options.from) match.date.$gte = options.from;
@@ -249,7 +202,6 @@ const computeUnusualSpending = async (scope, options = {}) => {
   ]);
 
   const transactionCount = totals?.transactionCount || 0;
-  // No transactions -> average 0 / threshold 0 / no alerts (safe defaults).
   const averageTransaction = totals ? Number(totals.averageAmount.toFixed(2)) : 0;
   const threshold = Number((averageTransaction * multiplier).toFixed(2));
 
@@ -272,15 +224,7 @@ const computeUnusualSpending = async (scope, options = {}) => {
   };
 };
 
-/**
- * GET /api/analytics/unusual-spending
- *
- * Basic rule-based alerts (no AI/statistics): average transaction amount of the
- * workspace's transactions x the Admin-configured multiplier (default 1.5 =
- * "50% above average"); every transaction strictly above that threshold is an
- * alert. Computed on demand from the existing transactions collection - no
- * extra collection and no stored state.
- */
+/** GET /api/analytics/unusual-spending */
 const getUnusualSpending = async (req, res) => {
   try {
     const scope = spendScope(req.user);
@@ -304,17 +248,7 @@ const getUnusualSpending = async (req, res) => {
   }
 };
 
-/* ------------------------------------ Part 8 - automatic spend insights --- */
-
-/**
- * Resolve the analysis window for the insights endpoint.
- *
- * 1. Explicit `from`/`to` (YYYY-MM-DD) -> same inclusive rule as Part 6 ($lte).
- * 2. A Part 3 dashboard preset (`range=month|week|...|custom`) -> the dashboard's
- *    own filter is reused, so insights never build a second filtering system
- *    (`to` there is the exclusive next midnight -> $lt).
- * 3. Nothing at all -> every available transaction.
- */
+/** Resolve analysis date window for insights. */
 const resolveInsightRange = (query) => {
   const hasExplicitDates = Boolean(cleanText(query.from) || cleanText(query.to));
 
@@ -334,7 +268,6 @@ const resolveInsightRange = (query) => {
   return { from: null, to: null, range: null, toOperator: "$lte" };
 };
 
-/** 18.4 -> 18.4, 18 -> 18 (never "18.0"). */
 const roundPercent = (value) => Number(value.toFixed(1));
 
 /** "2026-09" -> "Sep 2026". */
@@ -351,36 +284,13 @@ const previousMonthKey = (key) => {
   return `${prevYear}-${String(prevMonth).padStart(2, "0")}`;
 };
 
-/**
- * Core Part 8 spend-insights computation (the payload behind
- * GET /api/analytics/insights), extracted so the Part 14 Alerts & Insights
- * Center reuses the exact same aggregations instead of duplicating them.
- * Returns the payload without `filters` (the HTTP wrapper shapes those from
- * the same `resolved` object).
- *
- * Automatic spend insights built only from deterministic rules over the
- * user's real transactions - no AI, no predictions, no stored state:
- *
- *  - month over month: latest month with data vs the calendar month before it
- *    (the comparison deliberately ignores the date filter, otherwise the
- *    default "This Month" dashboard view could never compare anything, but it
- *    still honours the category/department/vendor filters)
- *  - top category / vendor / department by total spend
- *  - category contribution: share of total spend for categories >= 5%
- *  - transaction activity: how many transactions are in the selected period
- *
- * `options.increaseAlertThreshold` is the Admin-configured "Spending Increase"
- * percentage (Part 15). It is reported additively on `monthComparison`
- * (alertThresholdPercentage / crossesAlertThreshold); `direction` keeps its
- * factual meaning, so the insight cards are unaffected.
- */
+/** Core Part 8 spend-insights computation (the payload behind GET /api/analytics/insights) */
 const computeSpendInsights = async (scope, resolved, query, options = {}) => {
   const increaseAlertThreshold = Number.isFinite(options.increaseAlertThreshold)
     ? options.increaseAlertThreshold
     : DEFAULT_ALERT_RULES.spendingIncrease;
 
   const match = buildMatch(scope, resolved, query, resolved.toOperator);
-  // Same filters, no date window (see the month-over-month note above).
   const comparisonMatch = buildMatch(scope, { from: null, to: null }, query);
 
   const [totals, categories, departments, vendors, monthly] = await Promise.all([
@@ -407,7 +317,6 @@ const computeSpendInsights = async (scope, resolved, query, options = {}) => {
       { $match: comparisonMatch },
       {
         $group: {
-          // P1-4: pin month grouping to UTC (was server-local timezone).
           _id: {
             year: { $year: { date: "$date", timezone: "UTC" } },
             month: { $month: { date: "$date", timezone: "UTC" } },
@@ -418,7 +327,6 @@ const computeSpendInsights = async (scope, resolved, query, options = {}) => {
       },
     ]),
   ]);
-
 
   const totalRow = totals[0] || { totalSpend: 0, count: 0 };
   const totalSpend = Number(totalRow.totalSpend.toFixed(2));
@@ -432,7 +340,7 @@ const computeSpendInsights = async (scope, resolved, query, options = {}) => {
   const topVendor = vendorGroups[0] || null;
   const topDepartment = departmentGroups[0] || null;
 
-  /* --- Insight 1: latest month with data vs the month before it --------- */
+  // Month-over-month comparison
   const monthTotals = new Map(
     monthly.map((row) => [
       `${row._id.year}-${String(row._id.month).padStart(2, "0")}`,
@@ -461,8 +369,6 @@ const computeSpendInsights = async (scope, resolved, query, options = {}) => {
     monthComparison.currentSpend = current.total;
     monthComparison.previousSpend = previous ? previous.total : null;
 
-    // A real comparison only exists when the immediately previous calendar
-    // month actually has spending. Nothing is invented otherwise.
     if (previous && previous.total > 0) {
       const change = roundPercent(((current.total - previous.total) / previous.total) * 100);
       monthComparison.changePercentage = change;
@@ -470,15 +376,14 @@ const computeSpendInsights = async (scope, resolved, query, options = {}) => {
     }
   }
 
-  // Part 15: how the Admin-configured "Spending Increase" rule judges the trend
-  // (an increase below the configured percentage is informative, not an alert).
+  // Alert threshold comparison
   monthComparison.alertThresholdPercentage = increaseAlertThreshold;
   monthComparison.crossesAlertThreshold =
     monthComparison.direction === "increase" &&
     Number.isFinite(monthComparison.changePercentage) &&
     monthComparison.changePercentage >= increaseAlertThreshold;
 
-  /* --- Insight 5: how much of the total each major category represents -- */
+  // Category contributions
   const categoryContributions = categoryGroups
     .filter((group) => totalSpend > 0 && (group.total / totalSpend) * 100 >= MIN_CONTRIBUTION_SHARE)
     .slice(0, MAX_CONTRIBUTIONS)
@@ -496,7 +401,7 @@ const computeSpendInsights = async (scope, resolved, query, options = {}) => {
       transactionCount > 0 ? Number((totalSpend / transactionCount).toFixed(2)) : 0,
   };
 
-  /* --- Ordered insight cards (empty when there is nothing to analyse) --- */
+  // Ordered insight cards
   const insights = [];
 
   if (transactionCount > 0) {
@@ -586,12 +491,7 @@ const computeSpendInsights = async (scope, resolved, query, options = {}) => {
   };
 };
 
-/**
- * GET /api/analytics/insights?range=&from=&to=&category=&department=&vendor=
- * Thin HTTP wrapper: range validation + response shaping around the shared
- * computeSpendInsights() helper (also used by the Part 14 Alerts & Insights
- * Center).
- */
+/** GET /api/analytics/insights */
 const getSpendInsights = async (req, res) => {
   try {
     const resolved = resolveInsightRange(req.query);
@@ -600,7 +500,6 @@ const getSpendInsights = async (req, res) => {
     }
 
     const scope = spendScope(req.user);
-    // Part 15: the month-over-month alert threshold is Admin-configurable.
     const rules = await AlertRule.findEffectiveRules(scope.organizationId);
 
     const payload = await computeSpendInsights(scope, resolved, req.query, {
@@ -624,20 +523,7 @@ const getSpendInsights = async (req, res) => {
   }
 };
 
-/* ------------------------------------------------ Part 9 vendor comparison */
-
-/**
- * GET /api/analytics/vendor-comparison?from=&to=&category=&department=&vendor=
- *
- * Descriptive vendor comparison for the authenticated user: per vendor spend,
- * transaction count and share of total spend. Purely factual - no ranking
- * language, no recommendations.
- *
- * Reuses the exact same date window + filter helpers as the rest of the
- * analytics area (no second filtering system) and is grouped by the existing
- * `vendor` field. Vendors are sorted by total spend descending, so the
- * highest-spending vendor always comes first.
- */
+/** GET /api/analytics/vendor-comparison */
 const getVendorComparison = async (req, res) => {
   try {
     const range = resolveDateRange(req.query);
@@ -657,7 +543,7 @@ const getVendorComparison = async (req, res) => {
             transactionCount: { $sum: 1 },
           },
         },
-        // Highest spend first; ties resolved by name so results are reproducible.
+        // Sort by spend descending
         { $sort: { totalSpend: -1, _id: 1 } },
       ]),
       Transaction.aggregate([
@@ -683,7 +569,6 @@ const getVendorComparison = async (req, res) => {
         name: row._id || "Unknown",
         totalSpend: vendorSpend,
         transactionCount: row.transactionCount,
-        // Zero total spend (no matching rows) must not divide by zero.
         percentage: totalSpend > 0 ? Number(((vendorSpend / totalSpend) * 100).toFixed(2)) : 0,
       };
     });
@@ -707,26 +592,7 @@ const getVendorComparison = async (req, res) => {
   }
 };
 
-/* ------------------------------------- Part 10 department spending patterns */
-
-/**
- * GET /api/analytics/department-spending?from=&to=&category=&department=&vendor=
- *
- * Descriptive department spending for the authenticated user: per department
- * total spend, transaction count and share of total spend. Purely factual -
- * no ranking language, no recommendations.
- *
- * Mirrors the Part 9 vendor comparison, grouped by the existing `department`
- * (cost centre) field instead of `vendor`. Reuses the exact same date window
- * + filter helpers (no second filtering system). Departments are sorted by
- * total spend descending, so the highest-spending department comes first.
- *
- * Part 13 additionally returns `highestSpendingDepartment` and
- * `averageSpendPerDepartment`, both derived from the same aggregation below
- * (no extra query, no second calculation path) for the dedicated Department
- * Spending Patterns page. Additive fields only - Part 10 consumers keep
- * working unchanged.
- */
+/** GET /api/analytics/department-spending */
 const getDepartmentSpending = async (req, res) => {
   try {
     const range = resolveDateRange(req.query);
@@ -746,7 +612,7 @@ const getDepartmentSpending = async (req, res) => {
             transactionCount: { $sum: 1 },
           },
         },
-        // Highest spend first; ties resolved by name so results are reproducible.
+        // Sort by spend descending
         { $sort: { totalSpend: -1, _id: 1 } },
       ]),
       Transaction.aggregate([
@@ -772,16 +638,11 @@ const getDepartmentSpending = async (req, res) => {
         name: row._id || "Unknown",
         totalSpend: departmentSpend,
         transactionCount: row.transactionCount,
-        // Zero total spend (no matching rows) must not divide by zero.
         percentage: totalSpend > 0 ? Number(((departmentSpend / totalSpend) * 100).toFixed(2)) : 0,
       };
     });
 
-    // Part 13: summary stats for the Department Spending Patterns page.
-    // Rows are already sorted by spend descending, so the first row IS the
-    // highest-spending department; the average divides the same total by the
-    // department count. Zero departments -> null / 0 (never NaN), and both
-    // values come from the aggregations above (no second query).
+    // Department summary statistics
     const highestSpendingDepartment = departments.length > 0 ? departments[0] : null;
     const averageSpendPerDepartment =
       departments.length > 0 ? Number((totalSpend / departments.length).toFixed(2)) : 0;

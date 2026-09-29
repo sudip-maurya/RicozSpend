@@ -1,16 +1,8 @@
-/**
- * Transaction API service (Part 4).
- * Thin wrappers around the shared axios client (src/api/client.js) which
- * already attaches the JWT and handles expired sessions.
- */
+/** Transaction API service (Part 4). */
 import api from "../api/client";
 import { getErrorMessage, getFieldErrors } from "../utils/apiError";
 
-/**
- * GET /api/transactions
- * @param {object} query { search, category, department, vendor, minAmount, maxAmount,
- *                         from, to, sortBy, sortOrder, page, limit }
- */
+/** GET /api/transactions */
 export const fetchTransactions = async (query = {}) => {
   try {
     const { data } = await api.get("/api/transactions", { params: query });
@@ -22,10 +14,7 @@ export const fetchTransactions = async (query = {}) => {
   }
 };
 
-/**
- * POST /api/transactions
- * @param {object} payload amount, vendor, category, department, date, description
- */
+/** POST /api/transactions */
 export const createTransaction = async (payload) => {
   try {
     const { data } = await api.post("/api/transactions", payload);
@@ -63,11 +52,7 @@ export const deleteTransaction = async (id) => {
   }
 };
 
-/**
- * POST /api/transactions/import/preview (Part 5)
- * Sends the raw CSV text; the server validates it and returns the preview.
- * Nothing is saved at this point.
- */
+/** POST /api/transactions/import/preview (Part 5) */
 export const previewCsvImport = async (csv) => {
   try {
     const { data } = await api.post("/api/transactions/import/preview", { csv });
@@ -79,10 +64,7 @@ export const previewCsvImport = async (csv) => {
   }
 };
 
-/**
- * POST /api/transactions/import/confirm (Part 5)
- * Imports the valid, non-duplicate rows and returns the server result summary.
- */
+/** POST /api/transactions/import/confirm (Part 5) */
 export const confirmCsvImport = async (csv) => {
   try {
     const { data } = await api.post("/api/transactions/import/confirm", { csv });
@@ -94,11 +76,7 @@ export const confirmCsvImport = async (csv) => {
   }
 };
 
-/**
- * GET /api/transactions/export (P2-10)
- * Downloads the workspace's transactions as CSV using the same filters as the
- * list endpoint. Triggers a browser download of transactions.csv.
- */
+/** GET /api/transactions/export (P2-10) */
 export const exportTransactionsCsv = async (query = {}) => {
   try {
     const params = {};

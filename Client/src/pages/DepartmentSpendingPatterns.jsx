@@ -8,30 +8,11 @@ import "../styles/transactions.css";
 
 const EMPTY_FILTERS = { from: "", to: "", category: "", department: "" };
 
-/**
- * Department Spending Patterns page (Part 13).
- *
- * Dedicated page for the Part 10 section: date range + category + department
- * filters on top, then the shared <DepartmentSpending /> section with its
- * bar chart (X = department, Y = total spend), summary stats (total spend,
- * transactions, highest-spending department, average per department) and the
- * breakdown table (department / total spend / transaction count / % of total).
- *
- * Everything is read-only for every role (Admin and Viewer alike): the page
- * only calls GET /api/analytics/* against the existing shared transaction
- * data - there is no create/edit/delete control anywhere, and the backend
- * endpoint has no write routes.
- *
- * Filter dropdown options come from the existing analytics summary facets
- * (scope-based, independent of the active filters), the same way the Spend
- * Analysis page builds its dropdowns - no duplicate department data.
- */
+/** Department Spending Patterns page (Part 13). */
 function DepartmentSpendingPatterns() {
   const [filters, setFilters] = useState(EMPTY_FILTERS);
 
-  // Facet options for the Category / Department dropdowns. Loaded once on
-  // mount: the facets are scoped distinct values (not filter-dependent), and
-  // the actual filtering happens server-side inside the section below.
+  // Facet options for the Category / Department dropdowns.
   const [facets, setFacets] = useState({ categories: [], departments: [] });
 
   useEffect(() => {
@@ -155,9 +136,7 @@ function DepartmentSpendingPatterns() {
           </div>
         </section>
 
-        {/* Shared read-only section (Part 10) with the Part 13 chart opted in.
-            It owns its own loading / error / empty states and re-fetches
-            whenever the filters above change. */}
+        {/* Shared read-only section (Part 10) with the Part 13 chart opted in. */}
         <DepartmentSpending filters={filters} showChart />
       </main>
     </div>

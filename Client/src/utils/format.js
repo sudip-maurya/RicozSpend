@@ -1,9 +1,4 @@
-/**
- * Shared display formatting (Part 4 - transactions page).
- *
- * The rupee symbol comes from Intl currency data (not a hand-typed literal),
- * so it can never be corrupted by file encoding issues.
- */
+/** Shared display formatting (Part 4 - transactions page). */
 
 /** ₹75,000 / ₹1,234.5 - Indian grouping, no forced decimals. */
 export const formatMoney = (value) => {

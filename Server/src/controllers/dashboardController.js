@@ -1,13 +1,4 @@
-/**
- * Dashboard controllers (Part 3 - spend overview).
- *
- * All heavy lifting happens in MongoDB aggregations so the client never
- * downloads the whole transaction collection. The read scope comes from the
- * the shared workspace (utils/spendScope): every authenticated user reads
- * the workspace's transactions - Admin and Viewer see the same numbers.
- *
- * GET /api/dashboard/summary?range=month|today|week|lastMonth|quarter|year|custom&from=&to=
- */
+/** Dashboard spend overview controller. */
 
 const Transaction = require("../models/Transaction");
 const { spendScope } = require("../utils/spendScope");
@@ -16,16 +7,13 @@ const { shapeGroups } = require("../utils/aggregation");
 const DAY_MS = 24 * 60 * 60 * 1000;
 const RECENT_LIMIT = 8;
 
-/** Start of the current day (UTC). */
+/** Start of current day in UTC. */
 const startOfToday = () => {
   const now = new Date();
   return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
 };
 
-/**
- * Resolve a `range` preset into an inclusive [from, to) UTC window.
- * Returns an `error` string for invalid input, or `null` bounds for all time.
- */
+/** Resolve preset range or custom dates to [from, to) UTC window. */
 const resolveRange = (query) => {
   const range = String(query.range || "month").toLowerCase();
 
@@ -37,7 +25,7 @@ const resolveRange = (query) => {
       return { error: "Invalid custom date range. Use YYYY-MM-DD for from/to." };
     }
 
-    if (to) to.setTime(to.getTime() + DAY_MS); // "to" is inclusive -> next midnight
+    if (to) to.setTime(to.getTime() + DAY_MS);
     return { from: from || null, to: to || null };
   }
 
@@ -47,7 +35,7 @@ const resolveRange = (query) => {
     case "today":
       return { from: today, to: new Date(today.getTime() + DAY_MS) };
     case "week": {
-      const weekday = (today.getUTCDay() + 6) % 7; // Monday = 0
+      const weekday = (today.getUTCDay() + 6) % 7;
       const from = new Date(today.getTime() - weekday * DAY_MS);
       return { from, to: new Date(today.getTime() + DAY_MS) };
     }
@@ -74,12 +62,11 @@ const resolveRange = (query) => {
         to: new Date(Date.UTC(today.getUTCFullYear() + 1, 0, 1)),
       };
     default:
-      // "all" and anything unknown -> no date restriction
       return { from: null, to: null };
   }
 };
 
-/** Build the $match stage for the current read scope + date window. */
+/** Build $match stage for date window and read scope. */
 const buildMatch = (scope, from, to) => {
   const match = { ...scope };
   if (from || to) {
@@ -90,10 +77,7 @@ const buildMatch = (scope, from, to) => {
   return match;
 };
 
-/**
- * GET /api/dashboard/summary
- * One authenticated endpoint that powers the whole Part 3 dashboard.
- */
+/** GET /api/dashboard/summary */
 const getSummary = async (req, res) => {
   try {
     const range = resolveRange(req.query);
@@ -102,7 +86,6 @@ const getSummary = async (req, res) => {
     }
 
     const { from, to } = range;
-    // Workspace-wide: every authenticated user reads the shared workspace data.
     const match = buildMatch(spendScope(req.user), from, to);
 
     const [totals, monthly, categories, departments, vendors, recent] = await Promise.all([
@@ -120,8 +103,6 @@ const getSummary = async (req, res) => {
         { $match: match },
         {
           $group: {
-            // P1-4: pin month grouping to UTC so it matches the UTC-normalized
-            // storage and the budget month windows (was server-local timezone).
             _id: {
               year: { $year: { date: "$date", timezone: "UTC" } },
               month: { $month: { date: "$date", timezone: "UTC" } },

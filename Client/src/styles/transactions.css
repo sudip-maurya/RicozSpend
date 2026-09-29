@@ -1,6 +1,4 @@
-/* Part 4 - Spend / Transactions page, modals and states.
-   Reuses the shared theme variables from index.css / auth.css
-   (--accent, --border, --danger, --success, .card, .btn, .form-field...). */
+/* Part 4 - Spend / Transactions page, modals and states. */
 
 .btn {
   font: inherit;
@@ -133,8 +131,7 @@
   background: var(--social-bg);
 }
 
-/* Plain-text button inside the vendor cell so every role can open a record's
-   details; keeps the existing table typography and hover behavior. */
+/* Plain-text button inside the vendor cell so every role can open a record's details */
 .txn-vendor {
   font: inherit;
   color: inherit;

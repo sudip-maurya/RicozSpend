@@ -1,11 +1,7 @@
 import { formatMoney, formatDate, formatDateTime } from "../utils/format";
 import "./../styles/transactions.css";
 
-/**
- * View transaction modal (Part 4).
- * Shows the full record: amount, vendor, category, department, date,
- * description/notes and the createdAt / updatedAt metadata.
- */
+/** View transaction modal (Part 4). */
 function TransactionViewModal({ transaction, onClose, onEdit }) {
   if (!transaction) return null;
 

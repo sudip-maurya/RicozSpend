@@ -26,8 +26,7 @@ function Login() {
   // Where to go after login (set by ProtectedRoute when a page was blocked).
   const redirectTo = location.state?.from || "/dashboard";
 
-  // Wake a sleeping Render service without delaying or changing the Login UI.
-  // The shared API client supplies the configured Vercel/Render base URL.
+  // Wake a sleeping Render service without changing the Login UI.
   useEffect(() => {
     api.get("/api/health").catch(() => {});
   }, []);

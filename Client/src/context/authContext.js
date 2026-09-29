@@ -1,10 +1,6 @@
 import { createContext, useContext } from "react";
 
-/**
- * Shared authentication context (Part 2).
- * The provider lives in AuthProvider.jsx; this file only exposes the context
- * object and the `useAuth()` hook so that fast-refresh works in dev.
- */
+/** Shared authentication context (Part 2). The provider lives in AuthProvider.jsx */
 export const AuthContext = createContext(null);
 
 export const useAuth = () => {

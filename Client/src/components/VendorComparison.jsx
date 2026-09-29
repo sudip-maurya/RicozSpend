@@ -4,18 +4,7 @@ import { fetchVendorComparison } from "../services/analyticsService";
 import { formatMoney } from "../utils/format";
 import "../styles/dashboard.css";
 
-/**
- * Vendor Comparison section (Part 9).
- *
- * Descriptive only: for every vendor it shows the total spend, the number of
- * transactions and the share of total spend. All values come from
- * /api/analytics/vendor-comparison, which aggregates the authenticated user's
- * real transactions - nothing is hardcoded and there is no ranking or
- * recommendation language.
- *
- * Self-contained: fetches its own data and handles loading / error / empty
- * states, so the host page only needs to pass its existing filters.
- */
+/** Vendor Comparison section (Part 9). */
 const EMPTY_FILTERS = {};
 
 /** 72.46 / 0 -> "72.46%" - display only, sharing a single local helper. */
@@ -31,12 +20,10 @@ function VendorComparison({ filters = EMPTY_FILTERS }) {
   const [error, setError] = useState("");
   const [reloadKey, setReloadKey] = useState(0);
 
-  // Destructured into primitives so the effect re-runs only when a filter
-  // value actually changes (and eslint's exhaustive-deps stays happy).
+  // Destructured into primitives so the effect only re-runs when a filter value changes.
   const { from = "", to = "", category = "", department = "", vendor = "" } = filters || {};
 
-  // Same in-effect async + isActive guard pattern as the Dashboard (Part 3),
-  // Spend Analysis (Part 6), Unusual Spending (Part 7) and Insights (Part 8).
+  // Same in-effect async + isActive guard pattern as the Dashboard (Part 3)
   useEffect(() => {
     let isActive = true;
 

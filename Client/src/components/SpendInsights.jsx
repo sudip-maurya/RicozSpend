@@ -4,17 +4,7 @@ import { fetchSpendInsights } from "../services/analyticsService";
 import { formatMoney } from "../utils/format";
 import "../styles/dashboard.css";
 
-/**
- * Automatic Spend Insights (Part 8).
- *
- * Every sentence below is produced by deterministic rules on the server from
- * the user's real transactions - no AI, no predictions, no generated text.
- * The server returns numbers/names; the wording + rupee formatting stay on the
- * client so the one existing formatter (utils/format.js) is reused.
- *
- * The component follows the dashboard's own date filter (range/from/to props),
- * so Part 8 never introduces a second filtering system.
- */
+/** Automatic Spend Insights (Part 8). */
 
 /** "1 transaction" / "5 transactions" */
 const plural = (count, word) => `${count} ${word}${count === 1 ? "" : "s"}`;
@@ -105,22 +95,14 @@ const InsightCard = ({ insight, contributions }) => {
   );
 };
 
-/**
- * Dashboard section. The range/from/to props come from the dashboard's own
- * date filter, so Part 8 follows the single existing filtering system instead
- * of adding a second one.
- *
- *   range = "today" | "week" | "month" | "lastmonth" | "quarter" | "year" | "custom"
- *   from / to = YYYY-MM-DD, only meaningful when range is "custom"
- */
+/** Dashboard section - follows the dashboard's own date filter (range/from/to). */
 function SpendInsights({ range = "", from = "", to = "" }) {
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [reloadKey, setReloadKey] = useState(0);
 
-  // Reload whenever the dashboard filter changes. Same in-effect async +
-  // isActive guard pattern used by the Dashboard, Transactions and Part 7.
+  // Reload whenever the dashboard filter changes.
   useEffect(() => {
     let isActive = true;
 

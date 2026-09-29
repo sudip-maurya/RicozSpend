@@ -1,10 +1,4 @@
-/**
- * Admin-only controllers (MVP - role foundation + Viewer user management).
- *
- * Every handler here runs behind `protect + requireRole("Admin")`
- * (see src/routes/adminRoutes.js), so a Viewer token answers 403 first.
- */
-
+// Admin controllers
 const User = require("../models/User");
 const { ROLES, ROLE_VALUES } = User;
 const {
@@ -17,9 +11,7 @@ const { spendScope } = require("../utils/spendScope");
 
 const GENERIC_SERVER_ERROR = "Something went wrong. Please try again.";
 
-/**
- * GET /api/admin/overview (protected + requireRole("Admin"))
- */
+// GET /api/admin/overview
 const getOverview = async (req, res) => {
   try {
     const scope = spendScope(req.user);
@@ -45,7 +37,7 @@ const getOverview = async (req, res) => {
   }
 };
 
-/** Shape a user document for the Admin viewer list (never the password hash). */
+// Format user document for admin view
 const toManagedUser = (user) => {
   const safe = user.toSafeObject ? user.toSafeObject() : {};
   return {
@@ -55,7 +47,6 @@ const toManagedUser = (user) => {
     role: user.role,
     organizationId: user.organizationId,
     isEmailVerified: Boolean(user.isEmailVerified),
-    // Missing (legacy) field means active.
     isActive: user.isActive !== false,
     status: user.isActive === false ? "Inactive" : "Active",
     createdAt: user.createdAt,
@@ -66,9 +57,7 @@ const toManagedUser = (user) => {
 const isValidViewerRole = (role) => ROLE_VALUES.includes(role) && role === ROLES.VIEWER;
 const isValidRole = (role) => ROLE_VALUES.includes(role);
 
-/**
- * GET /api/admin/users (Admin only) - list Viewers + their account status.
- */
+// GET /api/admin/users - list Viewers
 const listViewers = async (req, res) => {
   try {
     const scope = spendScope(req.user);
@@ -83,9 +72,7 @@ const listViewers = async (req, res) => {
   }
 };
 
-/**
- * POST /api/admin/users (Admin only) - create a Viewer (active immediately).
- */
+// POST /api/admin/users - create Viewer
 const createViewer = async (req, res) => {
   const { name, email, password, role } = req.body || {};
   const { isValid, errors } = validateSignup({ name, email, password });
@@ -130,7 +117,7 @@ const createViewer = async (req, res) => {
   }
 };
 
-/** Load a managed user by id (404 / 400 handled here). */
+// Find user by id in scope
 const findManagedUser = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
@@ -151,7 +138,7 @@ const findManagedUser = async (req, res) => {
   }
 };
 
-/** Admins cannot touch their own account or another Admin here. */
+// Prevent self or admin modification
 const blockedSelfOrAdmin = (req, res, user) => {
   if (String(user._id) === String(req.user._id)) {
     res.status(400).json({ message: "You cannot manage your own Admin account here." });
@@ -164,9 +151,7 @@ const blockedSelfOrAdmin = (req, res, user) => {
   return false;
 };
 
-/**
- * PUT /api/admin/users/:id (Admin only) - edit Viewer name/email/role.
- */
+// PUT /api/admin/users/:id - update Viewer
 const updateViewer = async (req, res) => {
   try {
     const user = await findManagedUser(req, res);
@@ -204,9 +189,7 @@ const updateViewer = async (req, res) => {
   }
 };
 
-/**
- * PATCH /api/admin/users/:id/status (Admin only) - activate/deactivate.
- */
+// PATCH /api/admin/users/:id/status - set Viewer status
 const setViewerStatus = async (req, res) => {
   try {
     const user = await findManagedUser(req, res);
@@ -231,9 +214,7 @@ const setViewerStatus = async (req, res) => {
   }
 };
 
-/**
- * DELETE /api/admin/users/:id (Admin only) - delete a Viewer.
- */
+// DELETE /api/admin/users/:id - delete Viewer
 const deleteViewer = async (req, res) => {
   try {
     const user = await findManagedUser(req, res);
@@ -247,17 +228,7 @@ const deleteViewer = async (req, res) => {
   }
 };
 
-/* =========================================================================
- * ADMIN MANAGEMENT CONTROLLERS
- * Dedicated endpoints:
- *   GET    /api/admin/admins
- *   POST   /api/admin/admins
- *   PUT    /api/admin/admins/:id
- *   PATCH  /api/admin/admins/:id/status
- *   DELETE /api/admin/admins/:id
- * ========================================================================= */
-
-/** Count active Admins in a specific workspace. */
+// Count active admins in the organization.
 const countActiveAdminsInOrg = async (organizationId) => {
   return User.countDocuments({
     organizationId,
@@ -266,9 +237,7 @@ const countActiveAdminsInOrg = async (organizationId) => {
   });
 };
 
-/**
- * GET /api/admin/admins (Admin only) - list Admin accounts in workspace.
- */
+// GET /api/admin/admins - list Admin accounts in workspace
 const listAdmins = async (req, res) => {
   try {
     const scope = spendScope(req.user);
@@ -281,9 +250,7 @@ const listAdmins = async (req, res) => {
   }
 };
 
-/**
- * POST /api/admin/admins (Admin only) - create an Admin account (active + email verified immediately).
- */
+// POST /api/admin/admins - create Admin account
 const createAdminUser = async (req, res) => {
   const { name, email, password, role } = req.body || {};
   const { isValid, errors } = validateSignup({ name, email, password });
@@ -328,7 +295,7 @@ const createAdminUser = async (req, res) => {
   }
 };
 
-/** Load a managed Admin user by id (404 / 400 handled here). */
+// Find admin by id in scope
 const findManagedAdmin = async (req, res) => {
   const user = await findManagedUser(req, res);
   if (!user) return null;
@@ -339,9 +306,7 @@ const findManagedAdmin = async (req, res) => {
   return user;
 };
 
-/**
- * PUT /api/admin/admins/:id (Admin only) - edit Admin name/email/role.
- */
+// PUT /api/admin/admins/:id - edit Admin
 const updateAdminUser = async (req, res) => {
   try {
     const admin = await findManagedAdmin(req, res);
@@ -372,7 +337,6 @@ const updateAdminUser = async (req, res) => {
       if (!isValidRole(role)) {
         errors.role = `Role must be "${ROLES.ADMIN}" or "${ROLES.VIEWER}".`;
       } else if (role !== admin.role) {
-        // Demoting an Admin to Viewer: check guardrails
         if (String(admin._id) === String(req.user._id)) {
           return res.status(400).json({ message: "You cannot demote your own Admin account." });
         }
@@ -398,12 +362,7 @@ const updateAdminUser = async (req, res) => {
   }
 };
 
-/**
- * PATCH /api/admin/admins/:id/status (Admin only) - activate/deactivate an Admin.
- * Guardrails:
- *  - Cannot deactivate own account.
- *  - Cannot deactivate the last active Admin in the organization.
- */
+// PATCH /api/admin/admins/:id/status - set Admin status
 const setAdminStatus = async (req, res) => {
   try {
     const admin = await findManagedAdmin(req, res);
@@ -441,12 +400,7 @@ const setAdminStatus = async (req, res) => {
   }
 };
 
-/**
- * DELETE /api/admin/admins/:id (Admin only) - delete an Admin account.
- * Guardrails:
- *  - Cannot delete own account.
- *  - Cannot delete the last active Admin in the organization.
- */
+// DELETE /api/admin/admins/:id - delete Admin account
 const deleteAdminUser = async (req, res) => {
   try {
     const admin = await findManagedAdmin(req, res);

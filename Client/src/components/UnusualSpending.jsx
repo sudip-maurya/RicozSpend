@@ -4,33 +4,15 @@ import { fetchUnusualSpending } from "../services/analyticsService";
 import { formatDate, formatMoney } from "../utils/format";
 import "../styles/dashboard.css";
 
-/**
- * Unusual Spending Alerts section (Part 7).
- *
- * Rule-based only: a transaction is unusual when its amount is greater than
- * the admin-configured unusual-spending multiplier (default 1.5x) times the
- * average transaction amount. All numbers come from
- * /api/analytics/unusual-spending, which aggregates the authenticated user's
- * real transactions - no hardcoded values, no AI/statistics.
- *
- * Self-contained: fetches its own data and handles loading / error / empty
- * states, so the Dashboard only needs to render <UnusualSpending />.
- */
-/**
- * Follows the dashboard's own date filter (range/from/to props), so Part 7
- * never introduces a second filtering system (P2-8).
- *
- *   range = "today" | "week" | "month" | "lastmonth" | "quarter" | "year" | "custom"
- *   from / to = YYYY-MM-DD, only meaningful when range is "custom"
- */
+/** Unusual Spending Alerts section (Part 7). */
+/** Follows the dashboard's own date filter (range/from/to props) */
 function UnusualSpending({ range = "", from = "", to = "" }) {
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [reloadKey, setReloadKey] = useState(0);
 
-  // Same in-effect async + isActive guard pattern as the Dashboard (Part 3),
-  // Spend Analysis (Part 6) and Transactions (Part 4).
+  // Same in-effect async + isActive guard pattern as the Dashboard (Part 3)
   useEffect(() => {
     let isActive = true;
 

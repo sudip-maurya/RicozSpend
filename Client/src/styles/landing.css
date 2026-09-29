@@ -1,10 +1,4 @@
-/* Part 16 - public Landing page (Ricoz franchise-inspired visual language:
-   clean white layout, strong typography, generous spacing, Ricoz red accent,
-   rounded cards, subtle shadows and a deep-red footer).
-
-   Everything here is scoped to the landing page only and reuses the shared
-   theme tokens from src/index.css / src/styles/auth.css where possible - no
-   existing page or component is affected by these rules. */
+/* Part 16 - public Landing page */
 
 :root {
   --ricoz-red: #e21b22;
@@ -23,8 +17,7 @@
   --landing-radius: 14px;
 }
 
-/* The shared #root frame is narrowed to 1126px for the app pages; the landing
-   page is a full-width marketing page, so it opts out of that frame. */
+/* The shared #root frame is narrowed to 1126px for the app pages */
 #root:has(.landing-root) {
   width: 100% !important;
   max-width: 100% !important;
@@ -42,8 +35,7 @@
   text-align: left;
 }
 
-/* In-page anchors land below the sticky header, and the jump stays calm for
-   visitors who have not asked for reduced motion. */
+/* In-page anchors land below the sticky header */
 .landing-root section[id] {
   scroll-margin-top: 88px;
 }

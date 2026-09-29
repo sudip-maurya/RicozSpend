@@ -1,12 +1,5 @@
-/**
- * One-off migration: grandfather accounts created BEFORE email verification existed.
- *
- * Accounts created before Part 2's email verification have no `isEmailVerified`
- * field, so the new login gate would lock their owners out. This script marks
- * them as verified (they were created under the old rules).
- *
- * Usage (from Server/): npm run migrate:verification
- */
+// Grandfather legacy accounts created before email verification
+
 
 const path = require("path");
 const dotenv = require("dotenv");

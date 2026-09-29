@@ -6,10 +6,7 @@ import { getErrorMessage, getFieldErrors, getStatusCode } from "../utils/apiErro
 
 const RESENDABLE_CODES = ["INVALID_VERIFICATION_TOKEN", "VERIFICATION_TOKEN_EXPIRED", "MISSING_VERIFICATION_TOKEN"];
 
-/**
- * /verify-email?token=...  (Part 2 - email verification)
- * Consumes the token from the emailed link and offers a resend fallback.
- */
+/** /verify-email?token=... */
 function VerifyEmail() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token") || "";

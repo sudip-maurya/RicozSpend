@@ -1,13 +1,4 @@
-/**
- * Transaction controllers (Part 4 - spend / transaction management,
- * Part 5 - CSV import & validation).
- *
- * DATA OWNERSHIP = WORKSPACE: every account in the caller's workspace reads
- * and contributes the same transaction dataset (utils/spendScope). The `user`
- * field on a record is audit information (who created it) and never hides
- * shared data. Write permissions stay role-based (see routes/transactionRoutes).
- */
-
+// Transaction controllers
 const mongoose = require("mongoose");
 const { isValidObjectId } = mongoose;
 
@@ -22,14 +13,14 @@ const {
   validateRow,
 } = require("../utils/csvParser");
 
-/** Format a Date as DD/MM/YYYY for the preview table (consistent with the UI). */
+// Format date as DD/MM/YYYY
 const formatDateDmy = (date) => {
   const day = String(date.getUTCDate()).padStart(2, "0");
   const month = String(date.getUTCMonth() + 1).padStart(2, "0");
   return `${day}/${month}/${date.getUTCFullYear()}`;
 };
 
-/** Shape a row for the preview table. Accepts raw cells or validated data. */
+// Format row for preview table
 const rowDisplayFields = (source, columns) => {
   if (columns) {
     const get = (name) => cleanText(source[columns[name]]);
@@ -50,11 +41,7 @@ const rowDisplayFields = (source, columns) => {
   };
 };
 
-/**
- * Parse + validate a CSV and flag duplicates (inside the file and against the
- * workspace's existing transactions). Returns everything the preview needs, or
- * an `error` message for a file that cannot be processed at all.
- */
+// Parse, validate CSV and flag duplicates
 const analyzeCsv = async (csv, organizationId) => {
   if (typeof csv !== "string" || csv.trim() === "") {
     return { error: "The CSV file is empty." };
@@ -124,12 +111,11 @@ const analyzeCsv = async (csv, organizationId) => {
     }
 
     keysInFile.set(key, i + 1);
-    summary.valid += 1; // counted here; pass 2 moves real duplicates out of it
+    summary.valid += 1;
     parsedRows.push({ row: i + 1, ...rowDisplayFields(data), status: "Valid", reason: "", data });
   }
 
-  // Pass 2: duplicates against the workspace's EXISTING transactions. One query
-  // covers the whole date span of the CSV; nothing in the DB is modified.
+  // Pass 2: check duplicates against existing transactions
   const validRows = parsedRows.filter((entry) => entry.status === "Valid");
 
   if (validRows.length > 0) {
@@ -163,18 +149,13 @@ const GENERIC_SERVER_ERROR = "Something went wrong. Please try again.";
 const NOT_FOUND_MESSAGE = "Transaction not found.";
 const INVALID_ID_MESSAGE = "Invalid transaction id.";
 
-/* --------------------------------------------------------------- validation */
-
+// Validation
 const cleanText = (value) => (typeof value === "string" ? value.trim() : "");
 
-/**
- * Validate + clean a transaction payload.
- * @returns {{ isValid: boolean, errors: Record<string,string>, data?: object }}
- */
+// Validate and clean transaction payload
 const validateTransaction = (body) => {
   const errors = {};
 
-  // Amount: required, finite number, strictly greater than 0.
   const amount = Number(body?.amount);
   if (body?.amount === undefined || body?.amount === null || body?.amount === "") {
     errors.amount = "Amount is required.";
@@ -193,8 +174,6 @@ const validateTransaction = (body) => {
   const department = cleanText(body?.department);
   if (!department) errors.department = "Cost centre / department is required.";
 
-  // Date: required. A missing value defaults to today on the client, but the
-  // server still rejects an invalid/absent date.
   let date;
   if (!body?.date) {
     errors.date = "Date is required.";
@@ -208,7 +187,6 @@ const validateTransaction = (body) => {
     }
   }
 
-  // Description / notes are optional.
   const description = cleanText(body?.description);
 
   if (Object.keys(errors).length > 0) {
@@ -219,7 +197,7 @@ const validateTransaction = (body) => {
     isValid: true,
     errors,
     data: {
-      amount: Math.round(amount * 100) / 100, // avoid float noise like 75.000000001
+      amount: Math.round(amount * 100) / 100,
       vendor,
       category,
       department,
@@ -229,7 +207,7 @@ const validateTransaction = (body) => {
   };
 };
 
-/** Map a Mongoose ValidationError to the same { field: message } shape. */
+// Map Mongoose validation errors
 const mongooseValidationErrors = (error) => {
   const errors = {};
   Object.values(error.errors || {}).forEach((fieldError) => {
@@ -240,13 +218,7 @@ const mongooseValidationErrors = (error) => {
   return errors;
 };
 
-/* ------------------------------------------------------------------- create */
-
-/**
- * POST /api/transactions
- * Creates a transaction in the caller's workspace (visible to every account in
- * it). `user` records who created it for audit; it never comes from the body.
- */
+// POST /api/transactions
 const createTransaction = async (req, res) => {
   const { isValid, errors, data } = validateTransaction(req.body || {});
 
@@ -262,7 +234,7 @@ const createTransaction = async (req, res) => {
     const transaction = await Transaction.create({
       ...data,
       organizationId: scope.organizationId,
-      user: req.user._id, // audit: who created it, never from the body
+      user: req.user._id,
     });
 
     return res.status(201).json({
@@ -282,14 +254,10 @@ const createTransaction = async (req, res) => {
   }
 };
 
-/** Escape user input before building a case-insensitive RegExp. */
+// Escape user input for RegExp
 const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-/**
- * Shared filter builder for the list and CSV-export endpoints (P2-10).
- * Returns { filter } or { error } for an invalid date range.
- */
-/** Parse an optional amount bound; {} when absent, { value } or { error }. */
+// Parse optional amount bound
 const parseAmountBound = (raw, name) => {
   if (raw === undefined || raw === null || String(raw).trim() === "") return {};
   const value = Number(raw);
@@ -302,8 +270,7 @@ const parseAmountBound = (raw, name) => {
 const buildListFilter = (query) => {
   const filter = {};
 
-  // PART 16: search covers vendor, category, department, description/notes,
-  // plus an exact Transaction ID match when the text is a valid ObjectId.
+  // Search fields or ObjectId
   const search = cleanText(query.search);
   if (search) {
     const pattern = new RegExp(escapeRegex(search), "i");
@@ -328,13 +295,13 @@ const buildListFilter = (query) => {
     filter.department = new RegExp(`^${escapeRegex(department)}$`, "i");
   }
 
-  // PART 16: exact vendor filter (drives the vendor dropdown).
+  // Exact vendor filter
   const vendor = cleanText(query.vendor);
   if (vendor) {
     filter.vendor = new RegExp(`^${escapeRegex(vendor)}$`, "i");
   }
 
-  // PART 16: inclusive amount range.
+  // Amount range
   const min = parseAmountBound(query.minAmount, "minAmount");
   if (min.error) return { error: min.error };
   const max = parseAmountBound(query.maxAmount, "maxAmount");
@@ -348,7 +315,7 @@ const buildListFilter = (query) => {
     if (max.value !== undefined) filter.amount.$lte = max.value;
   }
 
-  // Inclusive date range: "to" gets extended to the end of that day.
+  // Inclusive date range
   const from = query.from ? new Date(`${query.from}T00:00:00.000Z`) : null;
   const to = query.to ? new Date(`${query.to}T00:00:00.000Z`) : null;
 
@@ -365,23 +332,9 @@ const buildListFilter = (query) => {
   return { filter };
 };
 
-/**
- * GET /api/transactions
- * Query params:
- *  search     - matches vendor / category / department / description,
- *               or an exact transaction id
- *  category   - exact category
- *  department - exact cost centre / department
- *  vendor     - exact vendor
- *  minAmount, maxAmount - inclusive amount range
- *  from, to   - inclusive date range (YYYY-MM-DD)
- *  sortBy     - date | amount | vendor (default date)
- *  sortOrder  - asc | desc (default desc)
- *  page, limit
- */
+// GET /api/transactions
 const getTransactions = async (req, res) => {
   try {
-    // Shared workspace dataset - identical for Admin and Viewer.
     const scope = spendScope(req.user);
     const { filter, error } = buildListFilter(req.query);
     if (error) {
@@ -405,7 +358,7 @@ const getTransactions = async (req, res) => {
         .limit(limit)
         .select("-user"),
       Transaction.countDocuments(filter),
-      // Filter dropdown options for this workspace (independent of the active filters).
+      // Facet options for workspace
       Transaction.distinct("category", scope),
       Transaction.distinct("department", scope),
       Transaction.distinct("vendor", scope),
@@ -429,20 +382,13 @@ const getTransactions = async (req, res) => {
   }
 };
 
-/* ------------------------------------------------------------------ export */
-
-/** Escape one value for CSV (quotes, commas, newlines). */
+// Escape CSV value
 const csvCell = (value) => {
   const text = value === null || value === undefined ? "" : String(value);
   return /[",\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 };
 
-/**
- * GET /api/transactions/export
- * Downloads the workspace's transactions as CSV using the same filters as the
- * list endpoint (P2-10). Available to every authenticated user - it exposes
- * nothing the paginated list doesn't already return.
- */
+// GET /api/transactions/export - download workspace transactions as CSV
 const exportTransactions = async (req, res) => {
   try {
     const scope = spendScope(req.user);
@@ -479,7 +425,7 @@ const exportTransactions = async (req, res) => {
 
     res.setHeader("Content-Type", "text/csv; charset=utf-8");
     res.setHeader("Content-Disposition", 'attachment; filename="transactions.csv"');
-    // BOM so Excel opens the UTF-8 file correctly.
+    // UTF-8 BOM
     return res.send(`\uFEFF${lines.join("\r\n")}`);
   } catch (error) {
     console.error("[transactions] Export failed:", error.message);
@@ -487,13 +433,7 @@ const exportTransactions = async (req, res) => {
   }
 };
 
-/* ---------------------------------------------------- single record helpers */
-
-/**
- * Find one transaction of the caller's workspace by id (audit: `user` only
- * says who created it - any workspace record is visible, editing stays
- * Admin-only via requireRole). Proper error answers included.
- */
+// Find transaction by id in workspace
 const findWorkspaceTransaction = async (req, res) => {
   const { id } = req.params;
 
@@ -512,9 +452,7 @@ const findWorkspaceTransaction = async (req, res) => {
   return transaction;
 };
 
-/**
- * GET /api/transactions/:id
- */
+// GET /api/transactions/:id
 const getTransactionById = async (req, res) => {
   try {
     const transaction = await findWorkspaceTransaction(req, res);
@@ -527,10 +465,7 @@ const getTransactionById = async (req, res) => {
   }
 };
 
-/**
- * PUT /api/transactions/:id
- * Updates the existing record in place (no new document is created).
- */
+// PUT /api/transactions/:id
 const updateTransaction = async (req, res) => {
   const { isValid, errors, data } = validateTransaction(req.body || {});
 
@@ -568,9 +503,7 @@ const updateTransaction = async (req, res) => {
   }
 };
 
-/**
- * DELETE /api/transactions/:id
- */
+// DELETE /api/transactions/:id
 const deleteTransaction = async (req, res) => {
   try {
     const existing = await findWorkspaceTransaction(req, res);
@@ -585,12 +518,7 @@ const deleteTransaction = async (req, res) => {
   }
 };
 
-/* --------------------------------------------------- Part 5 - CSV import --- */
-
-/**
- * POST /api/transactions/import/preview
- * Analyzes the CSV and returns counts + per-row statuses. Never writes to DB.
- */
+// POST /api/transactions/import/preview
 const previewImport = async (req, res) => {
   try {
     const result = await analyzeCsv(req.body?.csv, spendScope(req.user).organizationId);
@@ -606,11 +534,7 @@ const previewImport = async (req, res) => {
   }
 };
 
-/**
- * Writes one CSV batch atomically. Uses a MongoDB transaction (all-or-nothing)
- * on replica sets / Atlas; standalone mongod gets a plain ordered insert
- * instead, since it cannot run multi-document transactions.
- */
+// Write CSV batch atomically
 const insertImportBatch = async (documents) => {
   const session = await mongoose.startSession();
 
@@ -622,12 +546,10 @@ const insertImportBatch = async (documents) => {
     try {
       await session.abortTransaction();
     } catch {
-      // The transaction never started (e.g. standalone mongod) - nothing to roll back.
+      // Nothing to roll back
     }
 
     if (error?.message?.includes("Transaction numbers are only allowed")) {
-      // Standalone mongod: retry without a transaction. ordered:true (the
-      // default) still stops at the first bad document instead of skipping it.
       await Transaction.insertMany(documents);
       return;
     }
@@ -638,13 +560,7 @@ const insertImportBatch = async (documents) => {
   }
 };
 
-/**
- * POST /api/transactions/import/confirm
- * Re-analyzes the CSV server-side (never trusting the client) and bulk-inserts
- * only the valid, non-duplicate rows. The insert is atomic (see
- * insertImportBatch): either every valid row lands or none does. Timestamps
- * are generated by Mongoose; ownership always comes from `req.user`.
- */
+// POST /api/transactions/import/confirm
 const confirmImport = async (req, res) => {
   try {
     const scope = spendScope(req.user);
@@ -659,9 +575,6 @@ const confirmImport = async (req, res) => {
       .map((entry) => ({ ...entry.data, organizationId: scope.organizationId, user: req.user._id }));
 
     if (importable.length > 0) {
-      // P1-7 (corrected): the whole batch is written inside one MongoDB
-      // transaction, so a failure anywhere rolls everything back - imports
-      // are truly all-or-nothing, never partial.
       await insertImportBatch(importable);
     }
 

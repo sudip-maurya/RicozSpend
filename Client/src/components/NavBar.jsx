@@ -5,12 +5,7 @@ import { useAuth } from "../context/authContext";
 const navLinkClass = ({ isActive }) =>
   isActive ? "app-nav__link app-nav__link--active" : "app-nav__link";
 
-/**
- * Main navigation - ONE shared list for every authenticated page and role.
- * Admin and Viewer see the same modules in the same order. Admin-only modules
- * (the Admin overview) are appended for Admin accounts, so a Viewer never gets
- * a link to a page they cannot use.
- */
+/** Main navigation - ONE shared list for every authenticated page and role. */
 const NAV_LINKS = [
   { to: "/dashboard", label: "Dashboard" },
   { to: "/transactions", label: "Transactions" },
@@ -25,21 +20,15 @@ const NAV_LINKS = [
   { to: "/profile", label: "Profile" },
 ];
 
-/** Admin-only modules (/admin = user overview). The Alert Rules editor lives
- * inside the Alerts & Insights Center now, behind an Admin-only button. */
+/** Admin-only modules (/admin = user overview). */
 const ADMIN_LINKS = [{ to: "/admin", label: "Admin" }];
 
-/**
- * Small shared header for the authenticated pages (Part 2).
- * Shows who is signed in, their role and the logout action.
- */
+/** Small shared header for the authenticated pages (Part 2). */
 const NavBar = () => {
   const { user, isAdmin, logout } = useAuth();
   const navigate = useNavigate();
 
-  // The role badge always shows "Admin"/"Viewer". Accounts whose name is
-  // literally the role (e.g. name "Admin") would print that same word twice
-  // side by side, so the plain name is only rendered when it adds information.
+  // The role badge always shows "Admin"/"Viewer".
   const showName =
     Boolean(user?.name) &&
     user.name.trim().toLowerCase() !== String(user?.role || "").trim().toLowerCase();

@@ -1,9 +1,4 @@
-/**
- * Authentication + role based authorization middleware (Part 2).
- *
- * The client sends the JWT in the `Authorization: Bearer <token>` header, which
- * is attached automatically by Client/src/api/client.js.
- */
+/** Authentication and role authorization middleware. */
 
 const User = require("../models/User");
 const { MissingJwtSecretError, verifyToken } = require("../utils/token");
@@ -16,7 +11,7 @@ const FORBIDDEN_MESSAGE = "You do not have permission to access this resource.";
 const DEACTIVATED_MESSAGE = "Your account has been deactivated. Please contact an administrator.";
 const REVOKED_MESSAGE = "Your session has been revoked. Please log in again.";
 
-/** Extract the bearer token from the Authorization header. */
+/** Extract bearer token from Authorization header. */
 const extractToken = (req) => {
   const header = req.headers.authorization || req.headers.Authorization || "";
 
@@ -25,7 +20,6 @@ const extractToken = (req) => {
     if (/^bearer$/i.test(scheme) && value) {
       return value;
     }
-    // Tolerate a raw token being sent without the "Bearer" prefix.
     if (!value && scheme) {
       return scheme;
     }
@@ -34,10 +28,7 @@ const extractToken = (req) => {
   return null;
 };
 
-/**
- * Require a valid JWT and attach the current user to `req.user`.
- * Missing / invalid / expired tokens all answer 401 with a generic message.
- */
+/** Verify JWT and attach user to req.user. */
 const protect = async (req, res, next) => {
   const token = extractToken(req);
 
@@ -48,8 +39,7 @@ const protect = async (req, res, next) => {
   try {
     const decoded = verifyToken(token);
 
-    // P1-5: reject tokens revoked via POST /api/auth/logout. Tokens issued
-    // before the `jti` claim existed skip this check gracefully.
+    // Check token revocation denylist
     if (decoded.jti) {
       const revoked = await RevokedToken.findOne({ jti: decoded.jti }).lean();
       if (revoked) {
@@ -63,7 +53,7 @@ const protect = async (req, res, next) => {
       return res.status(401).json({ message: INVALID_MESSAGE });
     }
 
-    // Deactivated accounts lose all API access (missing field = active).
+    // Reject deactivated accounts
     if (user.isActive === false) {
       return res.status(403).json({ message: DEACTIVATED_MESSAGE });
     }
@@ -90,11 +80,7 @@ const protect = async (req, res, next) => {
   }
 };
 
-/**
- * Reusable role guard, e.g. `requireRole("Admin")`.
- * Must be used after `protect`. Answers 401 without a user and 403 for a
- * valid user whose role is not allowed.
- */
+/** Role-based access control guard. */
 const requireRole =
   (...allowedRoles) =>
   (req, res, next) => {

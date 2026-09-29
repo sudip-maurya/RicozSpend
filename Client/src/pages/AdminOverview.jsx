@@ -18,11 +18,7 @@ import {
 import { getErrorMessage, getFieldErrors, getStatusCode } from "../utils/apiError";
 import "../styles/transactions.css";
 
-/**
- * Admin page (overview + Viewer + Admin user management).
- * Reached only by Admins (ProtectedRoute) and backed by Admin-only APIs,
- * which answer 403 for a Viewer token even if this page were reachable.
- */
+/** Admin page (overview + Viewer + Admin user management). */
 function AdminOverview() {
   const { user } = useAuth();
 
@@ -93,9 +89,7 @@ function AdminOverview() {
     };
   }, []);
 
-  // Loader used by the admin actions (create/edit/delete/restore). The mount
-  // effect below keeps its own guarded copy, because react-hooks/
-  // set-state-in-effect rejects calling a component-scope loader from an effect.
+  // Loader used by the admin actions (create/edit/delete/restore).
   const loadViewers = async () => {
     setIsListLoading(true);
     setListError("");
@@ -598,10 +592,7 @@ function AdminOverview() {
   );
 }
 
-/**
- * One Viewer row: either read-only with Edit/Activate/Delete, or inline edit.
- * Uses only existing card/table/btn/form-field/import-status styles.
- */
+/** One Viewer row: read-only with Edit/Activate/Delete, or inline edit. */
 function ViewerRow({
   viewer,
   busy,
@@ -697,11 +688,7 @@ function ViewerRow({
   );
 }
 
-/**
- * One Admin row: either read-only with Edit/Activate/Delete, or inline edit.
- * The signed-in Admin is labelled "(you)"; self deactivate/delete is blocked
- * by disabling the buttons (the backend returns 400 as a second guard).
- */
+/** One Admin row: read-only or inline edit. Self-deactivate/delete is blocked. */
 function AdminRow({
   admin,
   isSelf,

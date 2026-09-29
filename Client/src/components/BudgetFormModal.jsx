@@ -5,16 +5,7 @@ import "../styles/transactions.css";
 
 const PERIOD_PATTERN = /^(19|20)\d{2}-(0[1-9]|1[0-2])$/;
 
-/**
- * Add / Edit budget modal (Part 9 - Budget vs Actual).
- * Opened without `budget` -> creates a new budget. Opened with a comparison row
- * -> edits that budget (PUT to its id).
- *
- * Admin only: the parent mounts it for Admins and the backend also enforces
- * requireRole("Admin") with HTTP 403 for Viewers.
- * The parent gives this component a `key` per target, so it is always freshly
- * initialised - no state-reset effect is needed.
- */
+/** Add / Edit budget modal (Part 9 - Budget vs Actual). Opened without `budget` -> creates a new budget. */
 function BudgetFormModal({ budget, facets = { departments: [], categories: [] }, onClose, onSaved }) {
   const isEdit = Boolean(budget?.id);
 

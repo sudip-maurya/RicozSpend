@@ -1,24 +1,4 @@
-/**
- * Client-side verification for Part 14 (Alerts & Insights Center) and Part 15
- * (Admin-configurable Alert Rules) - runs through vite's SSR build, same
- * pattern as verifyFrontend.jsx.
- *
- * It renders the pages through the real routes and checks the behaviour that
- * matters, then asserts on the shipped sources:
- *   - Admin AND Viewer can open /alerts (shared, read-only, no role gate)
- *   - anonymous users are redirected before anything renders
- *   - the loading state and the NavBar "Alerts" link
- *   - the page is default-export only, never calls a write API, formats
- *     currency client-side, covers all four severities + both filters +
- *     empty states + session-scoped dismiss/restore
- *   - the section hints are driven by the payload's live rules (meta.rules)
- *   - /settings renders the Admin-only Alert Rules editor, Viewers are
- *     redirected away from it, the NavBar link is Admin-only, the service
- *     reads/writes /api/alert-rules and the page validates + saves
- *   - dashboard.css ships the aic-* styles; index.css the severity vars
- *
- * Run from Client/: npm run verify:alerts
- */
+/** Client-side verification for Part 14 (Alerts & Insights Center) and Part 15 (Alert Rules) */
 
 import { readFileSync } from "node:fs";
 import { StrictMode } from "react";

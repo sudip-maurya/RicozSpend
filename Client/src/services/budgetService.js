@@ -1,8 +1,4 @@
-/**
- * Budget API service (Part 9 - Budget vs Actual).
- * Thin wrappers around the shared axios client (src/api/client.js) which
- * already attaches the JWT and handles expired sessions.
- */
+/** Budget API service (Part 9 - Budget vs Actual). */
 import api from "../api/client";
 import { getErrorMessage, getFieldErrors } from "../utils/apiError";
 
@@ -17,12 +13,7 @@ const buildParams = (query = {}) => {
   return params;
 };
 
-/**
- * GET /api/budgets/comparison
- * Budget vs Actual for the authenticated user: budget, actual spend
- * (from the existing transactions), variance, usage % and status.
- * @param {object} query { period, department, category }
- */
+/** GET /api/budgets/comparison Budget vs Actual for the authenticated user */
 export const fetchBudgetComparison = async (query = {}) => {
   try {
     const { data } = await api.get("/api/budgets/comparison", { params: buildParams(query) });
@@ -34,10 +25,7 @@ export const fetchBudgetComparison = async (query = {}) => {
   }
 };
 
-/**
- * POST /api/budgets (Admin only - the backend answers 403 for Viewers)
- * @param {object} payload { department, category, amount, period }
- */
+/** POST /api/budgets (Admin only - the backend answers 403 for Viewers) */
 export const createBudget = async (payload) => {
   try {
     const { data } = await api.post("/api/budgets", payload);

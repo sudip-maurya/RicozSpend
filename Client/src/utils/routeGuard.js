@@ -1,11 +1,4 @@
-/**
- * Pure route-guard decision logic (Part 2).
- *
- * Kept separate from the component so it can be unit-tested without a browser:
- * ProtectedRoute maps the returned result onto a redirect / loading / page.
- *
- * NOTE: this is UI-only. The backend middleware is the real security boundary.
- */
+/** NOTE: this is UI-only. The backend middleware is the real security boundary. */
 
 export const GUARD_RESULT = {
   /** Session is still being restored from the stored token. */

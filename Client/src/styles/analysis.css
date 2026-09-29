@@ -1,7 +1,4 @@
-/* Part 6 - Spend Analysis page.
-   Reuses the shared theme variables and the Part 3 dashboard classes
-   (kpi-grid, card, chart-grid, chart-card, dashboard-empty, dashboard-loading)
-   plus the Part 4 filter classes (txn-filters, txn-filter__select/date). */
+/* Part 6 - Spend Analysis page. */
 
 /* Five KPI cards need a wider grid than the dashboard's four-column one. */
 .analysis-kpi-grid {

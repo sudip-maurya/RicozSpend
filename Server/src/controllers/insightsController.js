@@ -1,49 +1,4 @@
-/**
- * Alerts & Insights Center controller (Part 14).
- *
- * One read-only endpoint that gathers every deterministic alert the app can
- * already derive from existing data - no AI, no new collections, no stored
- * state, no fake numbers. Everything is recomputed on demand by reusing the
- * exact same helpers the individual endpoints use (reuse-first, nothing is
- * duplicated here):
- *
- *  - computeBudgetComparison() -> budget rows + usage percentages (Part 9)
- *  - computeUnusualSpending()  -> transactions above the configured threshold (Part 7)
- *  - computeSpendInsights()    -> month trend, top category/department/vendor,
- *                                 contributions, activity (Part 8)
- *  - resolveInsightRange({})   -> the neutral "no filters" analysis window
- *
- * Part 15: every threshold comes from the Admin-configurable Alert Rules
- * (Alerts Center -> Alert Rules editor, stored per workspace in the AlertRule collection).
- * A workspace without saved rules uses DEFAULT_ALERT_RULES, so nothing has to
- * be configured for alerts to work:
- *
- *  - budgetWarning    (default 70)  -> warning  "Budget nearly exhausted"
- *  - budgetCritical   (default 90)  -> critical "Budget critical"
- *  - budgetExceeded   (default 100) -> critical "Budget exceeded"
- *  - unusualSpending  (default 50)  -> warning  "Unusual spending" (50% above average)
- *  - spendingIncrease (default 20)  -> warning  "Spending increased" (>= 20% MoM)
- *
- * severity rules (deterministic, documented for verification):
- *  - critical : budget usage >= the critical (or exceeded) rule
- *  - warning  : budget usage >= the warning rule, unusual transactions,
- *               month-over-month increase at or above the configured percentage
- *  - insight  : month-over-month decrease, top category/department/vendor,
- *               category contribution split
- *  - info     : activity snapshot, increase below the alert level + honest
- *               empty-state notices
- *
- * Sections group alerts by topic (budget / unusual / spending / activity);
- * severity is an independent axis the UI can filter on. Money values travel
- * as raw numbers in `amount`/`meta` (the client formats currency); `message`
- * text only ever contains currency-free facts (percentages, counts, names,
- * dates). The effective rules are published read-only in `meta.rules` so the
- * page can label its sections with the live thresholds.
- *
- * GET /api/insights - `protect` only, same as analytics: Admin and Viewer
- * both read the shared workspace dataset through spendScope.
- */
-
+// Alerts & Insights Center controller
 const {
   computeSpendInsights,
   computeUnusualSpending,
@@ -59,43 +14,32 @@ const { spendScope } = require("../utils/spendScope");
 
 const GENERIC_SERVER_ERROR = "Something went wrong. Please try again.";
 
-/** Section order as rendered by the Alerts & Insights Center page. */
 const SECTION_KEYS = ["budget", "unusual", "spending", "activity"];
-/** Deterministic ordering inside a section (independent of data order). */
 const SEVERITY_RANK = { critical: 0, warning: 1, insight: 2, info: 3 };
 
-/** 42.3456 -> 42.3 (same one-decimal rule the Part 8 payload uses). */
+// Round to 1 decimal place
 const roundPercent = (value) => Math.round(value * 10) / 10;
 
-/** Date/ISO string -> "YYYY-MM" (same shape as budget periods). */
+// Format date to YYYY-MM
 const monthKeyOf = (value) => {
   const date = value instanceof Date ? value : new Date(value);
   return date.toISOString().slice(0, 7);
 };
 
-/** Date/ISO string -> "YYYY-MM-DD" for message text. */
+// Format date to YYYY-MM-DD
 const dayOf = (value) => {
   const date = value instanceof Date ? value : new Date(value);
   return date.toISOString().slice(0, 10);
 };
 
-/* ------------------------------------------------------------ section: budget */
-
-/** Titles per configured tier (Part 15 rules decide which tier applies). */
+// Budget alert titles.
 const BUDGET_ALERT_TITLES = {
   exceeded: "Budget exceeded",
   critical: "Budget critical",
   warning: "Budget nearly exhausted",
 };
 
-/**
- * Budget alerts from the Part 9 rows. The tier comes from the row's raw
- * `usagePercentage` (never duplicated) judged against the Admin-configured
- * rules, so changing Budget Warning / Critical / Exceeded in the Alert Rules editor
- * immediately changes which budgets raise an alert - and how severe it is.
- * The descriptive Part 9 `status` label keeps its own meaning and travels
- * along in `meta` unchanged.
- */
+// Build budget alerts
 const buildBudgetAlerts = (budget, rules) => {
   const alerts = [];
 
@@ -146,21 +90,11 @@ const buildBudgetAlerts = (budget, rules) => {
   );
 };
 
-/* ---------------------------------------------------------- section: unusual */
-
-/**
- * One warning per transaction above the Part 7 threshold (average x the
- * Admin-configured "Unusual Spending" multiplier, default 1.5 = 50% above
- * average). The helper already sorts them by amount descending - order is
- * preserved.
- */
+// Unusual spending alerts.
 const buildUnusualAlerts = (unusual) =>
   unusual.unusualTransactions.map((tx) => {
     const date = new Date(tx.date);
     const vendor = tx.vendor || "Unknown vendor";
-    // Transaction.toJSON() renames `_id` to `id`, so `tx.id` is the real key
-    // (the deterministic fallback only guards against an unexpected shape, so
-    // two different transactions can never end up sharing one alert id).
     const transactionId = tx.id || `${dayOf(date)}-${vendor}-${tx.amount}`;
 
     return {
@@ -188,14 +122,7 @@ const buildUnusualAlerts = (unusual) =>
     };
   });
 
-/* ---------------------------------------------------------- section: spending */
-
-/**
- * Insights from the Part 8 payload: month trend + factual top/contribution
- * cards. An increase is an alert only when it reaches the Admin-configured
- * "Spending Increase" percentage; a smaller rise is reported as an info card
- * that names the live threshold, so nothing is hidden and nothing is invented.
- */
+// Spending alerts.
 const buildSpendingAlerts = (spend) => {
   const alerts = [];
   const {
@@ -210,7 +137,7 @@ const buildSpendingAlerts = (spend) => {
 
   const shareOf = (amount) => (totalSpend > 0 ? roundPercent((amount / totalSpend) * 100) : 0);
 
-  /* --- month-over-month trend ------------------------------------------- */
+  // Month-over-month trend
   if (monthComparison.currentMonth) {
     const trend = {
       id: "spending-month-trend",
@@ -260,7 +187,7 @@ const buildSpendingAlerts = (spend) => {
     }
   }
 
-  /* --- top category / department / vendor -------------------------------- */
+  // Top category / department / vendor
   if (topCategory) {
     alerts.push({
       id: "spending-top-category",
@@ -318,7 +245,7 @@ const buildSpendingAlerts = (spend) => {
     });
   }
 
-  /* --- category contribution split --------------------------------------- */
+  // Category contributions
   if (categoryContributions.length > 0) {
     const split = categoryContributions
       .map((entry) => `${entry.name} ${entry.share}%`)
@@ -340,14 +267,7 @@ const buildSpendingAlerts = (spend) => {
   return alerts;
 };
 
-/* ----------------------------------------------------------- section: activity */
-
-/**
- * Honest state notices: what the analysis window contains, plus empty-state
- * guidance when there is nothing to alert on yet. Facts only - never invented
- * data. The "healthy budgets" notice names the live (Admin-configured) warning
- * level.
- */
+// Activity alerts.
 const buildActivityAlerts = (spend, budget, unusual, budgetAlertCount, rules) => {
   const activity = [];
   const { transactionActivity } = spend;
@@ -429,25 +349,11 @@ const buildActivityAlerts = (spend, budget, unusual, budgetAlertCount, rules) =>
   return activity;
 };
 
-/* --------------------------------------------------------------- main handler */
-
-/**
- * GET /api/insights
- *
- * Resolves the workspace's Admin-configured rules once, then runs the three
- * shared computations with them and assembles the four alert sections +
- * summary counts + period facet (for the page's filters). `periods` only
- * contains periods that actually appear on alerts; alerts with periodKey null
- * are "overall" facts (insights/activity) that always apply.
- */
+// GET /api/insights
 const getAlertsCenter = async (req, res) => {
   try {
     const scope = spendScope(req.user);
-    // Neutral window: no from/to, no preset, no category/department/vendor
-    // filter - the centre shows the whole workspace picture by default.
     const resolved = resolveInsightRange({});
-
-    // Part 15: one rules lookup per request drives every threshold below.
     const rules = await AlertRule.findEffectiveRules(scope.organizationId);
 
     const [budget, unusual, spend] = await Promise.all([
@@ -495,13 +401,10 @@ const getAlertsCenter = async (req, res) => {
       periods,
       sections,
       meta: {
-        // Part 15: the effective (saved or default) rules behind every alert,
-        // published read-only so the UI can name the live thresholds.
         rules: { ...rules },
         budget: {
           budgetCount: budget.budgetCount,
           totals: budget.totals,
-          // Critical-severity budget alerts (exceeded rule + critical rule).
           overBudget: budgetAlerts.filter((alert) => alert.severity === "critical").length,
           nearBudget: budgetAlerts.filter((alert) => alert.severity === "warning").length,
           exceeded: budgetAlerts.filter((alert) => alert.meta.alertLevel === "exceeded").length,

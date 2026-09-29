@@ -101,8 +101,7 @@ const main = () => {
     !landingHtml.includes('id="login-email"') && !landingHtml.includes('id="login-password"')
   );
 
-  // The page flow must be: navbar -> hero -> highlights -> features ->
-  // how it works -> analytics showcase -> insights -> FAQ -> CTA -> footer.
+  // Page flow markers, in document order.
   const flowMarkers = [
     'class="landing-nav-header"',
     'class="landing-hero-section"',

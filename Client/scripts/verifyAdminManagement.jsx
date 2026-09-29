@@ -1,17 +1,4 @@
-/**
- * Client-side verification for Admin Management (Admin-only user CRUD).
- * Runs through vite's SSR build, same pattern as verifyFrontend.jsx.
- *
- * It renders /admin through the real routes and asserts on the shipped sources:
- *   - an Admin sees the "Add Admin" form + the "Admins" table
- *   - a Viewer / guest never sees the Admin-management UI
- *   - the route guard results (Admin allowed, Viewer -> Dashboard, guest -> Login)
- *   - adminService exposes the five /api/admin/admins calls
- *   - AdminOverview reuses those calls and protects the signed-in Admin
- *     (self row labelled "(you)", self deactivate/delete disabled)
- *
- * Run from Client/: npm run verify:admins
- */
+/** Client-side verification for Admin Management (Admin-only user CRUD). */
 
 import { readFileSync } from "node:fs";
 import { StrictMode } from "react";

@@ -6,14 +6,7 @@ import TransactionImportModal from "../components/TransactionImportModal";
 import { useAuth } from "../context/authContext";
 import "../styles/transactions.css";
 
-/**
- * Import page (Part 5 CSV import, reachable from the shared navbar).
- *
- * It hosts the SAME TransactionImportModal the Transactions page uses, so the
- * import logic, validation, deduplication and API calls are not duplicated.
- * Importing is an Admin-only action; Viewers see a read-only explanation (the
- * backend also answers 403 for them, so the UI is never the security boundary).
- */
+/** Import page (Part 5 CSV import, reachable from the shared navbar). */
 function ImportTransactions() {
   const { isAdmin } = useAuth();
   const [isOpen, setIsOpen] = useState(false);

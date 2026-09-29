@@ -1,26 +1,4 @@
-/**
- * Admin Management verification - /api/admin/admins end to end.
- *
- * Creates an ISOLATED workspace (organizationId "part16-verify-*") with two
- * Admins plus a Viewer and runs the dedicated Admin endpoints:
- *   - GET    /api/admin/admins           list (workspace-scoped)
- *   - POST   /api/admin/admins           create (bcrypt hash, active+verified)
- *   - PUT    /api/admin/admins/:id       edit name/email
- *   - PATCH  /api/admin/admins/:id/status activate/deactivate
- *   - DELETE /api/admin/admins/:id       remove
- *
- * It also asserts the safety guardrails:
- *   - an Admin can never delete or deactivate their own account
- *   - the last active Admin of a workspace can never be removed/deactivated
- *   - Viewer tokens answer 403 and anonymous callers 401
- *   - cross-workspace ids answer 404 (workspace isolation)
- *   - the legacy Viewer endpoints (/api/admin/users, /overview) still work
- *
- * Fixtures live only in the temporary workspace and are removed afterwards
- * (also on crash), so the default RicozSpend workspace is never touched.
- *
- * Run from Server/: npm run verify:admins
- */
+/** Admin Management verification - /api/admin/admins end to end. */
 
 const path = require("path");
 const fs = require("fs");
@@ -28,8 +6,7 @@ const dotenv = require("dotenv");
 
 dotenv.config({ path: path.join(__dirname, "..", ".env") });
 
-// P3-3: these scripts write/delete data - refuse to run against production
-// unless explicitly forced, so a staging .env can never nuke real data.
+// P3-3: these scripts write/delete data - refuse to run against production unless explicitly forced
 if (process.env.NODE_ENV === "production" && !process.argv.includes("--force")) {
   console.error("Refusing to run this verification script with NODE_ENV=production (pass --force to override).");
   process.exit(1);
@@ -420,8 +397,7 @@ const main = async () => {
       `${adminOnViewerRouteRes.status}: ${adminOnViewerRouteRes.data?.message}`
     );
 
-    // A different Admin account must be refused by the Viewer routes with the
-    // "Admin accounts cannot be managed here." message (kept from Part 2).
+    // A different Admin account must still be refused by the Viewer routes (400).
     const legacyProbe = await api("POST", "/api/admin/admins", {
       token: adminToken,
       body: {

@@ -1,24 +1,16 @@
-/**
- * Shared validation helpers for authentication (Part 2).
- *
- * These helpers are intentionally dependency-free so the same rules can be
- * reused by controllers, scripts and tests without pulling in an extra library.
- */
+/** Authentication input validation helpers. */
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const PASSWORD_MIN_LENGTH = 6;
 const NAME_MIN_LENGTH = 2;
 const NAME_MAX_LENGTH = 60;
 
-/** Trim + lowercase an email so lookups and uniqueness checks are consistent. */
+/** Normalize email string. */
 const normalizeEmail = (email) => String(email ?? "").trim().toLowerCase();
 
 const normalizeName = (name) => String(name ?? "").trim();
 
-/**
- * Validate a signup payload.
- * @returns {{ isValid: boolean, errors: Record<string, string> }}
- */
+/** Validate signup payload. */
 const validateSignup = ({ name, email, password } = {}) => {
   const errors = {};
 
@@ -48,11 +40,7 @@ const validateSignup = ({ name, email, password } = {}) => {
   return { isValid: Object.keys(errors).length === 0, errors };
 };
 
-/**
- * Validate a login payload. Deliberately lenient: never hint whether the email
- * or the password was wrong.
- * @returns {{ isValid: boolean, errors: Record<string, string> }}
- */
+/** Validate login payload. */
 const validateLogin = ({ email, password } = {}) => {
   const errors = {};
 

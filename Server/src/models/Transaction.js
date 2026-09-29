@@ -1,12 +1,6 @@
 const mongoose = require("mongoose");
 
-/**
- * Transaction / spend entry model (Part 3 - dashboard data source).
- *
- * DATA OWNERSHIP = WORKSPACE: `organizationId` decides who can see the record
- * (every account in the same workspace sees the same dataset). `user` records
- * who created it for audit/history and is never used to hide shared data.
- */
+/** Transaction model. */
 const transactionSchema = new mongoose.Schema(
   {
     user: {
@@ -62,17 +56,15 @@ const transactionSchema = new mongoose.Schema(
         ret.id = ret._id.toString();
         delete ret._id;
         delete ret.__v;
-        delete ret.user; // never expose which account owns the record
+        delete ret.user;
         return ret;
       },
     },
   }
 );
 
-// Aggregation helpers all match on user + date, so cover the compound index.
+// Compound indexes
 transactionSchema.index({ user: 1, date: -1 });
-// P1-6: the dashboard/analytics/budget aggregations always filter by
-// organizationId and group/sort by date - this is the hot query path.
 transactionSchema.index({ organizationId: 1, date: -1 });
 
 module.exports = mongoose.model("Transaction", transactionSchema);

@@ -4,8 +4,7 @@ const dotenv = require("dotenv");
 // Load Server/.env exactly like server.js does
 dotenv.config({ path: path.join(__dirname, "..", ".env") });
 
-// P3-3: these scripts write/delete data - refuse to run against production
-// unless explicitly forced, so a staging .env can never nuke real data.
+// P3-3: these scripts write/delete data - refuse to run against production unless explicitly forced
 if (process.env.NODE_ENV === "production" && !process.argv.includes("--force")) {
   console.error("Refusing to run this verification script with NODE_ENV=production (pass --force to override).");
   process.exit(1);
@@ -84,9 +83,7 @@ const tokenFromUrl = (url) => {
 };
 
 const main = async () => {
-  // Force test mode for this run only: the auth API exposes the raw
-  // verification link (devVerificationUrl) and skips real SMTP sends, so the
-  // script works whether or not SMTP is configured in Server/.env.
+  // Force test mode for this run only
   process.env.NODE_ENV = "test";
 
   console.log("RicozSpend Part 2 - authentication verification");

@@ -28,10 +28,7 @@ const DATE_RANGES = [
   { value: "custom", label: "Custom Range" },
 ];
 
-/**
- * Dashboard (Part 3: real spend overview backed by /api/dashboard/summary).
- * Protected by the Part 2 authentication; works for Admin and Viewer alike.
- */
+/** Dashboard (Part 3: real spend overview backed by /api/dashboard/summary). */
 function Dashboard() {
   const { user } = useAuth();
 
@@ -42,9 +39,7 @@ function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Part 9: Budget vs Actual totals (only rendered when a budget exists).
-  // Loaded once - budgets are monthly, so they are independent of the
-  // dashboard's own date filter.
+  // Part 9: Budget vs Actual totals, loaded once (budgets are monthly).
   const [budgetSummary, setBudgetSummary] = useState(null);
 
   useEffect(() => {
@@ -53,8 +48,7 @@ function Dashboard() {
     const loadBudgetSummary = async () => {
       const result = await fetchBudgetComparison();
 
-      // A missing/failed budget comparison simply hides the section - the rest
-      // of the dashboard keeps working.
+      // A missing/failed budget comparison simply hides the section - the rest of the dashboard keeps working.
       if (!isActive) return;
       setBudgetSummary(result.error ? null : result.data);
     };
@@ -66,8 +60,7 @@ function Dashboard() {
     };
   }, []);
 
-  // Fetch the summary whenever the date filter changes. Follows the same
-  // in-effect async + isActive guard pattern as AuthProvider (Part 2).
+  // Fetch the summary whenever the date filter changes.
   useEffect(() => {
     let isActive = true;
 
@@ -305,8 +298,7 @@ function Dashboard() {
               </div>
             </section>
 
-            {/* Part 9: Budget vs Actual - only shown once a budget exists, so it
-                never adds another empty state to the dashboard. */}
+            {/* Part 9: Budget vs Actual - shown only once a budget exists. */}
             {budgetSummary && budgetSummary.budgetCount > 0 && (
               <section className="card recent-card">
                 <div className="alerts-head">
@@ -357,8 +349,7 @@ function Dashboard() {
         {/* Part 7: basic unusual spending alerts (rule-based, real data) */}
         <UnusualSpending range={range} from={customFrom} to={customTo} />
 
-        {/* Part 8: automatic spend insights - follows the dashboard's own date
-            filter (no second filtering system). */}
+        {/* Part 8: automatic spend insights - follows the dashboard's own date filter. */}
         <SpendInsights range={range} from={customFrom} to={customTo} />
       </main>
     </div>

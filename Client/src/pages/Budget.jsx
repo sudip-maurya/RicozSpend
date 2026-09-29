@@ -50,17 +50,7 @@ const formatVariance = (value) => {
 /** Chart label: "Technology" or "Technology · IT" when a category is set. */
 const chartLabel = (row) => (row.category ? `${row.department} · ${row.category}` : row.department);
 
-/**
- * Budget vs Actual page (Part 9).
- *
- * Planned budgets stored in the Budget collection are compared against the
- * actual spend of the authenticated user's EXISTING transactions, all computed
- * by /api/budgets/comparison. The page is descriptive only: no ranking,
- * scoring or recommendations.
- *
- * Viewer: read-only. Admin: add / edit / delete (the backend enforces the role
- * with requireRole("Admin")); the UI simply hides the controls it may not use.
- */
+/** Budget vs Actual page (Part 9). */
 function Budget() {
   const { isAdmin } = useAuth();
   const [filters, setFilters] = useState(EMPTY_FILTERS);

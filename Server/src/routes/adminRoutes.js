@@ -1,7 +1,4 @@
-/**
- * Admin-only routes (overview + user management for Viewers and Admins).
- * Mounted at /api/admin from src/app.js
- */
+/** Admin overview and user management routes. */
 
 const express = require("express");
 
@@ -23,20 +20,19 @@ const { ROLES } = require("../models/User");
 
 const router = express.Router();
 
-// Every route below requires a valid JWT AND the Admin role.
-// Viewers (and anonymous callers) never reach the controllers.
+// Require Admin role
 router.use(protect, requireRole(ROLES.ADMIN));
 
 router.get("/overview", getOverview);
 
-// Viewer user management (Admin only).
+// Viewer management
 router.get("/users", listViewers);
 router.post("/users", createViewer);
 router.put("/users/:id", updateViewer);
 router.patch("/users/:id/status", setViewerStatus);
 router.delete("/users/:id", deleteViewer);
 
-// Admin management (Admin only).
+// Admin management
 router.get("/admins", listAdmins);
 router.post("/admins", createAdminUser);
 router.put("/admins/:id", updateAdminUser);

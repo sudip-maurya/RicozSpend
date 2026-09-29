@@ -6,7 +6,7 @@ if (typeof dns.setDefaultResultOrder === "function") {
 const path = require("path");
 const dotenv = require("dotenv");
 
-// Load Server/.env explicitly so it is found no matter which directory the server is started from
+// Load environment variables
 dotenv.config({ path: path.join(__dirname, ".env") });
 
 const app = require("./src/app");

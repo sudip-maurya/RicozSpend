@@ -1,5 +1,4 @@
-/* Part 3 - Dashboard & spend overview. Uses the shared RicozSpend theme
-   variables from index.css and the auth.css layout classes. */
+/* Part 3 - Dashboard & spend overview. */
 
 .dashboard-head {
   display: flex;

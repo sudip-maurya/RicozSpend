@@ -1,11 +1,4 @@
-/**
- * Email delivery for verification links (Part 2 - email verification).
- *
- * If SMTP_HOST (plus optional SMTP_USER/SMTP_PASS) is configured in Server/.env
- * the mail is really sent with nodemailer. Otherwise the app runs in dev mode
- * and prints the verification link to the server console, so the flow can be
- * tested without a mail provider.
- */
+/** Email delivery service for verification links. */
 
 const dns = require("node:dns");
 if (typeof dns.setDefaultResultOrder === "function") {
@@ -55,19 +48,16 @@ const buildVerificationEmail = ({ name, url, expiresInLabel }) => ({
   `,
 });
 
-/**
- * @returns {Promise<{ delivered: boolean, mode: "smtp"|"console"|"smtp-error" }>}
- */
+/** Send verification email or log link in non-SMTP environments. */
 const sendVerificationEmail = async ({ to, name, url, expiresInLabel }) => {
   if (isTestMode()) {
-    // Test mode (verifyAuth.js): never send real mail to the fake .test
-    // addresses; the script reads the raw link from the API response instead.
+    // Test mode: log link instead of sending
     console.log(`\n[auth][test] Verification link for ${to} (not emailed):\n  ${url}\n`);
     return { delivered: false, mode: "test" };
   }
 
   if (!isSmtpConfigured()) {
-    // Dev mode: no mail provider configured, so surface the link in the console.
+    // Development fallback: log link to console
     console.log(`\n[auth][dev] Verification link for ${to}:\n  ${url}\n`);
     return { delivered: false, mode: "console" };
   }
@@ -85,19 +75,12 @@ const sendVerificationEmail = async ({ to, name, url, expiresInLabel }) => {
 
     return { delivered: true, mode: "smtp" };
   } catch (error) {
-    // Mail problems must never break signup; the user can request a resend.
     console.error(`[auth] Failed to send verification email to ${to}:`, error.message);
     return { delivered: false, mode: "smtp-error" };
   }
 };
 
-/**
- * In development without SMTP the API also returns the link so the flow is
- * testable end-to-end. The link is also exposed in test mode (verifyAuth.js)
- * even when SMTP is configured, so the script works with or without a mail
- * provider. Real emails still go out in normal dev/production; the link is
- * never exposed in production.
- */
+/** Check if dev verification link can be exposed. */
 const canExposeDevLink = () =>
   isTestMode() ||
   (!isSmtpConfigured() &&

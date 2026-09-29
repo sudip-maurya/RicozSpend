@@ -2,9 +2,6 @@ const { isValidObjectId } = require("mongoose");
 
 const Budget = require("../models/Budget");
 const Transaction = require("../models/Transaction");
-// DATA OWNERSHIP = WORKSPACE: reads and writes below are scoped to the
-// caller's organizationId; `user`/`createdBy` are audit information (who
-// created the record). Write permissions stay role-based (see routes).
 const { spendScope } = require("../utils/spendScope");
 const { budgetAlertLevel } = require("../utils/alertRules");
 const AlertRule = require("../models/AlertRule");
@@ -84,10 +81,7 @@ const findWorkspaceBudget = async (req, res) => {
 const isDuplicateKeyError = (error) =>
   error && (error.code === 11000 || String(error.message || "").includes("duplicate"));
 
-
-/**
- * POST /api/budgets (Admin only - enforced in the routes)
- */
+/** POST /api/budgets */
 const createBudget = async (req, res) => {
   const { errors, data } = validateBudget(req.body);
 
@@ -133,11 +127,7 @@ const createBudget = async (req, res) => {
   }
 };
 
-/**
- * GET /api/budgets?period=&department=&category=
- * Lists the workspace's budgets (newest period first) - identical for Admin
- * and Viewer. Write access stays Admin-only via requireRole in the routes.
- */
+/** GET /api/budgets */
 const getBudgets = async (req, res) => {
   try {
     const filter = { ...spendScope(req.user) };
@@ -165,9 +155,7 @@ const getBudgets = async (req, res) => {
   }
 };
 
-/**
- * PUT /api/budgets/:id (Admin only - enforced in the routes)
- */
+/** PUT /api/budgets/:id */
 const updateBudget = async (req, res) => {
   const { errors, data } = validateBudget(req.body);
 
@@ -204,9 +192,7 @@ const updateBudget = async (req, res) => {
   }
 };
 
-/**
- * DELETE /api/budgets/:id (Admin only - enforced in the routes)
- */
+/** DELETE /api/budgets/:id */
 const deleteBudget = async (req, res) => {
   try {
     const existing = await findWorkspaceBudget(req, res);
@@ -221,27 +207,15 @@ const deleteBudget = async (req, res) => {
   }
 };
 
-/* ---------------------------------------------- budget vs actual (Part 9) */
-
 const ON_TRACK_LABEL = "On Track";
 const WARNING_LABEL = "Warning";
 const CRITICAL_LABEL = "Critical";
 const OVER_BUDGET_LABEL = "Over Budget";
 
-// Deprecated aliases kept for backwards compatibility
 const UNDER_BUDGET_LABEL = ON_TRACK_LABEL;
 const NEAR_BUDGET_LABEL = WARNING_LABEL;
 
-/**
- * Purely descriptive label - no ranking, scoring or recommendations.
- * Driven by the admin-configurable alert rules (single source of truth
- * via budgetAlertLevel). "Over Budget" only appears when usage >= 100%.
- * Thresholds:
- *   < 70% (or < warning)       -> "On Track"
- *   70–92% (warning–critical)   -> "Warning"
- *   92–100% (critical–exceeded) -> "Critical"
- *   >= 100% (exceeded)          -> "Over Budget"
- */
+/** Compute budget alert status label. */
 const budgetStatus = (usage, rules) => {
   const level = budgetAlertLevel(usage, rules);
   if (level === "exceeded" || usage >= 100) return OVER_BUDGET_LABEL;
@@ -250,27 +224,10 @@ const budgetStatus = (usage, rules) => {
   return ON_TRACK_LABEL;
 };
 
-/**
- * Core Part 9 budget-vs-actual computation, extracted so the Part 14 Alerts &
- * Insights Center reuses the exact same rows, thresholds and status helper
- * instead of duplicating them. `scope` is the caller's spendScope and
- * `filters` the cleaned query values ({ period, department, category }).
- * Period format validation stays in the HTTP wrapper (it answers 400 before
- * any query runs, exactly as before).
- *
- * Budget vs Actual: actual spend is read from the EXISTING Transaction
- * collection with one aggregation (no stored/duplicated actual values, no
- * second data source):
- *  - grouped by department + category + "YYYY-MM"
- *  - a budget with a category only counts that category
- *  - a budget without a category counts every category of that department
- */
+/** Compute budget vs actual spend comparison. */
 const computeBudgetComparison = async (scope, filters = {}, rules = null) => {
-  // P1-3: status labels use the workspace's effective alert rules. Callers that
-  // already resolved them (Alerts Center) pass them in; otherwise they are
-  // loaded here so the Budget page always reflects admin configuration.
+  // Resolve effective alert rules
   const effectiveRules = rules || (await AlertRule.findEffectiveRules(scope.organizationId));
-  // Shared workspace budgets - identical for Admin and Viewer.
   const filter = { ...scope };
   const appliedFilters = { period: "", department: "", category: "" };
 
@@ -294,7 +251,7 @@ const computeBudgetComparison = async (scope, filters = {}, rules = null) => {
 
   const budgets = await Budget.find(filter).sort({ period: -1, department: 1, category: 1 });
 
-  // Dropdown options come from the workspace's budgets (unfiltered).
+  // Distinct filter options
   const [departmentOptions, categoryOptions] = await Promise.all([
     Budget.distinct("department", scope),
     Budget.distinct("category", scope),
@@ -315,7 +272,6 @@ const computeBudgetComparison = async (scope, filters = {}, rules = null) => {
     };
   }
 
-  // One transaction query covering every period present in the result set.
   const periods = [...new Set(budgets.map((budget) => budget.period))];
   const windows = periods.map(monthWindow);
 
@@ -347,7 +303,6 @@ const computeBudgetComparison = async (scope, filters = {}, rules = null) => {
     },
   ]);
 
-  // Lookup tables, lower-cased so "technology" and "Technology" match.
   const byDepartmentCategoryPeriod = new Map();
   const byDepartmentPeriod = new Map();
 
@@ -377,7 +332,6 @@ const computeBudgetComparison = async (scope, filters = {}, rules = null) => {
       : byDepartmentPeriod.get(`${budget.department}|${budget.period}`.toLowerCase());
 
     const actualSpend = round2(matched ? matched.total : 0);
-    // Never divide by zero (budget amounts are validated as > 0 anyway).
     const rawUsage = budgetAmount > 0 ? (actualSpend / budgetAmount) * 100 : 0;
 
     return {
@@ -421,13 +375,7 @@ const computeBudgetComparison = async (scope, filters = {}, rules = null) => {
   };
 };
 
-/**
- * GET /api/budgets/comparison?period=YYYY-MM&department=&category=
- *
- * Thin HTTP wrapper: query validation + response shaping around the shared
- * computeBudgetComparison() helper (also reused by the Part 14 Alerts &
- * Insights Center). An invalid period answers 400 before any query runs.
- */
+/** GET /api/budgets/comparison */
 const getBudgetVsActual = async (req, res) => {
   try {
     const period = cleanText(req.query.period);

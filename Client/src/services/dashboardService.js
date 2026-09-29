@@ -1,15 +1,8 @@
-/**
- * Dashboard API service (Part 3).
- * Thin wrapper around the shared axios client (src/api/client.js) which
- * already attaches the JWT and handles expired sessions.
- */
+/** Dashboard API service (Part 3). */
 import api from "../api/client";
 import { getErrorMessage } from "../utils/apiError";
 
-/**
- * GET /api/dashboard/summary
- * @param {object} query { range, from, to } - from/to only for range="custom"
- */
+/** GET /api/dashboard/summary */
 export const fetchDashboardSummary = async (query = {}) => {
   try {
     const params = {};

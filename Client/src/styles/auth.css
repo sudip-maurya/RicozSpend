@@ -1,6 +1,4 @@
-/* Part 2 - authentication & user management styles.
-   Uses the same CSS variables as src/index.css so the existing theme
-   (light + dark via prefers-color-scheme) is preserved. */
+/* Part 2 - authentication & user management styles. */
 
 :root {
   --danger: #d64545;

@@ -3,16 +3,7 @@ import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/authContext";
 import { GUARD_RESULT, resolveRouteGuard } from "../utils/routeGuard";
 
-/**
- * Frontend route guard (Part 2).
- *
- * NOTE: this only controls navigation/UI. Real security is enforced by the
- * backend middleware (Server/src/middleware/authMiddleware.js).
- *
- * Props:
- *  - children:     the protected page
- *  - allowedRoles: optional list of roles, e.g. ["Admin"]
- */
+/** NOTE: UI-only guard - real security is the backend auth middleware. */
 const ProtectedRoute = ({ children, allowedRoles = null }) => {
   const { user, isRestoring } = useAuth();
   const location = useLocation();

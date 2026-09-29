@@ -1,39 +1,11 @@
-/**
- * Part 14/15 verification - Alerts & Insights Center + Admin-configurable rules.
- *
- * Creates ISOLATED workspaces (organizationId "part14-verify-*") with known
- * transactions and budgets, then checks GET /api/insights end to end:
- *   - all four sections (budget / unusual / spending / activity) with the
- *     exact alerts, severities, ordering, messages and raw numeric meta
- *   - every severity rule: critical = budget usage >= the critical/exceeded
- *     rule, warning = budget usage >= the warning rule / unusual transaction /
- *     month-over-month increase at or above the configured percentage,
- *     insight = tops + contributions + month-over-month decrease,
- *     info = activity + honest empty states
- *   - the DEFAULT_ALERT_RULES thresholds (70 / 90 / 100 / 50% above average / 20%)
- *     and the Admin-only /api/alert-rules editor (Part 15): defaults, validation
- *     errors, Viewer 403, persistence and the fact that saved values really do
- *     change the generated alerts (tiers, unusual rule, increase rule)
- *   - summary counts that always match the sections, the periods facet,
- *     currency-free messages and raw amounts (formatting stays client-side)
- *   - the empty workspace (info-only notices) and the healthy workspace
- *   - Admin + Viewer shared READ access, anonymous 401, no write route
- *   - regression smoke tests for Parts 1/3/4/6/7/8/9/13
- *
- * Fixtures (and any saved alert-rules document) live only in the temporary orgs
- * and are removed afterwards (also on crash), so the default RicozSpend
- * workspace is never touched.
- *
- * Run from Server/: npm run verify:alerts
- */
+/** Part 14/15 verification - Alerts & Insights Center + Admin-configurable rules. */
 
 const path = require("path");
 const dotenv = require("dotenv");
 
 dotenv.config({ path: path.join(__dirname, "..", ".env") });
 
-// P3-3: these scripts write/delete data - refuse to run against production
-// unless explicitly forced, so a staging .env can never nuke real data.
+// P3-3: these scripts write/delete data - refuse to run against production unless explicitly forced
 if (process.env.NODE_ENV === "production" && !process.argv.includes("--force")) {
   console.error("Refusing to run this verification script with NODE_ENV=production (pass --force to override).");
   process.exit(1);
@@ -112,14 +84,7 @@ const sevCount = (data, severity) =>
 
 /* -------------------------------------------------------------------- fixtures */
 
-/**
- * Main workspace - designed to light up every rule:
- *   6 txns / 4500 total; average 750; unusual threshold 1125 (default 1.5x)
- *   Aug 700 -> Sep 3800 (+442.9%, increase = warning, default 20% rule)
- *   Categories: Airfare 2400, Software 1100, Ads 900, Supplies 100
- *   Budgets: 550->600 (109.09% exceeded), 800->700 (87.5% warning),
- *            500->400 (80% warning), 400->100 (25% silent)
- */
+/** Main workspace - designed to light up every rule: 6 txns / 4500 total; average 750 */
 const FIXTURES = [
   { date: "2026-08-03", department: "IT", category: "Software", amount: 400, vendor: "CloudBase" },
   { date: "2026-08-14", department: "Marketing", category: "Ads", amount: 300, vendor: "AdWorks" },
@@ -136,13 +101,7 @@ const BUDGET_FIXTURES = [
   { department: "Office", category: "Supplies", period: "2026-09", amount: 400 },
 ];
 
-/**
- * Healthy workspace - decrease month trend, nothing unusual, budget under
- * the warning line:
- *   2 txns / 300 total; average 150; threshold 225 -> no unusual txns
- *   Jul 200 -> Aug 100 (-50% = decrease = insight)
- *   Budget Office / Supplies 2026-08: 500 planned, 100 actual (20%) = healthy
- */
+/** Healthy workspace - decrease month trend, nothing unusual, budget under the warning line */
 const HEALTHY_FIXTURES = [
   { date: "2026-07-05", department: "Travel", category: "Flights", amount: 200, vendor: "SkyJet" },
   { date: "2026-08-12", department: "Office", category: "Supplies", amount: 100, vendor: "OfficeMart" },

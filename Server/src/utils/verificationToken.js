@@ -1,11 +1,4 @@
-/**
- * Email verification tokens (Part 2 - email verification).
- *
- * Security notes:
- *  - the raw token is only ever sent to the user (email link); the database
- *    stores a SHA-256 hash of it, so a leaked DB dump cannot verify accounts
- *  - tokens always have an expiry (EMAIL_VERIFICATION_EXPIRES_IN, default 1h)
- */
+/** Email verification token utilities. */
 
 const crypto = require("crypto");
 
@@ -14,7 +7,7 @@ const DEFAULT_RESEND_COOLDOWN = "60s";
 
 const UNIT_MS = { ms: 1, s: 1000, m: 60_000, h: 3_600_000, d: 86_400_000 };
 
-/** Parse "1h" / "30m" / "15m" / "2d" / "900s" into milliseconds. */
+/** Parse duration string into milliseconds. */
 const parseDurationMs = (value, fallbackValue) => {
   const match = String(value || fallbackValue).trim().match(/^(\d+)\s*(ms|s|m|h|d)?$/i);
 
@@ -34,7 +27,7 @@ const getVerificationExpiryMs = () =>
 const getResendCooldownMs = () =>
   parseDurationMs(process.env.EMAIL_VERIFICATION_RESEND_COOLDOWN, DEFAULT_RESEND_COOLDOWN);
 
-/** Human label used in the email body, e.g. "60 minutes". */
+/** Human-readable expiry label. */
 const getVerificationExpiryLabel = () => {
   const minutes = Math.max(1, Math.round(getVerificationExpiryMs() / 60_000));
 
@@ -44,13 +37,13 @@ const getVerificationExpiryLabel = () => {
   return `${hours} hour${hours === 1 ? "" : "s"}`;
 };
 
-/** Verification is on by default; set REQUIRE_EMAIL_VERIFICATION=false to disable. */
+/** Check if email verification is enabled. */
 const isVerificationRequired = () => String(process.env.REQUIRE_EMAIL_VERIFICATION || "true").toLowerCase() !== "false";
 
 const hashVerificationToken = (token) =>
   crypto.createHash("sha256").update(String(token)).digest("hex");
 
-/** Create a fresh single-purpose token: raw value + hash to store + expiry. */
+/** Generate verification token, SHA-256 hash, and expiry. */
 const generateVerificationToken = () => {
   const token = crypto.randomBytes(32).toString("hex");
 
@@ -61,7 +54,7 @@ const generateVerificationToken = () => {
   };
 };
 
-/** Verification link the user clicks (points at the React page). */
+/** Build verification link URL. */
 const buildVerificationUrl = (token) => {
   const base = (process.env.CLIENT_URL || "http://localhost:5173").replace(/\/+$/, "");
 

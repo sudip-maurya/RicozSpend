@@ -1,8 +1,4 @@
-/**
- * Admin User & Admin-management API calls.
- * All endpoints are Admin-only: the backend answers HTTP 403 for Viewers.
- * Requests go through src/api/client.js, which attaches the JWT.
- */
+/** Admin User & Admin-management API calls. */
 
 import api from "../api/client";
 
