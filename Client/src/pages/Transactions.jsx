@@ -93,7 +93,9 @@ function Transactions() {
   const handleExport = async () => {
     if (isExporting) return;
     setIsExporting(true);
-    const { page, limit, ...exportFilters } = buildQuery(filters);
+    const exportFilters = { ...buildQuery(filters) };
+    delete exportFilters.page;
+    delete exportFilters.limit;
     const { error } = await exportTransactionsCsv(exportFilters);
     setIsExporting(false);
     if (error) {

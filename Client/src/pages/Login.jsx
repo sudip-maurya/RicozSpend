@@ -125,7 +125,7 @@ function Login() {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <h1 className="auth-card__title">Log in</h1>
+        <h1 className="auth-card__title">Login</h1>
         <p className="auth-card__subtitle">Access your RicozSpend account</p>
 
         {successMessage && <p className="alert alert--success">{successMessage}</p>}
@@ -185,7 +185,7 @@ function Login() {
               autoComplete="current-password"
               value={form.password}
               onChange={handleChange}
-              placeholder="Your password"
+              placeholder="At least 6 characters"
               disabled={isSubmitting}
             />
             {errors.password && <span className="form-field__error">{errors.password}</span>}

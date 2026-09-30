@@ -21,6 +21,19 @@
   }
 }
 
+#root:has(.auth-page) {
+  width: 100% !important;
+  max-width: 100% !important;
+  border-inline: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background-color: #fafafa !important;
+  min-height: 100vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+}
+
 /* ---------------------------------------------------------------- auth page */
 .auth-page {
   flex-grow: 1;
@@ -30,52 +43,71 @@
   padding: 40px 20px;
   box-sizing: border-box;
   width: 100%;
+  min-height: 100vh;
+  background-color: #fafafa;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 .auth-card {
   width: 100%;
-  max-width: 420px;
+  max-width: 400px;
   box-sizing: border-box;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 32px;
+  background: #ffffff;
+  border: 1px solid #f0f0f3;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px -4px rgba(0, 0, 0, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.03);
+  padding: 38px 36px 34px;
   text-align: left;
 }
 
 .auth-card--loading {
   text-align: center;
-  color: var(--text);
-  font-size: 15px;
+  color: #8f95a0;
+  font-size: 14px;
+  padding: 40px 20px;
 }
 
 .auth-card__title {
-  font-size: 32px;
-  letter-spacing: -0.5px;
-  margin: 0 0 4px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  color: #111827;
+  margin: 0 0 6px;
+  line-height: 1.25;
 }
 
 .auth-card__subtitle {
-  font-size: 15px;
+  font-size: 13.5px;
+  font-weight: 400;
   margin: 0 0 24px;
-  color: var(--text);
+  color: #8f95a0;
+  line-height: 1.4;
 }
 
 .auth-card__footer {
-  margin: 20px 0 0;
-  font-size: 15px;
+  margin: 22px 0 0;
+  font-size: 13px;
   text-align: center;
-  color: var(--text);
+  color: #8f95a0;
 }
 
-.auth-card__footer a,
+.auth-card__footer a {
+  color: #cf222b;
+  font-weight: 500;
+  text-decoration: none;
+  margin-left: 2px;
+}
+
+.auth-card__footer a:hover {
+  text-decoration: underline;
+}
+
 .auth-card a {
-  color: var(--accent);
+  color: #cf222b;
   text-decoration: none;
 }
 
-.auth-card__footer a:hover,
 .auth-card a:hover {
   text-decoration: underline;
 }
@@ -91,79 +123,93 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+  text-align: left;
 }
 
 .form-field__label {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-h);
+  font-size: 13px;
+  font-weight: 600;
+  color: #1f2937;
+  letter-spacing: -0.1px;
 }
 
 .form-field input {
   font: inherit;
-  font-size: 16px;
-  padding: 10px 12px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: var(--bg);
-  color: var(--text-h);
-  transition: border-color 0.2s, box-shadow 0.2s;
+  font-size: 13.5px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  border: 1px solid #e4e4e7;
+  background: #ffffff;
+  color: #111827;
+  box-sizing: border-box;
+  width: 100%;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-field input::placeholder {
+  color: #9ca3af;
+  font-size: 13.5px;
+  font-weight: 400;
 }
 
 .form-field input:focus {
   outline: none;
-  border-color: var(--accent-border);
-  box-shadow: 0 0 0 3px var(--accent-bg);
+  border-color: #cf222b;
+  box-shadow: 0 0 0 3px rgba(207, 34, 43, 0.12);
 }
 
 .form-field input:disabled {
+  background-color: #f9fafb;
   opacity: 0.7;
   cursor: not-allowed;
 }
 
 .form-field__error {
-  font-size: 13px;
-  color: var(--danger);
+  font-size: 12.5px;
+  color: #cf222b;
+  margin-top: 2px;
 }
 
 /* ------------------------------------------------------------------ alerts */
 .alert {
-  font-size: 15px;
+  font-size: 13.5px;
   line-height: 1.4;
-  padding: 10px 12px;
-  border-radius: 8px;
+  padding: 10px 14px;
+  border-radius: 6px;
   border: 1px solid transparent;
   margin: 0 0 16px;
+  text-align: left;
 }
 
 .alert--error {
-  color: var(--danger);
-  background: var(--danger-bg);
-  border-color: var(--danger-border);
+  color: #cf222b;
+  background: #fff1f2;
+  border-color: #ffe4e6;
 }
 
 .alert--success {
-  color: var(--success);
-  background: var(--success-bg);
-  border-color: var(--success-border);
+  color: #15803d;
+  background: #f0fdf4;
+  border-color: #bbf7d0;
 }
 
 .alert--info {
-  color: var(--text-h);
-  background: var(--accent-bg);
-  border-color: var(--accent-border);
+  color: #1d4ed8;
+  background: #eff6ff;
+  border-color: #dbeafe;
 }
 
 /* small helper blocks inside auth cards (notes, resend controls) */
 .auth-card__note {
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.5;
-  color: var(--text);
+  color: #8f95a0;
   margin: 0 0 16px;
+  text-align: left;
 }
 
 .auth-card__note a {
-  color: var(--accent);
+  color: #cf222b;
   text-decoration: none;
   word-break: break-word;
 }
@@ -186,38 +232,44 @@
 /* ------------------------------------------------------------------ buttons */
 .btn {
   font: inherit;
-  font-size: 16px;
+  font-size: 14px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 10px 16px;
-  border-radius: 8px;
+  padding: 11px 16px;
+  border-radius: 6px;
   border: 1px solid transparent;
   cursor: pointer;
   text-decoration: none;
-  transition: opacity 0.2s, border-color 0.2s;
+  transition: background-color 0.15s ease, opacity 0.15s ease, border-color 0.15s ease, transform 0.05s ease;
 }
 
 .btn--primary {
-  background: var(--accent);
+  background: #cf222b;
   color: #fff;
-  font-weight: 500;
+  font-weight: 600;
   width: 100%;
 }
 
 .btn--primary:hover:not(:disabled) {
-  opacity: 0.9;
+  background: #b51c24;
+  opacity: 1;
+}
+
+.btn--primary:active:not(:disabled) {
+  transform: scale(0.99);
 }
 
 .btn--ghost {
   background: transparent;
-  border-color: var(--border);
-  color: var(--text-h);
+  border-color: #e4e4e7;
+  color: #1f2937;
 }
 
 .btn--ghost:hover {
-  border-color: var(--accent-border);
+  border-color: #cf222b;
+  color: #cf222b;
 }
 
 .btn:disabled {
