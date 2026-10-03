@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import NavBar from "../components/NavBar";
 import TransactionFormModal from "../components/TransactionFormModal";
@@ -163,9 +163,20 @@ function Transactions() {
 
   const clearFilters = () => {
     setSearchInput("");
+    setSliderRange({ min: 10000, max: 50000 });
     setFilters((current) => ({
       ...DEFAULT_FILTERS,
       limit: current.limit, // keep the chosen page size
+    }));
+  };
+
+  const handleApplyFilters = () => {
+    setFilters((current) => ({
+      ...current,
+      search: searchInput.trim(),
+      minAmount: sliderRange.min,
+      maxAmount: sliderRange.max,
+      page: 1,
     }));
   };
 
@@ -205,51 +216,199 @@ function Transactions() {
     }
   };
 
-  const sortIndicator = (field) =>
-    filters.sortBy === field ? (
-      <span className="txn-sort__arrow">
-        {filters.sortOrder === "asc" ? "\u2191" : "\u2193"}
-      </span>
-    ) : null;
+  const SLIDER_MAX = 100000;
+
+  // Local state for the slider handles while dragging (zero page flicker)
+  const [sliderRange, setSliderRange] = useState({
+    min: filters.minAmount !== "" ? Number(filters.minAmount) : 10000,
+    max: filters.maxAmount !== "" ? Number(filters.maxAmount) : 50000,
+  });
+
+  // Sync local slider state when external filters change (e.g. Reset button)
+  useEffect(() => {
+    setSliderRange({
+      min: filters.minAmount !== "" ? Number(filters.minAmount) : 10000,
+      max: filters.maxAmount !== "" ? Number(filters.maxAmount) : 50000,
+    });
+  }, [filters.minAmount, filters.maxAmount]);
+
+  // Commit changes to actual filters when drag ends or debounced (~250ms)
+  const commitSliderRange = useCallback(() => {
+    setFilters((current) => {
+      if (
+        current.minAmount === sliderRange.min &&
+        current.maxAmount === sliderRange.max
+      ) {
+        return current;
+      }
+      return {
+        ...current,
+        minAmount: sliderRange.min,
+        maxAmount: sliderRange.max,
+        page: 1,
+      };
+    });
+  }, [sliderRange.min, sliderRange.max]);
+
+  // Debounce filter commit so continuous dragging never re-filters per pixel
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setFilters((current) => {
+        if (
+          current.minAmount === sliderRange.min &&
+          current.maxAmount === sliderRange.max
+        ) {
+          return current;
+        }
+        return {
+          ...current,
+          minAmount: sliderRange.min,
+          maxAmount: sliderRange.max,
+          page: 1,
+        };
+      });
+    }, 250);
+
+    return () => clearTimeout(timer);
+  }, [sliderRange.min, sliderRange.max]);
+
+  const minPercent = Math.min(100, Math.max(0, (sliderRange.min / SLIDER_MAX) * 100));
+  const maxPercent = Math.min(100, Math.max(0, (sliderRange.max / SLIDER_MAX) * 100));
+
+  const formatK = (amt) => {
+    const num = Number(amt) || 0;
+    if (num >= 1000) return `₹${Math.round(num / 1000)}K`;
+    return `₹${num}`;
+  };
+
+  const displayRangeText = `${formatK(sliderRange.min)} – ${formatK(sliderRange.max)}`;
+
+  const handleMinSliderChange = (e) => {
+    const val = Math.min(Number(e.target.value), sliderRange.max);
+    setSliderRange((prev) => ({ ...prev, min: val }));
+  };
+
+  const handleMaxSliderChange = (e) => {
+    const val = Math.max(Number(e.target.value), sliderRange.min);
+    setSliderRange((prev) => ({ ...prev, max: val }));
+  };
 
   const firstRow = data.total === 0 ? 0 : (data.page - 1) * data.limit + 1;
   const lastRow = Math.min(data.page * data.limit, data.total);
+
+  // Memoize rendered table rows so dragging the slider causes ZERO row recomputations
+  const renderedTransactionRows = useMemo(() => {
+    return data.transactions.map((transaction) => (
+      <tr key={transaction.id} className="txn-table-row">
+        <td className="txn-td-date">{formatDate(transaction.date)}</td>
+        <td className="txn-td-vendor">
+          <button
+            type="button"
+            className="txn-vendor-btn"
+            onClick={() => setViewTarget(transaction)}
+          >
+            {transaction.vendor}
+          </button>
+        </td>
+        <td className="txn-td-plain txn-td-category">{transaction.category}</td>
+        <td className="txn-td-plain txn-td-dept">{transaction.department}</td>
+        <td className="txn-td-amount">{formatMoney(transaction.amount)}</td>
+        <td className="txn-td-actions">
+          {isAdmin ? (
+            deleteTarget?.id === transaction.id ? (
+              <div className="txn-delete-confirm-box">
+                <button
+                  type="button"
+                  className="txn-act-btn txn-act-btn--confirm-del"
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                >
+                  {isDeleting ? "Deleting..." : "Yes, delete"}
+                </button>
+                <button
+                  type="button"
+                  className="txn-act-btn txn-act-btn--cancel"
+                  onClick={() => setDeleteTarget(null)}
+                  disabled={isDeleting}
+                >
+                  No
+                </button>
+              </div>
+            ) : (
+              <div className="txn-actions-flex">
+                <button
+                  type="button"
+                  className="txn-act-btn txn-act-btn--view"
+                  onClick={() => setViewTarget(transaction)}
+                >
+                  View
+                </button>
+                <button
+                  type="button"
+                  className="txn-act-btn txn-act-btn--edit"
+                  onClick={() => setFormTarget(transaction)}
+                >
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  className="txn-act-btn txn-act-btn--delete"
+                  onClick={() => setDeleteTarget(transaction)}
+                >
+                  Delete
+                </button>
+              </div>
+            )
+          ) : (
+            <div className="txn-actions-flex">
+              <button
+                type="button"
+                className="txn-act-btn txn-act-btn--view"
+                onClick={() => setViewTarget(transaction)}
+              >
+                View
+              </button>
+            </div>
+          )}
+        </td>
+      </tr>
+    ));
+  }, [data.transactions, isAdmin, deleteTarget?.id, isDeleting]);
 
   return (
     <div className="app-shell">
       <NavBar />
 
-      <main className="app-main">
-        <div className="txn-toolbar">
-          <div>
-            <h1 className="page-title">Spend / Transactions</h1>
-            <p className="page-subtitle">Manage your spending records</p>
+      <main className="app-main txn-main-layout">
+        {/* HEADER: Title, Subtitle, and Buttons */}
+        <div className="txn-page-header">
+          <div className="txn-page-header__left">
+            <h1 className="txn-page-title">Spend / Transactions</h1>
+            <p className="txn-page-subtitle">Manage your spending records</p>
           </div>
 
-          <div className="txn-toolbar__actions">
-            <input
-              className="txn-search"
-              type="search"
-              placeholder="Search vendor, category, department, description, ID..."
-              value={searchInput}
-              onChange={(event) => setSearchInput(event.target.value)}
-              aria-label="Search transactions"
-            />
+          <div className="txn-page-header__actions">
             {isAdmin && (
-              <button type="button" className="btn" onClick={() => setFormTarget({})}>
+              <button
+                type="button"
+                className="txn-btn txn-btn--primary"
+                onClick={() => setFormTarget({})}
+              >
                 + Add Transaction
               </button>
             )}
-            {/* Part 5: CSV import, next to Add Transaction (Admin only) */}
             {isAdmin && (
-              <button type="button" className="btn btn--ghost" onClick={() => setIsImportOpen(true)}>
+              <button
+                type="button"
+                className="txn-btn txn-btn--outline"
+                onClick={() => setIsImportOpen(true)}
+              >
                 Import CSV
               </button>
             )}
-            {/* P2-10: CSV export with the active filters (all roles) */}
             <button
               type="button"
-              className="btn btn--ghost"
+              className="txn-btn txn-btn--outline"
               onClick={handleExport}
               disabled={isExporting}
             >
@@ -258,143 +417,272 @@ function Transactions() {
           </div>
         </div>
 
-        {/* Filters: category, department, vendor, amount range, date range - all work together */}
-        <section className="card">
-          <div className="txn-filters">
-            <div className="form-field">
-              <label className="form-field__label" htmlFor="filter-category">
-                Category
-              </label>
-              <select
-                id="filter-category"
-                className="txn-filter__select"
-                value={filters.category}
-                onChange={(event) => updateFilter("category", event.target.value)}
+        {/* FILTER BAR: Exactly matching reference layout */}
+        <section className="txn-filter-card">
+          {/* (a) search + 3 labeled dropdown cards */}
+          <div className="txn-filter-col txn-filter-col--left">
+            <div className="txn-filter-search">
+              <svg
+                className="txn-filter-search__icon"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
               >
-                <option value="">All categories</option>
-                {data.facets.categories.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="form-field">
-              <label className="form-field__label" htmlFor="filter-department">
-                Cost Centre / Department
-              </label>
-              <select
-                id="filter-department"
-                className="txn-filter__select"
-                value={filters.department}
-                onChange={(event) => updateFilter("department", event.target.value)}
-              >
-                <option value="">All departments</option>
-                {data.facets.departments.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="form-field">
-              <label className="form-field__label" htmlFor="filter-vendor">
-                Vendor
-              </label>
-              <select
-                id="filter-vendor"
-                className="txn-filter__select"
-                value={filters.vendor}
-                onChange={(event) => updateFilter("vendor", event.target.value)}
-              >
-                <option value="">All vendors</option>
-                {data.facets.vendors.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="form-field">
-              <label className="form-field__label" htmlFor="filter-min-amount">
-                Min amount
-              </label>
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
               <input
-                id="filter-min-amount"
-                className="txn-filter__date"
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="0"
-                value={filters.minAmount}
-                onChange={(event) => updateFilter("minAmount", event.target.value)}
+                className="txn-filter-search__input"
+                type="search"
+                placeholder="Search by category, department, vendor, id..."
+                value={searchInput}
+                onChange={(event) => setSearchInput(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") handleApplyFilters();
+                }}
+                aria-label="Search transactions"
               />
             </div>
 
-            <div className="form-field">
-              <label className="form-field__label" htmlFor="filter-max-amount">
-                Max amount
-              </label>
-              <input
-                id="filter-max-amount"
-                className="txn-filter__date"
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="No max"
-                value={filters.maxAmount}
-                onChange={(event) => updateFilter("maxAmount", event.target.value)}
-              />
+            <div className="txn-filter-dropdowns-row">
+              <div className="txn-filter-select-box">
+                <span className="txn-filter-select-box__label">CATEGORY</span>
+                <select
+                  id="filter-category"
+                  className="txn-filter-select-box__input"
+                  value={filters.category}
+                  onChange={(event) => updateFilter("category", event.target.value)}
+                  aria-label="Category"
+                >
+                  <option value="">All Categories</option>
+                  {data.facets.categories.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+                <svg
+                  className="txn-filter-select-box__chevron"
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </div>
+
+              <div className="txn-filter-select-box">
+                <span className="txn-filter-select-box__label">DEPARTMENT</span>
+                <select
+                  id="filter-department"
+                  className="txn-filter-select-box__input"
+                  value={filters.department}
+                  onChange={(event) => updateFilter("department", event.target.value)}
+                  aria-label="Department"
+                >
+                  <option value="">All Departments</option>
+                  {data.facets.departments.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+                <svg
+                  className="txn-filter-select-box__chevron"
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </div>
+
+              <div className="txn-filter-select-box">
+                <span className="txn-filter-select-box__label">VENDOR</span>
+                <select
+                  id="filter-vendor"
+                  className="txn-filter-select-box__input"
+                  value={filters.vendor}
+                  onChange={(event) => updateFilter("vendor", event.target.value)}
+                  aria-label="Vendor"
+                >
+                  <option value="">All Vendors</option>
+                  {data.facets.vendors.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+                <svg
+                  className="txn-filter-select-box__chevron"
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </div>
             </div>
+          </div>
 
-            <div className="form-field">
-              <label className="form-field__label" htmlFor="filter-from">
-                From
-              </label>
-              <input
-                id="filter-from"
-                className="txn-filter__date"
-                type="date"
-                value={filters.from}
-                onChange={(event) => updateFilter("from", event.target.value)}
-              />
+          {/* (b) Spending Range: SPENDING RANGE & ₹10K - ₹50K top, slider, ₹10,000 / ₹50,000 bottom */}
+          <div className="txn-filter-col txn-filter-col--slider">
+            <div className="txn-filter-slider-header">
+              <span className="txn-filter-col-label">SPENDING RANGE</span>
+              <span className="txn-filter-slider-pill">{displayRangeText}</span>
             </div>
-
-            <span className="txn-filter__dash">-</span>
-
-            <div className="form-field">
-              <label className="form-field__label" htmlFor="filter-to">
-                To
-              </label>
-              <input
-                id="filter-to"
-                className="txn-filter__date"
-                type="date"
-                value={filters.to}
-                onChange={(event) => updateFilter("to", event.target.value)}
-              />
+            <div className="txn-filter-slider-body">
+              <div className="txn-dual-slider">
+                <div className="txn-dual-slider__track" />
+                <div
+                  className="txn-dual-slider__fill"
+                  style={{
+                    transform: `translate3d(${minPercent}%, 0, 0) scaleX(${Math.max(
+                      0,
+                      (maxPercent - minPercent) / 100
+                    )})`,
+                  }}
+                />
+                <input
+                  type="range"
+                  min="0"
+                  max={SLIDER_MAX}
+                  step="1000"
+                  value={sliderRange.min}
+                  onChange={handleMinSliderChange}
+                  onPointerUp={commitSliderRange}
+                  onTouchEnd={commitSliderRange}
+                  onKeyUp={commitSliderRange}
+                  className="txn-dual-slider__input"
+                  aria-label="Minimum spending amount"
+                />
+                <input
+                  type="range"
+                  min="0"
+                  max={SLIDER_MAX}
+                  step="1000"
+                  value={sliderRange.max}
+                  onChange={handleMaxSliderChange}
+                  onPointerUp={commitSliderRange}
+                  onTouchEnd={commitSliderRange}
+                  onKeyUp={commitSliderRange}
+                  className="txn-dual-slider__input"
+                  aria-label="Maximum spending amount"
+                />
+              </div>
             </div>
+            <div className="txn-filter-slider-footer">
+              <span>₹{sliderRange.min.toLocaleString("en-IN")}</span>
+              <span>₹{sliderRange.max.toLocaleString("en-IN")}</span>
+            </div>
+          </div>
 
-            {hasActiveFilters && (
-              <button type="button" className="btn btn--ghost" onClick={clearFilters}>
-                Clear filters
-              </button>
-            )}
+          {/* (c) Select Date & (d) Apply button at the far right */}
+          <div className="txn-filter-col txn-filter-col--date-apply">
+            <div className="txn-filter-date-header">
+              <span className="txn-filter-col-label">SELECT DATE</span>
+            </div>
+            <div className="txn-filter-date-action-row">
+              <div className="txn-filter-date-inputs">
+                <input
+                  id="filter-from"
+                  className="txn-filter-date-input"
+                  type="date"
+                  value={filters.from}
+                  onChange={(event) => updateFilter("from", event.target.value)}
+                  aria-label="From date"
+                />
+                <span className="txn-filter-date-sep">–</span>
+                <input
+                  id="filter-to"
+                  className="txn-filter-date-input"
+                  type="date"
+                  value={filters.to}
+                  onChange={(event) => updateFilter("to", event.target.value)}
+                  aria-label="To date"
+                />
+              </div>
+
+              <div className="txn-filter-actions-group">
+                {hasActiveFilters && (
+                  <button
+                    type="button"
+                    className="txn-filter-reset-btn"
+                    onClick={clearFilters}
+                    title="Reset all filters"
+                  >
+                    Reset
+                  </button>
+                )}
+                <button
+                  type="button"
+                  className="txn-filter-apply-btn"
+                  onClick={handleApplyFilters}
+                  title="Apply filters"
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <line x1="4" y1="6" x2="20" y2="6" />
+                    <line x1="7" y1="12" x2="17" y2="12" />
+                    <line x1="10" y1="18" x2="14" y2="18" />
+                  </svg>
+                  <span>Apply</span>
+                </button>
+              </div>
+            </div>
           </div>
         </section>
+
+        {/* Dynamic transaction count & records subtitle below the card */}
+        <div className="txn-count-bar">
+          <h2 className="txn-count-title">{data.total} Transactions</h2>
+          <p className="txn-count-subtitle">
+            Showing {firstRow}–{lastRow} of {data.total} records
+          </p>
+        </div>
 
         {toast && <div className="alert alert--success">{toast}</div>}
 
         {error && (
-          <section className="card">
+          <section className="txn-table-card">
             <div className="txn-state txn-state--error">
-              <p className="card__text">{error}</p>
+              <p className="txn-state__text">{error}</p>
               <button
                 type="button"
-                className="btn"
+                className="txn-btn txn-btn--primary"
                 onClick={() => setFilters((current) => ({ ...current }))}
               >
                 Retry
@@ -404,187 +692,96 @@ function Transactions() {
         )}
 
         {!error && (
-          <section className="card">
-            {isLoading ? (
+          <section className="txn-table-card">
+            {isLoading && data.transactions.length === 0 ? (
               <div className="txn-state">Loading transactions...</div>
             ) : data.transactions.length === 0 ? (
               <div className="txn-state">
-                <p className="card__text">
+                <p className="txn-state__text">
                   {hasActiveFilters
                     ? "No transactions match your search or filters."
                     : "No transactions found."}
                 </p>
                 {isAdmin && (
-                  <button type="button" className="btn" onClick={() => setFormTarget({})}>
+                  <button
+                    type="button"
+                    className="txn-btn txn-btn--primary"
+                    onClick={() => setFormTarget({})}
+                  >
                     + Add your first transaction
                   </button>
                 )}
               </div>
             ) : (
               <>
-                <div className="txn-table-wrap">
+                <div
+                  className={`txn-table-scroll ${
+                    isLoading ? "txn-table-scroll--loading" : ""
+                  }`}
+                >
                   <table className="txn-table">
                     <thead>
                       <tr>
-                        <th>
+                        <th className="txn-th-date">
                           <button
                             type="button"
-                            className="txn-sort"
+                            className="txn-sort-btn"
                             onClick={() => handleSort("date")}
                           >
-                            Date {sortIndicator("date")}
+                            Date
+                            <span className="txn-sort-arrow">
+                              {filters.sortBy === "date"
+                                ? filters.sortOrder === "asc"
+                                  ? "↑"
+                                  : "↓"
+                                : "↕"}
+                            </span>
                           </button>
                         </th>
-                        <th>
-                          <button
-                            type="button"
-                            className="txn-sort"
-                            onClick={() => handleSort("vendor")}
-                          >
-                            Vendor {sortIndicator("vendor")}
-                          </button>
-                        </th>
-                        <th>Category</th>
-                        <th>Cost Centre / Department</th>
-                        <th className="txn-table__amount">
-                          <button
-                            type="button"
-                            className="txn-sort"
-                            onClick={() => handleSort("amount")}
-                          >
-                            Amount {sortIndicator("amount")}
-                          </button>
-                        </th>
-                        {isAdmin && <th>Actions</th>}
+                        <th className="txn-th-vendor">Vendor</th>
+                        <th className="txn-th-category">Category</th>
+                        <th className="txn-th-dept">Cost Centre / Department</th>
+                        <th className="txn-th-amount">Amount</th>
+                        <th className="txn-th-actions">Actions</th>
                       </tr>
                     </thead>
-                    <tbody>
-                      {data.transactions.map((transaction) => (
-                        <tr key={transaction.id}>
-                          <td>{formatDate(transaction.date)}</td>
-                          <td>
-                            <button
-                              type="button"
-                              className="txn-vendor"
-                              onClick={() => setViewTarget(transaction)}
-                            >
-                              {transaction.vendor}
-                            </button>
-                          </td>
-                          <td>{transaction.category}</td>
-                          <td>{transaction.department}</td>
-                          <td className="txn-table__amount">
-                            {formatMoney(transaction.amount)}
-                          </td>
-                          {isAdmin ? (
-                            <td>
-                              {deleteTarget?.id === transaction.id ? (
-                                <span className="txn-table__actions">
-                                  <button
-                                    type="button"
-                                    className="btn btn--danger"
-                                    onClick={handleDelete}
-                                    disabled={isDeleting}
-                                  >
-                                    {isDeleting ? "Deleting..." : "Yes, delete"}
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className="btn btn--ghost"
-                                    onClick={() => setDeleteTarget(null)}
-                                    disabled={isDeleting}
-                                  >
-                                    No
-                                  </button>
-                                </span>
-                              ) : (
-                                <span className="txn-table__actions">
-                                  <button
-                                    type="button"
-                                    className="btn btn--ghost"
-                                    onClick={() => setViewTarget(transaction)}
-                                  >
-                                    View
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className="btn btn--ghost"
-                                    onClick={() => setFormTarget(transaction)}
-                                  >
-                                    Edit
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className="btn btn--danger"
-                                    onClick={() => setDeleteTarget(transaction)}
-                                  >
-                                    Delete
-                                  </button>
-                                </span>
-                              )}
-                            </td>
-                          ) : (
-                            <td>
-                              <span className="txn-table__actions">
-                                <button
-                                  type="button"
-                                  className="btn btn--ghost"
-                                  onClick={() => setViewTarget(transaction)}
-                                >
-                                  View
-                                </button>
-                              </span>
-                            </td>
-                          )}
-                        </tr>
-                      ))}
-                    </tbody>
+                    <tbody>{renderedTransactionRows}</tbody>
                   </table>
                 </div>
 
-                {/* Simple pagination: "Showing 1-10 of 126 transactions" */}
-                <div className="txn-pagination">
-                  <span>
-                    Showing {firstRow}-{lastRow} of {data.total} transaction
+                {/* PAGINATION: "Showing 1–10 of 50 transactions" and Previous / Page 1 of 5 / Next */}
+                <div className="txn-pagination-row">
+                  <div className="txn-pagination-info">
+                    Showing {firstRow}–{lastRow} of {data.total} transaction
                     {data.total === 1 ? "" : "s"}
-                  </span>
+                  </div>
 
-                  <div className="txn-pagination__controls">
-                    <select
-                      id="page-size"
-                      className="txn-filter__select"
-                      value={data.limit}
-                      onChange={(event) =>
-                        updateFilter("limit", Number(event.target.value))
-                      }
-                      aria-label="Transactions per page"
-                    >
-                      {PAGE_SIZES.map((size) => (
-                        <option key={size} value={size}>
-                          {size} / page
-                        </option>
-                      ))}
-                    </select>
-
+                  <div className="txn-pagination-controls">
                     <button
                       type="button"
-                      className="btn btn--ghost"
+                      className="txn-page-btn"
                       disabled={data.page <= 1}
                       onClick={() =>
-                        setFilters((current) => ({ ...current, page: current.page - 1 }))
+                        setFilters((current) => ({
+                          ...current,
+                          page: current.page - 1,
+                        }))
                       }
                     >
                       Previous
                     </button>
-                    <span className="txn-pagination__page">
+                    <span className="txn-page-indicator">
                       Page {data.page} of {data.totalPages}
                     </span>
                     <button
                       type="button"
-                      className="btn btn--ghost"
+                      className="txn-page-btn"
                       disabled={data.page >= data.totalPages}
                       onClick={() =>
-                        setFilters((current) => ({ ...current, page: current.page + 1 }))
+                        setFilters((current) => ({
+                          ...current,
+                          page: current.page + 1,
+                        }))
                       }
                     >
                       Next

@@ -15,7 +15,7 @@ if (
   )
 }
 
-const baseURL = configuredBaseURL || 'http://localhost:5000'
+const baseURL = configuredBaseURL || 'http://localhost:5001'
 
 // Login/signup answer 401 for bad credentials; that must not clear a session.
 const PUBLIC_AUTH_ENDPOINTS = ['/api/auth/login', '/api/auth/signup']

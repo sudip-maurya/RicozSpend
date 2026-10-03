@@ -8,6 +8,90 @@ import { getErrorMessage, getFieldErrors, getStatusCode } from "../utils/apiErro
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const PASSWORD_MIN_LENGTH = 6; // keep in sync with Server/src/utils/validation.js
 
+const BENEFITS = [
+  {
+    title: "See every rupee",
+    description: "Track spending by vendor, department and category in one place.",
+    icon: (
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M6 3h12" />
+        <path d="M6 8h12" />
+        <path d="m6 13 8.5 8" />
+        <path d="M6 13h3a4 4 0 0 0 0-8" />
+      </svg>
+    ),
+  },
+  {
+    title: "Never overshoot budgets",
+    description: "Smart alerts warn you before limits are crossed.",
+    icon: (
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+        <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+      </svg>
+    ),
+  },
+  {
+    title: "Decide with data",
+    description: "Budget vs actual, trends and vendor insights at a glance.",
+    icon: (
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <line x1="18" y1="20" x2="18" y2="10" />
+        <line x1="12" y1="20" x2="12" y2="4" />
+        <line x1="6" y1="20" x2="6" y2="14" />
+      </svg>
+    ),
+  },
+  {
+    title: "Reports in one click",
+    description: "Export clean summaries for reviews and audits.",
+    icon: (
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+        <polyline points="14 2 14 8 20 8" />
+        <line x1="16" y1="13" x2="8" y2="13" />
+        <line x1="16" y1="17" x2="8" y2="17" />
+      </svg>
+    ),
+  },
+];
+
 const initialForm = { name: "", email: "", password: "", confirmPassword: "" };
 
 /** Signup page (Part 2). New accounts are always created with the Viewer role. */
@@ -22,6 +106,9 @@ function Signup() {
   // Part 2 - email verification: shown after a successful signup.
   const [signupResult, setSignupResult] = useState(null);
   const [resendState, setResendState] = useState({ status: "idle", message: "", devUrl: "" });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
 
   if (isRestoring) {
     return (
@@ -57,6 +144,14 @@ function Signup() {
     }
   };
 
+  const handleOAuthClick = (provider) => {
+    // TODO: Implement OAuth login flow for provider
+    setToastMessage(`${provider} sign-up is coming soon.`);
+    setTimeout(() => {
+      setToastMessage("");
+    }, 3000);
+  };
+
   // Part 2 - email verification step after a successful signup.
   if (signupResult) {
     return (
@@ -89,26 +184,32 @@ function Signup() {
             </p>
           )}
 
-          <button
-            type="button"
-            className="btn btn--ghost"
-            onClick={handleResendVerification}
-            disabled={resendState.status === "sending"}
-          >
-            {resendState.status === "sending" ? "Sending..." : "Resend verification email"}
-          </button>
+          <div className="auth-card__block">
+            <button
+              type="button"
+              className="btn btn--ghost"
+              onClick={handleResendVerification}
+              disabled={resendState.status === "sending"}
+            >
+              {resendState.status === "sending" ? "Sending..." : "Resend verification email"}
+            </button>
 
-          {resendState.message && (
-            <p className={resendState.status === "error" ? "alert alert--error" : "alert alert--success"}>
-              {resendState.message}
-            </p>
-          )}
+            {resendState.message && (
+              <p
+                className={
+                  resendState.status === "error" ? "alert alert--error" : "alert alert--success"
+                }
+              >
+                {resendState.message}
+              </p>
+            )}
 
-          {resendState.devUrl && (
-            <p className="auth-card__note">
-              Dev mode - <a href={resendState.devUrl}>open your new verification link</a>.
-            </p>
-          )}
+            {resendState.devUrl && (
+              <p className="auth-card__note">
+                Dev mode - <a href={resendState.devUrl}>open your new verification link</a>.
+              </p>
+            )}
+          </div>
 
           <p className="auth-card__footer">
             Email already verified? <Link to="/login">Go to Login</Link>
@@ -210,84 +311,292 @@ function Signup() {
   };
 
   return (
-    <div className="auth-page">
-      <div className="auth-card">
-        <h1 className="auth-card__title">Create account</h1>
-        <p className="auth-card__subtitle">New accounts start with the Viewer role</p>
+    <div className="auth-page signup-split-page">
+      {/* LEFT PANEL (red gradient, white text) */}
+      <div className="signup-left-panel">
+        <div className="auth-panel-brand-bar">
+          <Link to="/" className="auth-brand-pill" aria-label="RicozSpend home">
+            <span className="login-brand__icon" aria-hidden="true">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M12 2v20" />
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+              </svg>
+            </span>
+            <span className="login-brand__text">
+              Ricoz<span className="login-brand__text--accent">Spend</span>
+            </span>
+          </Link>
+        </div>
 
-        {formError && <p className="alert alert--error">{formError}</p>}
+        {/* CENTER CARDS CONTENT */}
+        <div className="signup-left-content">
+          <p className="rsu-kicker">Why RicozSpend?</p>
+          <h2 className="rsu-headline">Take control of business spending.</h2>
 
-        <form className="auth-form" onSubmit={handleSubmit} noValidate>
-          <label className="form-field" htmlFor="signup-name">
-            <span className="form-field__label">Name</span>
-            <input
-              id="signup-name"
-              name="name"
-              type="text"
-              autoComplete="name"
-              value={form.name}
-              onChange={handleChange}
-              placeholder="Your full name"
-              disabled={isSubmitting}
-            />
-            {errors.name && <span className="form-field__error">{errors.name}</span>}
-          </label>
+          <div className="signup-cards">
+            {BENEFITS.map((benefit) => (
+              <div key={benefit.title} className="login-card signup-card">
+                <div className="login-card__icon" aria-hidden="true">
+                  {benefit.icon}
+                </div>
+                <h3 className="login-card__title">{benefit.title}</h3>
+                <p className="login-card__desc">{benefit.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
 
-          <label className="form-field" htmlFor="signup-email">
-            <span className="form-field__label">Email</span>
-            <input
-              id="signup-email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              value={form.email}
-              onChange={handleChange}
-              placeholder="you@company.com"
-              disabled={isSubmitting}
-            />
-            {errors.email && <span className="form-field__error">{errors.email}</span>}
-          </label>
+      {/* RIGHT PANEL (form centered in white card) */}
+      <div className="login-right-panel">
+        <div
+          className="login-card-wrapper"
+          style={{
+            background: "#ffffff",
+            borderRadius: "18px",
+            boxShadow:
+              "0 10px 30px -4px rgba(0, 0, 0, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.03)",
+            border: "1px solid #f0f0f3",
+            padding: "clamp(18px, 2.5vh, 28px) clamp(20px, 3vw, 32px)",
+            width: "100%",
+            maxWidth: "440px",
+            boxSizing: "border-box",
+            margin: "0 auto",
+          }}
+        >
+          <div className="login-form-container" style={{ maxWidth: "100%" }}>
+            <h1 className="login-title">Create account</h1>
+            <p className="login-subtitle">New accounts start with the Viewer role</p>
 
-          <label className="form-field" htmlFor="signup-password">
-            <span className="form-field__label">Password</span>
-            <input
-              id="signup-password"
-              name="password"
-              type="password"
-              autoComplete="new-password"
-              value={form.password}
-              onChange={handleChange}
-              placeholder={`At least ${PASSWORD_MIN_LENGTH} characters`}
-              disabled={isSubmitting}
-            />
-            {errors.password && <span className="form-field__error">{errors.password}</span>}
-          </label>
+          {formError && <p className="alert alert--error">{formError}</p>}
 
-          <label className="form-field" htmlFor="signup-confirm-password">
-            <span className="form-field__label">Confirm password</span>
-            <input
-              id="signup-confirm-password"
-              name="confirmPassword"
-              type="password"
-              autoComplete="new-password"
-              value={form.confirmPassword}
-              onChange={handleChange}
-              placeholder="Repeat your password"
-              disabled={isSubmitting}
-            />
-            {errors.confirmPassword && (
-              <span className="form-field__error">{errors.confirmPassword}</span>
-            )}
-          </label>
+          <form className="login-form" onSubmit={handleSubmit} noValidate>
+            <label className="login-field" htmlFor="signup-name">
+              <span className="login-field__label">Name</span>
+              <input
+                id="signup-name"
+                name="name"
+                type="text"
+                autoComplete="name"
+                value={form.name}
+                onChange={handleChange}
+                placeholder="Your full name"
+                disabled={isSubmitting}
+                className="login-input"
+              />
+              {errors.name && <span className="login-field__error">{errors.name}</span>}
+            </label>
 
-          <button type="submit" className="btn btn--primary" disabled={isSubmitting}>
-            {isSubmitting ? "Creating account..." : "Create Account"}
-          </button>
-        </form>
+            <label className="login-field" htmlFor="signup-email">
+              <span className="login-field__label">Email</span>
+              <input
+                id="signup-email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                value={form.email}
+                onChange={handleChange}
+                placeholder="you@company.com"
+                disabled={isSubmitting}
+                className="login-input"
+              />
+              {errors.email && <span className="login-field__error">{errors.email}</span>}
+            </label>
 
-        <p className="auth-card__footer">
-          Already have an account? <Link to="/login">Log in</Link>
-        </p>
+            <label className="login-field" htmlFor="signup-password">
+              <span className="login-field__label">Password</span>
+              <div className="login-input-group">
+                <input
+                  id="signup-password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="new-password"
+                  value={form.password}
+                  onChange={handleChange}
+                  placeholder={`At least ${PASSWORD_MIN_LENGTH} characters`}
+                  disabled={isSubmitting}
+                  className="login-input login-input--password"
+                />
+                <button
+                  type="button"
+                  className="login-password-toggle"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? (
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
+                      <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
+                      <line x1="2" y1="2" x2="22" y2="22" />
+                    </svg>
+                  ) : (
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                  )}
+                </button>
+              </div>
+              {errors.password && <span className="login-field__error">{errors.password}</span>}
+            </label>
+
+            <label className="login-field" htmlFor="signup-confirm-password">
+              <span className="login-field__label">Confirm password</span>
+              <div className="login-input-group">
+                <input
+                  id="signup-confirm-password"
+                  name="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  autoComplete="new-password"
+                  value={form.confirmPassword}
+                  onChange={handleChange}
+                  placeholder="Repeat password"
+                  disabled={isSubmitting}
+                  className="login-input login-input--password"
+                />
+                <button
+                  type="button"
+                  className="login-password-toggle"
+                  onClick={() => setShowConfirmPassword((prev) => !prev)}
+                  aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                >
+                  {showConfirmPassword ? (
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
+                      <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
+                      <line x1="2" y1="2" x2="22" y2="22" />
+                    </svg>
+                  ) : (
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                  )}
+                </button>
+              </div>
+              {errors.confirmPassword && (
+                <span className="login-field__error">{errors.confirmPassword}</span>
+              )}
+            </label>
+
+            <button type="submit" className="login-btn login-btn--primary" disabled={isSubmitting}>
+              {isSubmitting ? "Creating account..." : "Create Account"}
+            </button>
+          </form>
+
+          <div className="login-divider">
+            <span>or</span>
+          </div>
+
+          <div className="login-oauth-group">
+            <button
+              type="button"
+              className="login-oauth-btn"
+              onClick={() => handleOAuthClick("Google")}
+            >
+              <svg className="login-oauth-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                <path
+                  fill="#4285F4"
+                  d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"
+                />
+                <path
+                  fill="#34A853"
+                  d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"
+                />
+                <path
+                  fill="#FBBC05"
+                  d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.16 0 9.97 0 12s.45 3.84 1.25 5.42l4.03-3.15z"
+                />
+                <path
+                  fill="#EA4335"
+                  d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
+                />
+              </svg>
+              <span>Sign up with Google</span>
+            </button>
+
+            <button
+              type="button"
+              className="login-oauth-btn"
+              onClick={() => handleOAuthClick("Apple")}
+            >
+              <svg
+                className="login-oauth-icon login-oauth-icon--apple"
+                viewBox="0 0 24 24"
+                width="18"
+                height="18"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.87c.6-.74 1.01-1.76.9-2.78-.88.04-1.95.59-2.58 1.33-.56.64-1.05 1.68-.92 2.68 1 .08 2-.49 2.6-1.23z" />
+              </svg>
+              <span>Sign up with Apple</span>
+            </button>
+          </div>
+
+          <p className="login-footer">
+            Already have an account?{" "}
+            <Link to="/login" className="login-link">
+              Log in
+            </Link>
+          </p>
+        </div>
+      </div>
+
+        {toastMessage && (
+          <div className="login-toast" role="status" aria-live="polite">
+            {toastMessage}
+          </div>
+        )}
       </div>
     </div>
   );
