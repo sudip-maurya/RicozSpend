@@ -1,14 +1,52 @@
 import { useEffect, useMemo, useState } from "react";
 
 import NavBar from "../components/NavBar";
+import Dropdown from "../components/Dropdown";
 import AlertRulesEditor from "../components/AlertRulesEditor";
 import { useAuth } from "../context/authContext";
 import { fetchAlertsCenter } from "../services/analyticsService";
 import { formatDateTime, formatMoney } from "../utils/format";
 import "../styles/dashboard.css";
 import "../styles/transactions.css";
+import "../styles/alerts.css";
 
 /** Alerts & Insights Center page (Part 14). */
+
+/** Split ISO string into clean date (e.g. "04 Oct 2026") and time ("4:00 PM"). */
+const formatGeneratedSplit = (isoString) => {
+  if (!isoString) return { date: "-", time: "" };
+  const d = new Date(isoString);
+  if (Number.isNaN(d.getTime())) return { date: "-", time: "" };
+
+  const day = String(d.getDate()).padStart(2, "0");
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  const month = monthNames[d.getMonth()];
+  const year = d.getFullYear();
+
+  let hours = d.getHours();
+  const minutes = String(d.getMinutes()).padStart(2, "0");
+  const ampm = hours >= 12 ? "PM" : "AM";
+  hours = hours % 12;
+  hours = hours ? hours : 12;
+
+  return {
+    date: `${day} ${month} ${year}`,
+    time: `${hours}:${minutes} ${ampm}`,
+  };
+};
 
 const SEVERITIES = ["critical", "warning", "insight", "info"];
 
@@ -168,6 +206,11 @@ function AlertsInsightsCenter() {
     return result;
   }, [activeAlerts]);
 
+  const generatedSplit = useMemo(
+    () => formatGeneratedSplit(data?.generatedAt),
+    [data?.generatedAt]
+  );
+
   // periodKey null = "overall" fact (insights/activity) that always applies
   const matchesFilters = (alert) =>
     (severity === "all" || alert.severity === severity) &&
@@ -193,22 +236,35 @@ function AlertsInsightsCenter() {
       <NavBar />
 
       <main className="app-main">
-        <div className="dashboard-head">
-          <div>
+        <div className="dashboard-head aic-header">
+          <div className="aic-header__left">
             <h1 className="page-title">Alerts &amp; Insights Center</h1>
             <p className="page-subtitle">
-              Rule-based alerts and insights gathered from your existing transactions and
-              budgets.
+              Monitor important spending alerts and rule-based insights.
             </p>
           </div>
           {isAdmin && (
-            <div>
+            <div className="aic-header__right">
               <button
                 type="button"
-                className="btn btn--ghost"
+                className="btn btn--ghost aic-header__btn"
                 onClick={() => setShowRules((open) => !open)}
                 aria-expanded={showRules}
               >
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
                 {showRules ? "Hide alert rules" : "Alert Rules"}
               </button>
             </div>
@@ -251,89 +307,133 @@ function AlertsInsightsCenter() {
 
         {!isLoading && !error && data && counts.total > 0 && (
           <>
-            <div className="alerts-summary" aria-label="Alert summary">
-              <div className="alerts-summary__item">
-                <span className="alerts-summary__label">Total Alerts</span>
-                <span className="alerts-summary__value">{counts.total}</span>
+            <div className="alerts-summary aic-summary-grid" aria-label="Alert summary">
+              <div className="aic-summary-card aic-summary-card--total">
+                <span className="aic-summary-card__label">Total Alerts</span>
+                <span className="aic-summary-card__value aic-summary-card__value--total">{counts.total}</span>
+                <span className="aic-summary-card__caption">All active items</span>
               </div>
-              <div className="alerts-summary__item">
-                <span className="alerts-summary__label">Critical</span>
-                <span className="alerts-summary__value aic-count--critical">
+              <div className="aic-summary-card aic-summary-card--critical">
+                <span className="aic-summary-card__label">Critical</span>
+                <span className="aic-summary-card__value aic-summary-card__value--critical aic-count--critical">
                   {counts.critical}
                 </span>
+                <span className="aic-summary-card__caption">Needs attention</span>
               </div>
-              <div className="alerts-summary__item">
-                <span className="alerts-summary__label">Warnings</span>
-                <span className="alerts-summary__value aic-count--warning">
+              <div className="aic-summary-card aic-summary-card--warning">
+                <span className="aic-summary-card__label">Warnings</span>
+                <span className="aic-summary-card__value aic-summary-card__value--warning aic-count--warning">
                   {counts.warning}
                 </span>
+                <span className="aic-summary-card__caption">Moderate risk</span>
               </div>
-              <div className="alerts-summary__item">
-                <span className="alerts-summary__label">Insights</span>
-                <span className="alerts-summary__value aic-count--insight">
+              <div className="aic-summary-card aic-summary-card--insight">
+                <span className="aic-summary-card__label">Insights</span>
+                <span className="aic-summary-card__value aic-summary-card__value--insight aic-count--insight">
                   {counts.insight}
                 </span>
+                <span className="aic-summary-card__caption">Spending patterns</span>
               </div>
-              <div className="alerts-summary__item">
-                <span className="alerts-summary__label">Info</span>
-                <span className="alerts-summary__value aic-count--info">{counts.info}</span>
+              <div className="aic-summary-card aic-summary-card--info">
+                <span className="aic-summary-card__label">Info</span>
+                <span className="aic-summary-card__value aic-summary-card__value--info aic-count--info">
+                  {counts.info}
+                </span>
+                <span className="aic-summary-card__caption">System notes</span>
               </div>
-              <div className="alerts-summary__item">
-                <span className="alerts-summary__label">Generated</span>
-                <span className="alerts-summary__value aic-summary__stamp">
-                  {formatDateTime(data.generatedAt)}
+              <div className="aic-summary-card aic-summary-card--generated">
+                <span className="aic-summary-card__label">Generated</span>
+                <div className="aic-generated-block">
+                  <span className="aic-generated-date">{generatedSplit.date}</span>
+                  <span className="aic-generated-time">{generatedSplit.time}</span>
+                </div>
+                <span className="aic-summary-card__caption aic-summary__stamp" title={formatDateTime(data.generatedAt)}>
+                  Live report
                 </span>
               </div>
             </div>
 
-            <section className="card aic-toolbar" aria-label="Alert filters">
-              <div className="txn-filters">
-                <div className="form-field">
-                  <label className="form-field__label" htmlFor="aic-severity">
-                    Severity
-                  </label>
-                  <select
+            <section className="card aic-toolbar aic-compact-filter-bar" aria-label="Alert filters">
+              <div className="aic-filter-left">
+                <span className="aic-filter-label">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+                  </svg>
+                  Filters
+                </span>
+
+                <div className="aic-filter-item">
+                  <Dropdown
                     id="aic-severity"
-                    className="txn-filter__select"
+                    ariaLabel="Severity"
                     value={severity}
                     onChange={(event) => setSeverity(event.target.value)}
-                  >
-                    <option value="all">All severities</option>
-                    {SEVERITIES.map((level) => (
-                      <option key={level} value={level}>
-                        {SEVERITY_LABELS[level]}
-                      </option>
-                    ))}
-                  </select>
+                    options={[
+                      { value: "all", label: "All severities" },
+                      ...SEVERITIES.map((level) => ({
+                        value: level,
+                        label: SEVERITY_LABELS[level],
+                      })),
+                    ]}
+                  />
                 </div>
 
-                <div className="form-field">
-                  <label className="form-field__label" htmlFor="aic-period">
-                    Period
-                  </label>
-                  <select
+                <div className="aic-filter-item">
+                  <Dropdown
                     id="aic-period"
-                    className="txn-filter__select"
+                    ariaLabel="Period"
                     value={period}
                     onChange={(event) => setPeriod(event.target.value)}
-                  >
-                    <option value="all">All periods</option>
-                    {(data.periods || []).map((value) => (
-                      <option key={value} value={value}>
-                        {value}
-                      </option>
-                    ))}
-                  </select>
+                    options={[
+                      { value: "all", label: "All periods" },
+                      ...(data.periods || []).map((value) => ({
+                        value: value,
+                        label: value,
+                      })),
+                    ]}
+                  />
                 </div>
+              </div>
 
-                {hasActiveFilters && (
-                  <button type="button" className="btn btn--ghost" onClick={resetFilters}>
-                    Clear filters
-                  </button>
-                )}
+              <div className="aic-filter-right">
+                <button
+                  type="button"
+                  className={`aic-reset-btn ${!hasActiveFilters ? "aic-reset-btn--disabled" : ""}`}
+                  onClick={resetFilters}
+                  disabled={!hasActiveFilters}
+                  title="Clear filters"
+                >
+                  <svg
+                    width="13"
+                    height="13"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    style={{ marginRight: 6 }}
+                    aria-hidden="true"
+                  >
+                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                    <path d="M3 3v5h5" />
+                  </svg>
+                  Reset Filters
+                  {/* Clear filters */}
+                </button>
 
                 {dismissed.length > 0 && (
-                  <button type="button" className="btn btn--ghost" onClick={restoreDismissed}>
+                  <button type="button" className="aic-restore-btn" onClick={restoreDismissed}>
                     Restore {dismissed.length} dismissed
                   </button>
                 )}

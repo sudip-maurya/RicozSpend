@@ -14,7 +14,8 @@ const ProtectedRoute = ({ children, allowedRoles = null }) => {
     return (
       <div className="auth-page">
         <div className="auth-card auth-card--loading" role="status">
-          Restoring your session...
+          <div className="auth-spinner" aria-hidden="true" />
+          <span>Restoring your session...</span>
         </div>
       </div>
     );

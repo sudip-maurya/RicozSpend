@@ -1,0 +1,351 @@
+/* ==========================================================================
+   Budget vs Actual Stylesheet
+   Clean Premium SaaS Aesthetics matching RicozSpend Design System
+   ========================================================================== */
+
+/* -----------------------------------------------------------------------------
+   1. Header
+   ----------------------------------------------------------------------------- */
+.bva-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.bva-header__left {
+  flex: 1;
+  min-width: 260px;
+}
+
+.bva-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-h, #0f172a);
+  letter-spacing: -0.02em;
+  margin: 0 0 4px 0;
+  line-height: 1.2;
+}
+
+.bva-subtitle {
+  font-size: 13.5px;
+  color: var(--muted, #64748b);
+  margin: 0;
+}
+
+.bva-add-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 18px;
+  background-color: var(--accent-red, #dc2626);
+  color: #ffffff !important;
+  border: 1px solid var(--accent-red, #dc2626);
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(220, 38, 38, 0.15);
+  white-space: nowrap;
+}
+
+.bva-add-btn:hover {
+  background-color: var(--accent-red-hover, #b91c1c);
+  border-color: var(--accent-red-hover, #b91c1c);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(220, 38, 38, 0.25);
+}
+
+/* -----------------------------------------------------------------------------
+   2. Compact Filter Card
+   ----------------------------------------------------------------------------- */
+.card.bva-filter-card,
+.bva-filter-card {
+  background-color: var(--card, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 13px;
+  padding: 16px 20px 14px !important;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-card, 0 1px 3px rgba(0, 0, 0, 0.04));
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px;
+}
+
+.bva-filters-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  align-items: flex-end;
+}
+
+@media (max-width: 768px) {
+  .bva-filters-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.bva-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.bva-filter-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted, #64748b);
+  display: block;
+}
+
+.bva-filter-group .rs-dropdown-container {
+  margin-bottom: 0;
+}
+
+.bva-filter-group .rs-dropdown-trigger {
+  height: 40px;
+  padding: 0 14px;
+  font-size: 13.5px;
+  border-radius: 10px;
+  border-color: var(--border, #e2e8f0);
+  background-color: var(--card, #ffffff);
+  width: 100%;
+}
+
+.bva-filter-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-subtle, #f1f5f9);
+  flex-wrap: wrap;
+}
+
+.bva-filter-hint {
+  font-size: 12.5px;
+  color: var(--muted, #64748b);
+  line-height: 1.4;
+}
+
+.bva-reset-btn {
+  height: 32px;
+  padding: 0 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--accent-red, #dc2626);
+  background: transparent;
+  border: 1px solid var(--accent-red, #dc2626);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.bva-reset-btn:hover {
+  background-color: var(--accent-red-tint, #fef2f2);
+  color: var(--accent-red-hover, #b91c1c);
+}
+
+/* -----------------------------------------------------------------------------
+   3. KPI Cards
+   ----------------------------------------------------------------------------- */
+.bva-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 1024px) {
+  .bva-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .bva-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card.bva-kpi-card,
+.bva-kpi-card {
+  background-color: var(--card, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 13px;
+  padding: 18px 20px 16px !important;
+  box-shadow: var(--shadow-card, 0 1px 3px rgba(0, 0, 0, 0.04));
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between;
+  gap: 8px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  position: relative;
+}
+
+.bva-kpi-card:hover {
+  border-color: var(--border-hover, #cbd5e1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.bva-kpi-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted, #64748b);
+  display: block;
+}
+
+.bva-kpi-value {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-h, #0f172a);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  margin: 2px 0 0;
+}
+
+.bva-kpi-caption {
+  font-size: 12.5px;
+  color: var(--muted, #64748b);
+  font-weight: 500;
+  margin: 0;
+  line-height: 1.35;
+}
+
+/* Highlighted Budget Usage Card */
+.card.bva-kpi-card--highlight,
+.bva-kpi-card--highlight {
+  background-color: #fffdfd;
+  border-color: #fecaca;
+  border-top: 3px solid var(--accent-red, #dc2626) !important;
+}
+
+.bva-kpi-card--highlight .bva-kpi-value--accent {
+  color: var(--accent-red, #dc2626);
+}
+
+.bva-kpi-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.bva-overbudget-badge {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #dc2626;
+  background-color: #fee2e2;
+  border: 1px solid #fca5a5;
+  padding: 1.5px 8px;
+  border-radius: 999px;
+  line-height: 1.25;
+}
+
+/* Progress bar */
+.bva-progress-wrap {
+  width: 100%;
+  height: 8px;
+  background-color: #fee2e2;
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 6px 0 2px;
+}
+
+.bva-progress-bar {
+  height: 100%;
+  background-color: var(--accent-red, #dc2626);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.bva-progress-bar.is-over {
+  background-color: #dc2626;
+}
+
+.bva-progress-stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted, #64748b);
+  gap: 8px;
+  margin-top: 2px;
+}
+
+/* -----------------------------------------------------------------------------
+   4. Dark Mode Overrides
+   ----------------------------------------------------------------------------- */
+html[data-theme="dark"] .bva-filter-card,
+html.dark .bva-filter-card {
+  background-color: var(--card, #111827);
+  border-color: var(--border, #1f293d);
+}
+
+html[data-theme="dark"] .bva-filter-footer,
+html.dark .bva-filter-footer {
+  border-top-color: var(--border, #1f293d);
+}
+
+html[data-theme="dark"] .bva-kpi-card,
+html.dark .bva-kpi-card {
+  background-color: var(--card, #111827);
+  border-color: var(--border, #1f293d);
+}
+
+html[data-theme="dark"] .card.bva-kpi-card--highlight,
+html[data-theme="dark"] .bva-kpi-card--highlight,
+html.dark .card.bva-kpi-card--highlight,
+html.dark .bva-kpi-card--highlight {
+  background-color: #1a1518;
+  border-color: #5c1d24;
+  border-top-color: #ef4444 !important;
+}
+
+html[data-theme="dark"] .bva-kpi-card--highlight .bva-kpi-value--accent,
+html.dark .bva-kpi-card--highlight .bva-kpi-value--accent {
+  color: #f87171;
+}
+
+html[data-theme="dark"] .bva-progress-wrap,
+html.dark .bva-progress-wrap {
+  background-color: #2e1e24;
+}
+
+html[data-theme="dark"] .bva-progress-bar,
+html.dark .bva-progress-bar {
+  background-color: #ef4444;
+}
+
+html[data-theme="dark"] .bva-overbudget-badge,
+html.dark .bva-overbudget-badge {
+  background-color: rgba(220, 38, 38, 0.2);
+  border-color: #991b1b;
+  color: #fca5a5;
+}
+
+html[data-theme="dark"] .bva-reset-btn,
+html.dark .bva-reset-btn {
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+html[data-theme="dark"] .bva-reset-btn:hover,
+html.dark .bva-reset-btn:hover {
+  background-color: rgba(220, 38, 38, 0.15);
+}

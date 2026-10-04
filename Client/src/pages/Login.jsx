@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 
 import api from "../api/client";
+import Logo from "../components/Logo";
 import { useAuth } from "../context/authContext";
 import { resendVerification } from "../services/authService";
 import { getErrorMessage, getFieldErrors, getStatusCode } from "../utils/apiError";
@@ -47,7 +48,8 @@ function Login() {
     return (
       <div className="auth-page">
         <div className="auth-card auth-card--loading" role="status">
-          Restoring your session...
+          <div className="auth-spinner" aria-hidden="true" />
+          <span>Restoring your session...</span>
         </div>
       </div>
     );
@@ -152,26 +154,7 @@ function Login() {
       {/* LEFT PANEL (red gradient, white text) */}
       <div className="login-left-panel">
         <div className="auth-panel-brand-bar">
-          <Link to="/" className="auth-brand-pill" aria-label="RicozSpend home">
-            <span className="login-brand__icon" aria-hidden="true">
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M12 2v20" />
-                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-              </svg>
-            </span>
-            <span className="login-brand__text">
-              Ricoz<span className="login-brand__text--accent">Spend</span>
-            </span>
-          </Link>
+          <Logo to="/" size="lg" className="auth-brand-pill" />
         </div>
 
         <div className="login-left-content">

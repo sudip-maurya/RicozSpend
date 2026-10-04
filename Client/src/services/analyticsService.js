@@ -98,6 +98,7 @@ export const fetchDepartmentSpending = async (query = {}) => {
   try {
     const params = {};
 
+    if (query.range) params.range = query.range;
     if (query.from) params.from = query.from;
     if (query.to) params.to = query.to;
     if (query.category) params.category = query.category;

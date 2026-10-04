@@ -1,6 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 
+import Logo from "./Logo";
+import ThemeToggle from "./ThemeToggle";
 import { useAuth } from "../context/authContext";
 
 const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
@@ -125,26 +127,15 @@ const NavBar = () => {
 
   return (
     <header className="app-nav">
-      <NavLink to="/dashboard" className="app-nav__brand-pill" aria-label="RicozSpend home">
-        <span className="app-nav__brand-icon" aria-hidden="true">
-          <svg
-            width="17"
-            height="17"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M12 2v20" />
-            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-          </svg>
-        </span>
-        <span className="app-nav__brand-text">
-          Ricoz<span className="app-nav__brand-text--accent">Spend</span>
-        </span>
-      </NavLink>
+      <Logo
+        to="/dashboard"
+        asNavLink
+        size="nav"
+        className="app-nav__brand-pill"
+        iconClassName="app-nav__brand-icon"
+        textClassName="app-nav__brand-text"
+        accentClassName="app-nav__brand-text--accent"
+      />
 
       <nav className="app-nav__links" ref={navLinksRef}>
         {indicatorStyle.opacity > 0 && (
@@ -167,15 +158,16 @@ const NavBar = () => {
       </nav>
 
       <div className="app-nav__user">
+        <ThemeToggle />
         {user && (
-          <span className="app-nav__identity">
+          <div className="app-nav__profile-group">
             {showName && <span className="app-nav__name">{user.name}</span>}
             <span className={`role-badge role-badge--${String(user.role || "").toLowerCase()}`}>
               {user.role}
             </span>
-          </span>
+          </div>
         )}
-        <button type="button" className="btn btn--ghost" onClick={handleLogout}>
+        <button type="button" className="app-nav__logout-btn" onClick={handleLogout}>
           Logout
         </button>
       </div>

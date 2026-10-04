@@ -1,0 +1,677 @@
+/* ==========================================================================
+   RicozSpend Light / Dark Theme & Smooth Transition System
+   ========================================================================== */
+
+/* -----------------------------------------------------------------------------
+   1. Theme Tokens (CSS Custom Properties)
+   ----------------------------------------------------------------------------- */
+:root {
+  /* Common Brand Accent (Red remains consistent across modes) */
+  --accent-red: #dc2626;
+  --accent-red-hover: #b91c1c;
+  --accent-red-tint: #fef2f2;
+  --accent-red-border: #fee2e2;
+
+  /* Light Theme Defaults */
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --card-muted: #f8fafc;
+  --card-elevated: #ffffff;
+  --border: #e2e8f0;
+  --border-subtle: #f1f5f9;
+  --text-h: #0f172a;
+  --text: #475569;
+  --muted: #64748b;
+  --input-bg: #ffffff;
+  --input-border: #e2e8f0;
+  --input-text: #0f172a;
+  --table-header-bg: #f8fafc;
+  --table-row-hover: #fafbfc;
+  --modal-backdrop: rgba(15, 23, 42, 0.45);
+  --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+
+  /* Legacy & Namespace Aliases */
+  --ds-bg-page: var(--bg);
+  --ds-card-bg: var(--card);
+  --ds-border: var(--border);
+  --ds-border-light: var(--border-subtle);
+  --ds-text-heading: var(--text-h);
+  --ds-text-body: var(--text);
+  --ds-text-muted: var(--muted);
+  --ds-red-primary: var(--accent-red);
+  --ds-red-hover: var(--accent-red-hover);
+  --ds-red-tint: var(--accent-red-tint);
+  --ds-red-border: var(--accent-red-border);
+
+  --txn-card-border: var(--border);
+  --txn-red-primary: var(--accent-red);
+  --txn-red-hover: var(--accent-red-hover);
+  --txn-red-light: var(--accent-red-tint);
+}
+
+/* Dark Mode Tokens (Applied via data-theme="dark", .dark, or OS prefers-color-scheme) */
+html[data-theme="dark"],
+html.dark {
+  --bg: #0b0f17;
+  --card: #111827;
+  --card-muted: #161f2e;
+  --card-elevated: #1a2234;
+  --border: #1f293d;
+  --border-subtle: #172133;
+  --text-h: #f8fafc;
+  --text: #cbd5e1;
+  --muted: #94a3b8;
+  --input-bg: #161f2e;
+  --input-border: #27354a;
+  --input-text: #f8fafc;
+  --table-header-bg: #131b28;
+  --table-row-hover: #161f2e;
+  --modal-backdrop: rgba(0, 0, 0, 0.75);
+  --shadow-card: 0 2px 8px 0 rgba(0, 0, 0, 0.35);
+
+  --accent-red: #dc2626;
+  --accent-red-hover: #ef4444;
+  --accent-red-tint: rgba(220, 38, 38, 0.16);
+  --accent-red-border: rgba(220, 38, 38, 0.35);
+
+  --ds-bg-page: var(--bg);
+  --ds-card-bg: var(--card);
+  --ds-border: var(--border);
+  --ds-border-light: var(--border-subtle);
+  --ds-text-heading: var(--text-h);
+  --ds-text-body: var(--text);
+  --ds-text-muted: var(--muted);
+  --ds-red-primary: var(--accent-red);
+  --ds-red-hover: var(--accent-red-hover);
+  --ds-red-tint: var(--accent-red-tint);
+  --ds-red-border: var(--accent-red-border);
+
+  --txn-card-border: var(--border);
+  --txn-red-primary: var(--accent-red);
+  --txn-red-hover: var(--accent-red-hover);
+  --txn-red-light: var(--accent-red-tint);
+  --txn-del-bg: rgba(220, 38, 38, 0.16);
+  --txn-del-border: rgba(220, 38, 38, 0.35);
+  --txn-del-text: #f87171;
+}
+
+/* -----------------------------------------------------------------------------
+   2. Smooth Transitions & Motion Handling
+   ----------------------------------------------------------------------------- */
+/* Transition active during theme toggle (prevents sudden flicker) */
+html.theme-transitioning,
+html.theme-transitioning *,
+html.theme-transitioning *::before,
+html.theme-transitioning *::after {
+  transition: background-color 300ms ease,
+              border-color 300ms ease,
+              color 300ms ease,
+              fill 300ms ease,
+              stroke 300ms ease,
+              box-shadow 300ms ease !important;
+}
+
+/* Consistent 150–200ms interactive transitions for controls */
+button,
+.btn,
+.app-nav__link,
+.rs-dropdown-trigger,
+.rs-dropdown-item,
+.theme-toggle-btn,
+input,
+select,
+.txn-btn {
+  transition: background-color 0.18s ease,
+              border-color 0.18s ease,
+              color 0.18s ease,
+              box-shadow 0.18s ease,
+              transform 0.15s ease;
+}
+
+/* Subtle route change fade-in */
+.app-main {
+  animation: rsPageFadeIn 0.22s ease-out;
+}
+
+@keyframes rsPageFadeIn {
+  from {
+    opacity: 0.88;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Respect prefers-reduced-motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* -----------------------------------------------------------------------------
+   3. Theme Toggle Button Styling (Top-Right Navbar)
+   ----------------------------------------------------------------------------- */
+.theme-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-h);
+  cursor: pointer;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.theme-toggle-btn:hover {
+  background: var(--card-muted);
+  border-color: #94a3b8;
+  color: var(--accent-red);
+}
+
+.theme-toggle-icon {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.15s ease;
+}
+
+.theme-toggle-btn:hover .theme-toggle-icon {
+  transform: rotate(15deg) scale(1.08);
+}
+
+.theme-toggle-icon--sun {
+  color: #f59e0b;
+}
+
+.theme-toggle-icon--moon {
+  color: #64748b;
+}
+
+/* -----------------------------------------------------------------------------
+   4. Comprehensive Dark Mode Styles across App Components
+   ----------------------------------------------------------------------------- */
+
+/* Body & App Shell */
+html[data-theme="dark"] body,
+html.dark body {
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+html[data-theme="dark"] .app-shell,
+html.dark .app-shell {
+  background-color: var(--bg);
+}
+
+/* Navbar */
+html[data-theme="dark"] .app-nav,
+html.dark .app-nav {
+  background-color: var(--card);
+  border-bottom-color: var(--border);
+}
+
+html[data-theme="dark"] .app-nav__link,
+html.dark .app-nav__link {
+  color: var(--muted);
+}
+
+html[data-theme="dark"] .app-nav__link:hover,
+html.dark .app-nav__link:hover {
+  color: var(--text-h);
+  background-color: var(--card-muted);
+}
+
+html[data-theme="dark"] .app-nav__link--active,
+html.dark .app-nav__link--active {
+  background-color: var(--accent-red-tint) !important;
+  color: #f87171 !important;
+}
+
+html[data-theme="dark"] .app-nav__name,
+html.dark .app-nav__name {
+  color: var(--text-h);
+}
+
+html[data-theme="dark"] .role-badge,
+html.dark .role-badge {
+  background-color: var(--card-muted);
+  border-color: var(--border);
+  color: var(--muted);
+}
+
+html[data-theme="dark"] .app-nav__logout-btn,
+html.dark .app-nav__logout-btn {
+  border-color: var(--border);
+  color: var(--muted);
+}
+
+html[data-theme="dark"] .app-nav__logout-btn:hover,
+html.dark .app-nav__logout-btn:hover {
+  background-color: var(--card-muted);
+  color: #f87171;
+}
+
+/* Cards & Headings */
+html[data-theme="dark"] .card,
+html.dark .card {
+  background-color: var(--card);
+  border-color: var(--border);
+  box-shadow: var(--shadow-card);
+}
+
+html[data-theme="dark"] .page-title,
+html.dark .page-title {
+  color: var(--text-h);
+}
+
+html[data-theme="dark"] .page-subtitle,
+html.dark .page-subtitle {
+  color: var(--muted);
+}
+
+html[data-theme="dark"] .kpi-card__value,
+html.dark .kpi-card__value {
+  color: var(--text-h);
+}
+
+html[data-theme="dark"] .kpi-card__trend,
+html.dark .kpi-card__trend {
+  color: var(--muted);
+}
+
+html[data-theme="dark"] .chart-card__badge,
+html.dark .chart-card__badge {
+  background-color: var(--accent-red-tint);
+  color: #f87171;
+}
+
+html[data-theme="dark"] .chart-single-month,
+html.dark .chart-single-month {
+  background-color: var(--card-muted);
+  border-color: var(--border);
+}
+
+html[data-theme="dark"] .chart-single-month__label,
+html.dark .chart-single-month__label {
+  color: var(--muted);
+}
+
+html[data-theme="dark"] .chart-single-month__value,
+html.dark .chart-single-month__value {
+  color: var(--text-h);
+}
+
+/* Tables */
+html[data-theme="dark"] .txn-table-card,
+html.dark .txn-table-card,
+html[data-theme="dark"] table,
+html.dark table {
+  background-color: var(--card);
+  border-color: var(--border);
+}
+
+html[data-theme="dark"] thead th,
+html.dark thead th {
+  background-color: var(--table-header-bg);
+  border-bottom-color: var(--border);
+  color: var(--muted);
+}
+
+html[data-theme="dark"] tbody td,
+html.dark tbody td {
+  border-bottom-color: var(--border);
+  color: var(--text);
+}
+
+html[data-theme="dark"] tbody tr:hover,
+html.dark tbody tr:hover {
+  background-color: var(--table-row-hover);
+}
+
+html[data-theme="dark"] .txn-table-card strong,
+html.dark .txn-table-card strong {
+  color: var(--text-h);
+}
+
+/* Modals */
+html[data-theme="dark"] .txn-modal-overlay,
+html.dark .txn-modal-overlay,
+html[data-theme="dark"] .modal-backdrop,
+html.dark .modal-backdrop {
+  background-color: var(--modal-backdrop);
+}
+
+html[data-theme="dark"] .txn-modal,
+html.dark .txn-modal,
+html[data-theme="dark"] .modal,
+html.dark .modal {
+  background-color: var(--card);
+  border-color: var(--border);
+  color: var(--text-h);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+html[data-theme="dark"] .txn-modal__title,
+html.dark .txn-modal__title {
+  color: var(--text-h);
+}
+
+/* Inputs & Form Fields */
+html[data-theme="dark"] input[type="text"],
+html.dark input[type="text"],
+html[data-theme="dark"] input[type="number"],
+html.dark input[type="number"],
+html[data-theme="dark"] input[type="date"],
+html.dark input[type="date"],
+html[data-theme="dark"] input[type="month"],
+html.dark input[type="month"],
+html[data-theme="dark"] input[type="email"],
+html.dark input[type="email"],
+html[data-theme="dark"] input[type="password"],
+html.dark input[type="password"],
+html[data-theme="dark"] textarea,
+html.dark textarea,
+html[data-theme="dark"] select,
+html.dark select {
+  background-color: var(--input-bg);
+  border-color: var(--input-border);
+  color: var(--input-text);
+}
+
+html[data-theme="dark"] input::placeholder,
+html.dark input::placeholder,
+html[data-theme="dark"] textarea::placeholder,
+html.dark textarea::placeholder {
+  color: var(--muted);
+}
+
+/* Standardized Dropdowns in Dark Mode */
+html[data-theme="dark"] .rs-dropdown-trigger,
+html.dark .rs-dropdown-trigger {
+  background-color: var(--card);
+  border-color: var(--border);
+  color: var(--text-h);
+}
+
+html[data-theme="dark"] .rs-dropdown-trigger:hover:not(:disabled),
+html.dark .rs-dropdown-trigger:hover:not(:disabled) {
+  border-color: #3b4d6b;
+}
+
+html[data-theme="dark"] .rs-dropdown-trigger:disabled,
+html.dark .rs-dropdown-trigger:disabled {
+  background-color: #111827;
+  color: #64748b;
+  border-color: #1f293d;
+}
+
+html[data-theme="dark"] .rs-dropdown-menu,
+html.dark .rs-dropdown-menu {
+  background-color: #131b28;
+  border-color: #27354a;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55);
+}
+
+html[data-theme="dark"] .rs-dropdown-item,
+html.dark .rs-dropdown-item {
+  color: #e2e8f0;
+}
+
+html[data-theme="dark"] .rs-dropdown-item:hover,
+html.dark .rs-dropdown-item:hover,
+html[data-theme="dark"] .rs-dropdown-item.is-highlighted,
+html.dark .rs-dropdown-item.is-highlighted {
+  background-color: #1e293b;
+  color: #ffffff;
+}
+
+html[data-theme="dark"] .rs-dropdown-item.is-selected,
+html.dark .rs-dropdown-item.is-selected {
+  background-color: var(--accent-red-tint);
+  color: #f87171;
+}
+
+/* Filter Cards & Transaction Controls */
+html[data-theme="dark"] .txn-filter-card,
+html.dark .txn-filter-card {
+  background-color: var(--card);
+  border-color: var(--border);
+}
+
+html[data-theme="dark"] .txn-filter-col,
+html.dark .txn-filter-col {
+  border-right-color: var(--border);
+}
+
+html[data-theme="dark"] .txn-filter-search__input,
+html.dark .txn-filter-search__input {
+  background-color: var(--input-bg);
+  border-color: var(--input-border);
+  color: var(--input-text);
+}
+
+html[data-theme="dark"] .range-slider-rail,
+html.dark .range-slider-rail {
+  background-color: #27354a;
+}
+
+/* Import Page in Dark Mode */
+html[data-theme="dark"] .import-page,
+html.dark .import-page {
+  background-color: var(--bg);
+}
+
+html[data-theme="dark"] .import-dropzone,
+html.dark .import-dropzone {
+  background-color: var(--card-muted);
+  border-color: #27354a;
+}
+
+html[data-theme="dark"] .import-dropzone:hover,
+html.dark .import-dropzone:hover,
+html[data-theme="dark"] .import-dropzone.is-dragging,
+html.dark .import-dropzone.is-dragging {
+  border-color: var(--accent-red);
+  background-color: rgba(220, 38, 38, 0.1);
+}
+
+html[data-theme="dark"] .import-dropzone__icon,
+html.dark .import-dropzone__icon {
+  background-color: var(--card);
+  border-color: var(--border);
+}
+
+html[data-theme="dark"] .import-dropzone__title,
+html.dark .import-dropzone__title {
+  color: var(--text-h);
+}
+
+html[data-theme="dark"] .import-dropzone__browse-btn,
+html.dark .import-dropzone__browse-btn {
+  background-color: var(--card);
+  border-color: #4b2326;
+  color: #f87171;
+}
+
+html[data-theme="dark"] .import-dropzone__browse-btn:hover,
+html.dark .import-dropzone__browse-btn:hover {
+  background-color: var(--accent-red);
+  color: #ffffff;
+}
+
+html[data-theme="dark"] .import-requirements,
+html.dark .import-requirements {
+  background-color: var(--card-muted);
+  border-color: var(--border);
+}
+
+html[data-theme="dark"] .import-requirements__title,
+html.dark .import-requirements__title {
+  color: var(--muted);
+}
+
+html[data-theme="dark"] .import-requirement-item,
+html.dark .import-requirement-item {
+  color: var(--text);
+}
+
+html[data-theme="dark"] .import-requirement-item strong,
+html.dark .import-requirement-item strong {
+  color: var(--text-h);
+}
+
+html[data-theme="dark"] .import-file-card,
+html.dark .import-file-card {
+  background-color: var(--card);
+  border-color: var(--border);
+}
+
+html[data-theme="dark"] .import-file-name,
+html.dark .import-file-name {
+  color: var(--text-h);
+}
+
+html[data-theme="dark"] .import-file-icon,
+html.dark .import-file-icon {
+  background-color: rgba(220, 38, 38, 0.16);
+}
+
+html[data-theme="dark"] .import-preview-hero,
+html.dark .import-preview-hero {
+  background-color: var(--card);
+  border-color: var(--border);
+}
+
+html[data-theme="dark"] .import-preview-title,
+html.dark .import-preview-title {
+  color: var(--text-h);
+}
+
+html[data-theme="dark"] .import-stat-box,
+html.dark .import-stat-box {
+  background-color: var(--card-muted);
+  border-color: var(--border);
+}
+
+html[data-theme="dark"] .import-stat-box__label,
+html.dark .import-stat-box__label {
+  color: var(--muted);
+}
+
+html[data-theme="dark"] .import-stat-box__value,
+html.dark .import-stat-box__value {
+  color: var(--text-h);
+}
+
+html[data-theme="dark"] .import-stat-box--valid,
+html.dark .import-stat-box--valid {
+  background-color: rgba(34, 197, 94, 0.1);
+  border-color: rgba(34, 197, 94, 0.35);
+}
+
+html[data-theme="dark"] .import-stat-box--valid .import-stat-box__value,
+html.dark .import-stat-box--valid .import-stat-box__value {
+  color: #4ade80;
+}
+
+html[data-theme="dark"] .import-stat-box--duplicate,
+html.dark .import-stat-box--duplicate {
+  background-color: rgba(234, 179, 8, 0.1);
+  border-color: rgba(234, 179, 8, 0.35);
+}
+
+html[data-theme="dark"] .import-stat-box--duplicate .import-stat-box__value,
+html.dark .import-stat-box--duplicate .import-stat-box__value {
+  color: #facc15;
+}
+
+html[data-theme="dark"] .import-stat-box--invalid,
+html.dark .import-stat-box--invalid {
+  background-color: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+html[data-theme="dark"] .import-stat-box--invalid .import-stat-box__value,
+html.dark .import-stat-box--invalid .import-stat-box__value {
+  color: #f87171;
+}
+
+html[data-theme="dark"] .import-tab-btn,
+html.dark .import-tab-btn {
+  background-color: var(--card-muted);
+  border-color: var(--border);
+  color: var(--muted);
+}
+
+html[data-theme="dark"] .import-tab-btn:hover,
+html.dark .import-tab-btn:hover {
+  color: var(--text-h);
+  background-color: #1e293b;
+}
+
+html[data-theme="dark"] .import-tab-btn.is-active,
+html.dark .import-tab-btn.is-active {
+  background-color: var(--card);
+  color: var(--text-h);
+  border-color: var(--accent-red);
+}
+
+html[data-theme="dark"] .import-success-card,
+html.dark .import-success-card {
+  background-color: var(--card);
+  border-color: #166534;
+}
+
+html[data-theme="dark"] .import-success-title,
+html.dark .import-success-title {
+  color: var(--text-h);
+}
+
+html[data-theme="dark"] .import-success-desc,
+html.dark .import-success-desc {
+  color: var(--text);
+}
+
+/* -----------------------------------------------------------------------------
+   5. Charts Global Dark Theming (Recharts)
+   ----------------------------------------------------------------------------- */
+html[data-theme="dark"] .recharts-cartesian-grid line,
+html.dark .recharts-cartesian-grid line {
+  stroke: var(--border) !important;
+  opacity: 0.8;
+}
+
+html[data-theme="dark"] .recharts-cartesian-axis-line,
+html.dark .recharts-cartesian-axis-line {
+  stroke: var(--border) !important;
+}
+
+html[data-theme="dark"] .recharts-text,
+html.dark .recharts-text {
+  fill: var(--muted) !important;
+}
+
+html[data-theme="dark"] .recharts-default-tooltip,
+html.dark .recharts-default-tooltip {
+  background-color: #131b28 !important;
+  border-color: #27354a !important;
+  color: #f8fafc !important;
+  border-radius: 10px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+}
+
+html[data-theme="dark"] .recharts-tooltip-item,
+html.dark .recharts-tooltip-item,
+html[data-theme="dark"] .recharts-tooltip-label,
+html.dark .recharts-tooltip-label {
+  color: #f8fafc !important;
+}

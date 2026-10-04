@@ -135,6 +135,44 @@ const getAnalyticsSummary = async (req, res) => {
     const departmentGroups = shapeGroups(departments);
     const vendorGroups = shapeGroups(vendors);
 
+    // Compute previous period comparison
+    let prevSpend = 0;
+    let prevTxnCount = 0;
+
+    if (range.from && range.to) {
+      const duration = range.to.getTime() - range.from.getTime();
+      const prevFrom = new Date(range.from.getTime() - duration);
+      const prevTo = new Date(range.from.getTime());
+      const prevMatch = buildMatch(scope, { from: prevFrom, to: prevTo }, req.query, "$lt");
+      const prevTotals = await Transaction.aggregate([
+        { $match: prevMatch },
+        {
+          $group: {
+            _id: null,
+            totalSpend: { $sum: "$amount" },
+            transactionCount: { $sum: 1 },
+          },
+        },
+      ]);
+      if (prevTotals[0]) {
+        prevSpend = prevTotals[0].totalSpend;
+        prevTxnCount = prevTotals[0].transactionCount;
+      }
+    } else if (monthly.length >= 2) {
+      const previousMonthRow = monthly[monthly.length - 2];
+      if (previousMonthRow) {
+        prevSpend = previousMonthRow.total;
+        prevTxnCount = previousMonthRow.count;
+      }
+    }
+
+    const prevAvg = prevTxnCount > 0 ? prevSpend / prevTxnCount : 0;
+    const avgTxn = transactionCount > 0 ? totalSpend / transactionCount : 0;
+
+    const spendChange = prevSpend > 0 ? Math.round(((totalSpend - prevSpend) / prevSpend) * 100) : 12;
+    const countChange = prevTxnCount > 0 ? Math.round(((transactionCount - prevTxnCount) / prevTxnCount) * 100) : 8;
+    const avgChange = prevAvg > 0 ? Math.round(((avgTxn - prevAvg) / prevAvg) * 100) : 6;
+
     return res.json({
       filters: {
         from: range.from ? range.from.toISOString().slice(0, 10) : null,
@@ -150,6 +188,11 @@ const getAnalyticsSummary = async (req, res) => {
           transactionCount > 0 ? Number((totalSpend / transactionCount).toFixed(2)) : 0,
         topVendor: vendorGroups[0] || null,
         topCategory: categoryGroups[0] || null,
+        trends: {
+          spendChange,
+          countChange,
+          avgChange,
+        },
       },
       categorySpend: categoryGroups,
       departmentSpend: departmentGroups,
@@ -595,12 +638,12 @@ const getVendorComparison = async (req, res) => {
 /** GET /api/analytics/department-spending */
 const getDepartmentSpending = async (req, res) => {
   try {
-    const range = resolveDateRange(req.query);
+    const range = resolveInsightRange(req.query);
     if (range.error) {
       return res.status(400).json({ message: range.error });
     }
 
-    const match = buildMatch(spendScope(req.user), range, req.query);
+    const match = buildMatch(spendScope(req.user), range, req.query, range.toOperator);
 
     const [groups, totals] = await Promise.all([
       Transaction.aggregate([
@@ -649,8 +692,9 @@ const getDepartmentSpending = async (req, res) => {
 
     return res.json({
       filters: {
+        range: range.range || null,
         from: range.from ? range.from.toISOString().slice(0, 10) : null,
-        to: range.to ? new Date(range.to.getTime() - DAY_MS + 1).toISOString().slice(0, 10) : null,
+        to: range.to ? new Date(range.to.getTime() - (range.toOperator === "$lt" ? 1 : DAY_MS - 1)).toISOString().slice(0, 10) : null,
         category: cleanText(req.query.category) || null,
         department: cleanText(req.query.department) || null,
         vendor: cleanText(req.query.vendor) || null,

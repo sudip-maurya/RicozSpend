@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   Bar,
@@ -12,14 +12,40 @@ import {
 } from "recharts";
 
 import BudgetFormModal from "../components/BudgetFormModal";
+import Dropdown from "../components/Dropdown";
 import NavBar from "../components/NavBar";
 import { useAuth } from "../context/authContext";
 import { deleteBudget, fetchBudgetComparison } from "../services/budgetService";
-import { formatMoney } from "../utils/format";
+import { formatMoney, formatShortMoney } from "../utils/format";
 import "../styles/dashboard.css";
 import "../styles/transactions.css";
+import "../styles/budget.css";
 
 const EMPTY_FILTERS = { period: "", department: "", category: "" };
+
+/** "2026-09" -> "September 2026" */
+const formatMonthLabel = (period) => {
+  if (!period || typeof period !== "string") return "";
+  const parts = period.split("-");
+  if (parts.length !== 2) return period;
+  const [year, month] = parts;
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+  const idx = parseInt(month, 10) - 1;
+  return `${monthNames[idx] || month} ${year}`;
+};
 
 /** Server status label -> existing badge variant. */
 const STATUS_CLASS = {
@@ -143,6 +169,36 @@ function Budget() {
     actual: row.actual,
   }));
 
+  const monthOptions = useMemo(() => {
+    const periodSet = new Set();
+    (rows || []).forEach((row) => {
+      if (row.period) periodSet.add(row.period);
+    });
+    const now = new Date();
+    for (let i = -1; i < 12; i++) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      periodSet.add(`${y}-${m}`);
+    }
+    const sorted = Array.from(periodSet).sort().reverse();
+    return [
+      { value: "", label: "Select month" },
+      ...sorted.map((p) => ({
+        value: p,
+        label: formatMonthLabel(p),
+      })),
+    ];
+  }, [rows]);
+
+  const totalBudget = totals?.totalBudget || 0;
+  const actualSpend = totals?.actualSpend || 0;
+  const remainingBudget = totals?.remainingBudget ?? (totalBudget - actualSpend);
+  const usedPercent = totalBudget > 0 ? (actualSpend / totalBudget) * 100 : 0;
+  const remainingPercent = totalBudget > 0 ? (remainingBudget / totalBudget) * 100 : 0;
+  const isOverBudget = usedPercent > 100;
+  const progressWidth = Math.min(Math.max(usedPercent, 0), 100);
+
   const moneyTooltip = (value) => formatMoney(value);
 
   return (
@@ -150,17 +206,21 @@ function Budget() {
       <NavBar />
 
       <main className="app-main">
-        <div className="txn-toolbar">
-          <div>
-            <h1 className="page-title">Budget vs Actual</h1>
-            <p className="page-subtitle">
-              Planned budget compared with actual spend from your transactions.
+        <div className="txn-toolbar bva-header">
+          <div className="bva-header__left">
+            <h1 className="page-title bva-title">Budget vs Actual</h1>
+            <p className="page-subtitle bva-subtitle">
+              Track planned budget against actual spending.
             </p>
           </div>
 
           {isAdmin && (
             <div className="txn-toolbar__actions">
-              <button type="button" className="btn" onClick={() => setFormTarget({})}>
+              <button
+                type="button"
+                className="btn btn--primary bva-add-btn"
+                onClick={() => setFormTarget({})}
+              >
                 + Add Budget
               </button>
             </div>
@@ -170,70 +230,72 @@ function Budget() {
         {toast && <div className="alert alert--success">{toast}</div>}
 
         {/* Filters: month / period + cost centre + category */}
-        <section className="card">
-          <div className="txn-filters">
-            <div className="form-field">
-              <label className="form-field__label" htmlFor="budget-filter-period">
+        <section className="card bva-filter-card" aria-label="Budget filters">
+          <div className="bva-filters-row">
+            <div className="bva-filter-group">
+              <label className="bva-filter-label" htmlFor="budget-filter-period">
                 Month / Period
               </label>
-              <input
+              <Dropdown
                 id="budget-filter-period"
-                className="txn-filter__date"
-                type="month"
                 value={filters.period}
                 onChange={(event) => updateFilter("period", event.target.value)}
+                options={monthOptions}
+                placeholder="Select month"
               />
             </div>
 
-            <div className="form-field">
-              <label className="form-field__label" htmlFor="budget-filter-department">
-                Cost Centre / Department
+            <div className="bva-filter-group">
+              <label className="bva-filter-label" htmlFor="budget-filter-department">
+                Department
               </label>
-              <select
+              <Dropdown
                 id="budget-filter-department"
-                className="txn-filter__select"
                 value={filters.department}
                 onChange={(event) => updateFilter("department", event.target.value)}
-              >
-                <option value="">All departments</option>
-                {facets.departments.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
+                options={[
+                  { value: "", label: "All departments" },
+                  ...facets.departments.map((option) => ({
+                    value: option,
+                    label: option,
+                  })),
+                ]}
+              />
             </div>
 
-            <div className="form-field">
-              <label className="form-field__label" htmlFor="budget-filter-category">
+            <div className="bva-filter-group">
+              <label className="bva-filter-label" htmlFor="budget-filter-category">
                 Category
               </label>
-              <select
+              <Dropdown
                 id="budget-filter-category"
-                className="txn-filter__select"
                 value={filters.category}
                 onChange={(event) => updateFilter("category", event.target.value)}
-              >
-                <option value="">All categories</option>
-                {facets.categories.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
+                options={[
+                  { value: "", label: "All categories" },
+                  ...facets.categories.map((option) => ({
+                    value: option,
+                    label: option,
+                  })),
+                ]}
+              />
             </div>
+          </div>
 
+          <div className="bva-filter-footer">
+            <span className="bva-filter-hint">
+              Compare your planned budget with actual transaction spend.
+            </span>
             {hasActiveFilters && (
-              <button type="button" className="btn btn--ghost" onClick={clearFilters}>
+              <button
+                type="button"
+                className="btn btn--ghost bva-reset-btn"
+                onClick={clearFilters}
+              >
                 Clear filters
               </button>
             )}
           </div>
-
-          <p className="txn-form__hint">
-            Leave the month blank to compare every period. Actual spend is always read from your
-            existing transactions.
-          </p>
         </section>
 
         {isLoading && <p className="dashboard-loading">Loading budget comparison&hellip;</p>}
@@ -272,23 +334,64 @@ function Budget() {
 
         {!isLoading && !error && totals && rows.length > 0 && (
           <>
-            <div className="kpi-grid">
-              <section className="card kpi-card">
-                <h2>Total Budget</h2>
-                <p className="kpi-card__value">{formatMoney(totals.totalBudget)}</p>
+            <div className="kpi-grid bva-kpi-grid">
+              <section className="card kpi-card bva-kpi-card">
+                <span className="bva-kpi-label">TOTAL BUDGET</span>
+                <p className="kpi-card__value bva-kpi-value">{formatMoney(totalBudget)}</p>
+                <p className="bva-kpi-caption">Planned spending</p>
               </section>
-              <section className="card kpi-card">
-                <h2>Actual Spend</h2>
-                <p className="kpi-card__value">{formatMoney(totals.actualSpend)}</p>
+
+              <section className="card kpi-card bva-kpi-card">
+                <span className="bva-kpi-label">ACTUAL SPEND</span>
+                <p className="kpi-card__value bva-kpi-value">{formatMoney(actualSpend)}</p>
+                <p className="bva-kpi-caption">
+                  {usedPercent.toFixed(2)}% of budget used
+                </p>
               </section>
-              <section className="card kpi-card">
-                <h2>Remaining Budget</h2>
-                <p className="kpi-card__value">{formatMoney(totals.remainingBudget)}</p>
+
+              <section className="card kpi-card bva-kpi-card">
+                <span className="bva-kpi-label">REMAINING BUDGET</span>
+                <p className="kpi-card__value bva-kpi-value">{formatMoney(remainingBudget)}</p>
+                <p className="bva-kpi-caption">
+                  {remainingBudget >= 0
+                    ? `${remainingPercent.toFixed(2)}% of budget remaining`
+                    : `${Math.abs(remainingPercent).toFixed(2)}% over budget`}
+                </p>
               </section>
-              <section className="card kpi-card">
-                <h2>Budget Usage</h2>
-                <p className="kpi-card__value">{formatPercentage(totals.usagePercentage)}</p>
-                <p className="kpi-card__hint">Actual spend as a share of the total budget</p>
+
+              <section
+                className={`card kpi-card bva-kpi-card bva-kpi-card--highlight ${
+                  isOverBudget ? "bva-kpi-card--over" : ""
+                }`}
+              >
+                <div className="bva-kpi-header">
+                  <span className="bva-kpi-label">BUDGET USAGE</span>
+                  {isOverBudget && (
+                    <span className="bva-overbudget-badge">Over budget</span>
+                  )}
+                </div>
+
+                <p className="bva-kpi-value bva-kpi-value--accent">
+                  {usedPercent.toFixed(2)}%
+                </p>
+
+                <div className="bva-progress-wrap" aria-hidden="true">
+                  <div
+                    className={`bva-progress-bar ${isOverBudget ? "is-over" : ""}`}
+                    style={{ width: `${progressWidth}%` }}
+                  />
+                </div>
+
+                <div className="bva-progress-stats">
+                  <span>
+                    {formatShortMoney(actualSpend)} of {formatShortMoney(totalBudget)}
+                  </span>
+                  <span>
+                    {remainingBudget >= 0
+                      ? `${formatShortMoney(remainingBudget)} remaining`
+                      : `${formatShortMoney(Math.abs(remainingBudget))} over budget`}
+                  </span>
+                </div>
               </section>
             </div>
 

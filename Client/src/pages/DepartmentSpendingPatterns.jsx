@@ -1,18 +1,33 @@
 import { useEffect, useState } from "react";
 
 import NavBar from "../components/NavBar";
+import Dropdown from "../components/Dropdown";
 import DepartmentSpending from "../components/DepartmentSpending";
 import { fetchAnalyticsSummary } from "../services/analyticsService";
 import "../styles/dashboard.css";
 import "../styles/transactions.css";
+import "../styles/departments.css";
 
-const EMPTY_FILTERS = { from: "", to: "", category: "", department: "" };
+const DATE_RANGES = [
+  { value: "today", label: "Today" },
+  { value: "week", label: "This Week" },
+  { value: "month", label: "This Month" },
+  { value: "lastmonth", label: "Last Month" },
+  { value: "last3months", label: "Last 3 Months" },
+  { value: "last6months", label: "Last 6 Months" },
+  { value: "year", label: "This Year" },
+  { value: "custom", label: "Custom Range" },
+];
 
 /** Department Spending Patterns page (Part 13). */
 function DepartmentSpendingPatterns() {
-  const [filters, setFilters] = useState(EMPTY_FILTERS);
+  const [range, setRange] = useState("last3months");
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
+  const [category, setCategory] = useState("");
+  const [department, setDepartment] = useState("");
 
-  // Facet options for the Category / Department dropdowns.
+  // Facet options for Category and Department dropdowns
   const [facets, setFacets] = useState({ categories: [], departments: [] });
 
   useEffect(() => {
@@ -36,107 +51,123 @@ function DepartmentSpendingPatterns() {
     };
   }, []);
 
-  const updateFilter = (name, value) => {
-    setFilters((current) => ({ ...current, [name]: value }));
+  const handleRangeChange = (newRange) => {
+    setRange(newRange);
+    if (newRange !== "custom") {
+      setFrom("");
+      setTo("");
+    }
   };
 
-  const resetFilters = () => setFilters(EMPTY_FILTERS);
+  const resetFilters = () => {
+    setRange("last3months");
+    setFrom("");
+    setTo("");
+    setCategory("");
+    setDepartment("");
+  };
 
-  const hasActiveFilters = Object.values(filters).some(Boolean);
+  const hasActiveFilters =
+    range !== "last3months" || Boolean(from) || Boolean(to) || Boolean(category) || Boolean(department);
+
+  const filters = {
+    range,
+    from: range === "custom" ? from : "",
+    to: range === "custom" ? to : "",
+    category,
+    department,
+  };
 
   return (
     <div className="app-shell">
       <NavBar />
 
       <main className="app-main">
-        <div className="dashboard-head">
-          <div>
+        {/* 1. HEADER: Title + Subtitle on left, Filters on right */}
+        <div className="dept-header-wrap">
+          <div className="dept-header-left">
             <h1 className="page-title">Department Spending Patterns</h1>
             <p className="page-subtitle">
-              Total spend, share and averages for every department - calculated from your
-              transactions.
+              Total spend, share and averages for every department – calculated from your transactions.
             </p>
           </div>
-        </div>
 
-        {/* Filters: date range + category + department (same controls as Part 4/6) */}
-        <section className="card">
-          <div className="txn-filters">
-            <div className="form-field">
-              <label className="form-field__label" htmlFor="dept-from">
-                From Date
-              </label>
+          <div className="dept-header-filters">
+            <div className="dept-filter-item">
+              <Dropdown
+                id="dept-range"
+                label="Date Range"
+                value={range}
+                onChange={(e) => handleRangeChange(e.target.value)}
+                options={DATE_RANGES}
+              />
+            </div>
+
+            <div className="dept-filter-item">
+              <Dropdown
+                id="dept-category"
+                label="Category"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                options={[
+                  { value: "", label: "All Categories" },
+                  ...facets.categories.map((c) => ({ value: c, label: c })),
+                ]}
+              />
+            </div>
+
+            <div className="dept-filter-item">
+              <Dropdown
+                id="dept-department"
+                label="Department"
+                value={department}
+                onChange={(e) => setDepartment(e.target.value)}
+                options={[
+                  { value: "", label: "All Departments" },
+                  ...facets.departments.map((d) => ({ value: d, label: d })),
+                ]}
+              />
+            </div>
+
+            {/* From Date / To Date inputs for custom date selection & test suites */}
+            <div
+              className="dept-filter-dates"
+              style={{ display: range === "custom" ? "flex" : "none" }}
+            >
               <input
                 id="dept-from"
-                className="txn-filter__date"
+                className="dept-date-input"
                 type="date"
-                value={filters.from}
-                max={filters.to || undefined}
-                onChange={(event) => updateFilter("from", event.target.value)}
+                value={from}
+                max={to || undefined}
+                onChange={(e) => setFrom(e.target.value)}
+                aria-label="From Date"
               />
-            </div>
-
-            <div className="form-field">
-              <label className="form-field__label" htmlFor="dept-to">
-                To Date
-              </label>
               <input
                 id="dept-to"
-                className="txn-filter__date"
+                className="dept-date-input"
                 type="date"
-                value={filters.to}
-                min={filters.from || undefined}
-                onChange={(event) => updateFilter("to", event.target.value)}
+                value={to}
+                min={from || undefined}
+                onChange={(e) => setTo(e.target.value)}
+                aria-label="To Date"
               />
-            </div>
-
-            <div className="form-field">
-              <label className="form-field__label" htmlFor="dept-category">
-                Category
-              </label>
-              <select
-                id="dept-category"
-                className="txn-filter__select"
-                value={filters.category}
-                onChange={(event) => updateFilter("category", event.target.value)}
-              >
-                <option value="">All</option>
-                {facets.categories.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="form-field">
-              <label className="form-field__label" htmlFor="dept-department">
-                Department
-              </label>
-              <select
-                id="dept-department"
-                className="txn-filter__select"
-                value={filters.department}
-                onChange={(event) => updateFilter("department", event.target.value)}
-              >
-                <option value="">All</option>
-                {facets.departments.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
             </div>
 
             {hasActiveFilters && (
-              <button type="button" className="btn btn--ghost" onClick={resetFilters}>
+              <button
+                type="button"
+                className="dept-reset-btn"
+                onClick={resetFilters}
+                title="Reset all filters"
+              >
                 Reset filters
               </button>
             )}
           </div>
-        </section>
+        </div>
 
-        {/* Shared read-only section (Part 10) with the Part 13 chart opted in. */}
+        {/* 2 to 5. Modern Department Spending Visualizations */}
         <DepartmentSpending filters={filters} showChart />
       </main>
     </div>

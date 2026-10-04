@@ -1,0 +1,120 @@
+/* Shared RicozSpend Logo Styles */
+
+.ricoz-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  user-select: none;
+}
+
+.ricoz-logo--pill {
+  background: #ffffff;
+  padding: 6px 16px 6px 6px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+}
+
+.ricoz-logo--pill:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.16);
+}
+
+.ricoz-logo__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #e21b22 0%, #b91319 100%);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(226, 27, 34, 0.25);
+  flex-shrink: 0;
+}
+
+.ricoz-logo__text {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  color: #111827;
+  line-height: 1;
+}
+
+.ricoz-logo__text--accent {
+  color: #e21b22;
+}
+
+/* Large size (Login & Signup hero) */
+.ricoz-logo--lg {
+  padding: 6px 16px 6px 6px;
+  border-radius: 12px;
+  gap: 10px;
+}
+
+.ricoz-logo--lg .ricoz-logo__icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+}
+
+.ricoz-logo--lg .ricoz-logo__text {
+  font-size: 20px;
+}
+
+/* Medium size (Default / Landing) */
+.ricoz-logo--md {
+  padding: 5px 14px 5px 5px;
+  border-radius: 10px;
+  gap: 9px;
+}
+
+.ricoz-logo--md .ricoz-logo__icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 7px;
+}
+
+.ricoz-logo--md .ricoz-logo__text {
+  font-size: 18px;
+}
+
+/* Navbar size */
+.ricoz-logo--nav {
+  padding: 4px 12px 4px 4px;
+  border-radius: 8px;
+  gap: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.ricoz-logo--nav .ricoz-logo__icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+}
+
+.ricoz-logo--nav .ricoz-logo__text {
+  font-size: 15.5px;
+  letter-spacing: -0.2px;
+  color: #0f172a;
+}
+
+.ricoz-logo--nav .ricoz-logo__text--accent {
+  color: #dc2626;
+}
+
+/* Small size */
+.ricoz-logo--sm {
+  padding: 3px 10px 3px 3px;
+  border-radius: 6px;
+  gap: 6px;
+}
+
+.ricoz-logo--sm .ricoz-logo__icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+}
+
+.ricoz-logo--sm .ricoz-logo__text {
+  font-size: 13.5px;
+}

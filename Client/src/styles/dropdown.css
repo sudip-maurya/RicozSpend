@@ -1,0 +1,335 @@
+/* ==========================================================================
+   RicozSpend Standardized Dropdown & Select Design System
+   ========================================================================== */
+
+/* Container wrapping label + dropdown */
+.rs-dropdown-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.rs-dropdown-container.is-disabled {
+  pointer-events: none;
+}
+
+/* Small muted uppercase field label */
+.rs-dropdown-label {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+  margin-bottom: 7px;
+  line-height: 1.2;
+  user-select: none;
+}
+
+.rs-dropdown-wrap {
+  position: relative;
+  width: 100%;
+}
+
+/* 1. TRIGGER BUTTON (~40px height, #E5E7EB border, 10px radius, white bg, navy text) */
+.rs-dropdown-trigger {
+  height: 40px;
+  min-height: 40px;
+  max-height: 40px;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0 14px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  color: #0f172a;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  cursor: pointer;
+  text-align: left;
+  user-select: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.rs-dropdown-trigger:hover:not(:disabled) {
+  border-color: #cbd5e1;
+}
+
+/* Focus & Open: RicozSpend brand red subtle ring */
+.rs-dropdown-trigger:focus-visible,
+.rs-dropdown-trigger.is-open {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+  outline: none;
+}
+
+/* Disabled state */
+.rs-dropdown-trigger:disabled {
+  background: #f8fafc;
+  color: #94a3b8;
+  border-color: #e2e8f0;
+  cursor: not-allowed;
+  opacity: 0.75;
+}
+
+/* Truncated label with ellipsis */
+.rs-dropdown-value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+  line-height: normal;
+}
+
+/* Consistent animated chevron */
+.rs-dropdown-chevron {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: #64748b;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), color 0.15s ease;
+}
+
+.rs-dropdown-chevron.is-open {
+  transform: rotate(180deg);
+  color: #dc2626;
+}
+
+/* 2. OPEN MENU (white, radius 12px, soft shadow, z-index 1000) */
+.rs-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  width: 100%;
+  min-width: 180px;
+  max-width: 380px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  z-index: 1000;
+  padding: 6px;
+  margin: 0;
+  list-style: none;
+  max-height: 280px;
+  overflow-y: auto;
+  box-sizing: border-box;
+  animation: rsDropdownFadeIn 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: top center;
+}
+
+.rs-dropdown-menu.align-right {
+  left: auto;
+  right: 0;
+}
+
+@keyframes rsDropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Custom scrollbar inside menu */
+.rs-dropdown-menu::-webkit-scrollbar {
+  width: 6px;
+}
+.rs-dropdown-menu::-webkit-scrollbar-track {
+  background: transparent;
+}
+.rs-dropdown-menu::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 3px;
+}
+.rs-dropdown-menu::-webkit-scrollbar-thumb:hover {
+  background: #cbd5e1;
+}
+
+/* 3. OPTION ITEMS (comfortable 10–12px padding, hover gray/red tint, selected checkmark) */
+.rs-dropdown-item {
+  padding: 9px 12px;
+  margin: 1px 0;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.rs-dropdown-item:hover,
+.rs-dropdown-item.is-highlighted {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.rs-dropdown-item.is-selected {
+  background: #fef2f2;
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.rs-dropdown-item.is-selected:hover,
+.rs-dropdown-item.is-selected.is-highlighted {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.rs-dropdown-item-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.rs-dropdown-item-check {
+  color: #dc2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Hidden native select for SSR / forms / screen-readers */
+.rs-dropdown-native-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   Shared Native Select & Filter Bar Standard Classes
+   ========================================================================== */
+
+/* Applied to native <select> fallbacks */
+.rs-select,
+.txn-filter__select,
+.date-filter__select {
+  height: 40px;
+  min-height: 40px;
+  max-height: 40px;
+  box-sizing: border-box;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  color: #0f172a;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 500;
+  padding: 0 34px 0 14px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+
+.rs-select:hover:not(:disabled),
+.txn-filter__select:hover:not(:disabled),
+.date-filter__select:hover:not(:disabled) {
+  border-color: #cbd5e1;
+}
+
+.rs-select:focus,
+.txn-filter__select:focus,
+.date-filter__select:focus {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+  outline: none;
+}
+
+.rs-select:disabled,
+.txn-filter__select:disabled,
+.date-filter__select:disabled {
+  background-color: #f8fafc;
+  color: #94a3b8;
+  border-color: #e2e8f0;
+  cursor: not-allowed;
+  opacity: 0.75;
+}
+
+/* Matching standardized date inputs across filter bars */
+.rs-date-input,
+.txn-filter__date,
+.date-filter__date {
+  height: 40px;
+  min-height: 40px;
+  max-height: 40px;
+  box-sizing: border-box;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  color: #0f172a;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 500;
+  padding: 0 12px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.rs-date-input:focus,
+.txn-filter__date:focus,
+.date-filter__date:focus {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+  outline: none;
+}
+
+/* Filter bar controls alignment & consistent 12–16px gap */
+.filter-bar,
+.txn-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 14px;
+}
+
+.filter-bar .form-field,
+.txn-filters .form-field {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  min-width: 0;
+}
+
+.filter-bar .form-field__label,
+.txn-filters .form-field__label {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+  margin-bottom: 7px;
+  line-height: 1.2;
+}

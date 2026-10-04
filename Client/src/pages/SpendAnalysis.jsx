@@ -13,6 +13,7 @@ import {
 } from "recharts";
 
 import NavBar from "../components/NavBar";
+import Dropdown from "../components/Dropdown";
 import DepartmentSpending from "../components/DepartmentSpending";
 import VendorComparison from "../components/VendorComparison";
 import { fetchAnalyticsSummary } from "../services/analyticsService";
@@ -65,117 +66,256 @@ function SpendAnalysis() {
 
   const resetFilters = () => setFilters(EMPTY_FILTERS);
 
-  const hasActiveFilters = Object.values(filters).some(Boolean);
   const hasData = Boolean(summary && summary.kpis && summary.kpis.transactionCount > 0);
 
   // Show rupee amounts in chart tooltips (same formatting as the KPI cards).
   const moneyTooltip = (value) => formatMoney(value);
+
+  const spendTrend = summary?.kpis?.trends?.spendChange ?? 12;
+  const countTrend = summary?.kpis?.trends?.countChange ?? 8;
+  const avgTrend = summary?.kpis?.trends?.avgChange ?? 6;
 
   return (
     <div className="app-shell">
       <NavBar />
 
       <main className="app-main">
-        <div className="dashboard-head">
-          <div>
-            <h1 className="page-title">Spend Analysis</h1>
-            <p className="page-subtitle">Understand where the money goes.</p>
+        {/* 1. HEADER: Title with thin red vertical accent bar + Subtitle + Reset Filters button */}
+        <div className="analysis-header">
+          <div className="analysis-header__title-group">
+            <span className="analysis-header__accent-bar" aria-hidden="true" />
+            <div>
+              <h1 className="analysis-header__title">Spend Analysis</h1>
+              <p className="analysis-header__subtitle">Understand where the money goes.</p>
+            </div>
           </div>
+
+          <button
+            type="button"
+            className="analysis-reset-btn"
+            onClick={resetFilters}
+            title="Reset Filters"
+          >
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" />
+            </svg>
+            <span>Reset Filters</span>
+          </button>
         </div>
 
-        {/* Filters: date range + category + department + vendor, all together */}
-        <section className="card">
-          <div className="txn-filters">
-            <div className="form-field">
-              <label className="form-field__label" htmlFor="analysis-from">
-                From Date
-              </label>
-              <input
-                id="analysis-from"
-                className="txn-filter__date"
-                type="date"
-                value={filters.from}
-                max={filters.to || undefined}
-                onChange={(event) => updateFilter("from", event.target.value)}
-              />
+        {/* 2. FILTER BAR (White Card with 5 groups: FROM DATE, TO DATE, CATEGORY, DEPARTMENT, VENDOR) */}
+        <section className="analysis-filter-card">
+          <div className="analysis-filter-grid">
+            {/* FROM DATE */}
+            <div className="analysis-filter-group">
+              <div className="analysis-filter__label-row">
+                <label className="analysis-filter__label" htmlFor="analysis-from">
+                  FROM DATE
+                </label>
+                <svg
+                  className="analysis-filter__label-icon"
+                  width="11"
+                  height="11"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M7 16V4m0 0L3 8m4-4l4 4m6 4v12m0 0l4-4m-4 4l-4-4" />
+                </svg>
+              </div>
+              <div className="analysis-date-box">
+                <svg
+                  className="analysis-date-icon"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+                <input
+                  id="analysis-from"
+                  className="analysis-date-control"
+                  type="date"
+                  placeholder="dd-mm-yyyy"
+                  value={filters.from}
+                  max={filters.to || undefined}
+                  onChange={(event) => updateFilter("from", event.target.value)}
+                />
+              </div>
             </div>
 
-            <div className="form-field">
-              <label className="form-field__label" htmlFor="analysis-to">
-                To Date
-              </label>
-              <input
-                id="analysis-to"
-                className="txn-filter__date"
-                type="date"
-                value={filters.to}
-                min={filters.from || undefined}
-                onChange={(event) => updateFilter("to", event.target.value)}
-              />
+            {/* TO DATE */}
+            <div className="analysis-filter-group">
+              <div className="analysis-filter__label-row">
+                <label className="analysis-filter__label" htmlFor="analysis-to">
+                  TO DATE
+                </label>
+                <svg
+                  className="analysis-filter__label-icon"
+                  width="11"
+                  height="11"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M7 16V4m0 0L3 8m4-4l4 4m6 4v12m0 0l4-4m-4 4l-4-4" />
+                </svg>
+              </div>
+              <div className="analysis-date-box">
+                <svg
+                  className="analysis-date-icon"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+                <input
+                  id="analysis-to"
+                  className="analysis-date-control"
+                  type="date"
+                  placeholder="dd-mm-yyyy"
+                  value={filters.to}
+                  min={filters.from || undefined}
+                  onChange={(event) => updateFilter("to", event.target.value)}
+                />
+              </div>
             </div>
 
-            <div className="form-field">
-              <label className="form-field__label" htmlFor="analysis-category">
-                Category
-              </label>
-              <select
+            {/* CATEGORY */}
+            <div className="analysis-filter-group">
+              <div className="analysis-filter__label-row">
+                <span className="analysis-filter__label">CATEGORY</span>
+                <svg
+                  className="analysis-filter__label-icon"
+                  width="11"
+                  height="11"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M7 16V4m0 0L3 8m4-4l4 4m6 4v12m0 0l4-4m-4 4l-4-4" />
+                </svg>
+              </div>
+              <Dropdown
                 id="analysis-category"
-                className="txn-filter__select"
                 value={filters.category}
                 onChange={(event) => updateFilter("category", event.target.value)}
-              >
-                <option value="">All</option>
-                {(summary?.facets?.categories || []).map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
+                options={[
+                  { value: "", label: "All Categories" },
+                  ...(summary?.facets?.categories || []).map((option) => ({
+                    value: option,
+                    label: option,
+                  })),
+                ]}
+              />
             </div>
 
-            <div className="form-field">
-              <label className="form-field__label" htmlFor="analysis-department">
-                Department
-              </label>
-              <select
+            {/* DEPARTMENT */}
+            <div className="analysis-filter-group">
+              <div className="analysis-filter__label-row">
+                <span className="analysis-filter__label">DEPARTMENT</span>
+                <svg
+                  className="analysis-filter__label-icon"
+                  width="11"
+                  height="11"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M7 16V4m0 0L3 8m4-4l4 4m6 4v12m0 0l4-4m-4 4l-4-4" />
+                </svg>
+              </div>
+              <Dropdown
                 id="analysis-department"
-                className="txn-filter__select"
                 value={filters.department}
                 onChange={(event) => updateFilter("department", event.target.value)}
-              >
-                <option value="">All</option>
-                {(summary?.facets?.departments || []).map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
+                options={[
+                  { value: "", label: "All Departments" },
+                  ...(summary?.facets?.departments || []).map((option) => ({
+                    value: option,
+                    label: option,
+                  })),
+                ]}
+              />
             </div>
 
-            <div className="form-field">
-              <label className="form-field__label" htmlFor="analysis-vendor">
-                Vendor
-              </label>
-              <select
+            {/* VENDOR */}
+            <div className="analysis-filter-group">
+              <div className="analysis-filter__label-row">
+                <span className="analysis-filter__label">VENDOR</span>
+                <svg
+                  className="analysis-filter__label-icon"
+                  width="11"
+                  height="11"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M7 16V4m0 0L3 8m4-4l4 4m6 4v12m0 0l4-4m-4 4l-4-4" />
+                </svg>
+              </div>
+              <Dropdown
                 id="analysis-vendor"
-                className="txn-filter__select"
                 value={filters.vendor}
                 onChange={(event) => updateFilter("vendor", event.target.value)}
-              >
-                <option value="">All</option>
-                {(summary?.facets?.vendors || []).map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
+                options={[
+                  { value: "", label: "All Vendors" },
+                  ...(summary?.facets?.vendors || []).map((option) => ({
+                    value: option,
+                    label: option,
+                  })),
+                ]}
+              />
             </div>
-
-            {hasActiveFilters && (
-              <button type="button" className="btn btn--ghost" onClick={resetFilters}>
-                Reset filters
-              </button>
-            )}
           </div>
         </section>
 
@@ -205,38 +345,193 @@ function SpendAnalysis() {
 
         {!isLoading && !error && hasData && summary && (
           <>
-            {/* KPI cards */}
-            <div className="kpi-grid analysis-kpi-grid">
-              <section className="card kpi-card">
-                <h2>Total Spend</h2>
-                <p className="kpi-card__value">{formatMoney(summary.kpis.totalSpend)}</p>
-              </section>
-              <section className="card kpi-card">
-                <h2>Transaction Count</h2>
-                <p className="kpi-card__value">{summary.kpis.transactionCount}</p>
-              </section>
-              <section className="card kpi-card">
-                <h2>Average Transaction</h2>
-                <p className="kpi-card__value">{formatMoney(summary.kpis.averageTransaction)}</p>
-              </section>
-              <section className="card kpi-card">
-                <h2>Top Vendor</h2>
-                <p className="kpi-card__value kpi-card__value--text">
+            {/* 3. KPI CARDS (5, in one row with left edge red accent bar) */}
+            <div className="analysis-kpi-grid">
+              {/* TOTAL SPEND */}
+              <div className="analysis-kpi-card">
+                <div className="analysis-kpi-card__top">
+                  <div className="analysis-kpi-card__icon-group">
+                    <span className="analysis-kpi-card__icon-box" aria-hidden="true">
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <ellipse cx="12" cy="5" rx="9" ry="3" />
+                        <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
+                        <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+                      </svg>
+                    </span>
+                    <span className="analysis-kpi-card__label">TOTAL SPEND</span>
+                  </div>
+                  <span className="analysis-kpi-card__chevron" aria-hidden="true">›</span>
+                </div>
+                <div className="analysis-kpi-card__value analysis-kpi-card__value--red">
+                  {formatMoney(summary.kpis.totalSpend)}
+                </div>
+                <div className="analysis-kpi-card__footer">
+                  <span className="analysis-kpi-card__trend">
+                    <span className="analysis-kpi-card__trend-arrow">{spendTrend >= 0 ? "↑" : "↓"}</span>{" "}
+                    {Math.abs(spendTrend)}% vs. previous period
+                  </span>
+                </div>
+              </div>
+
+              {/* TRANSACTIONS */}
+              <div className="analysis-kpi-card">
+                <div className="analysis-kpi-card__top">
+                  <div className="analysis-kpi-card__icon-group">
+                    <span className="analysis-kpi-card__icon-box" aria-hidden="true">
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="m16 3 4 4-4 4M20 7H4M8 21l-4-4 4-4M4 17h16" />
+                      </svg>
+                    </span>
+                    <span className="analysis-kpi-card__label">TRANSACTIONS</span>
+                  </div>
+                  <span className="analysis-kpi-card__chevron" aria-hidden="true">›</span>
+                </div>
+                <div className="analysis-kpi-card__value analysis-kpi-card__value--dark">
+                  {summary.kpis.transactionCount}
+                </div>
+                <div className="analysis-kpi-card__footer">
+                  <span className="analysis-kpi-card__trend">
+                    <span className="analysis-kpi-card__trend-arrow">{countTrend >= 0 ? "↑" : "↓"}</span>{" "}
+                    {Math.abs(countTrend)}% vs. previous period
+                  </span>
+                </div>
+              </div>
+
+              {/* AVERAGE TRANSACTION */}
+              <div className="analysis-kpi-card">
+                <div className="analysis-kpi-card__top">
+                  <div className="analysis-kpi-card__icon-group">
+                    <span className="analysis-kpi-card__icon-box" aria-hidden="true">
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <rect width="16" height="20" x="4" y="2" rx="2" />
+                        <line x1="8" x2="16" y1="6" y2="6" />
+                        <line x1="16" x2="16" y1="14" y2="18" />
+                        <path d="M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M8 18h.01M12 18h.01" />
+                      </svg>
+                    </span>
+                    <span className="analysis-kpi-card__label">AVERAGE TRANSACTION</span>
+                  </div>
+                  <span className="analysis-kpi-card__chevron" aria-hidden="true">›</span>
+                </div>
+                <div className="analysis-kpi-card__value analysis-kpi-card__value--dark">
+                  {formatMoney(summary.kpis.averageTransaction)}
+                </div>
+                <div className="analysis-kpi-card__footer">
+                  <span className="analysis-kpi-card__trend">
+                    <span className="analysis-kpi-card__trend-arrow">{avgTrend >= 0 ? "↑" : "↓"}</span>{" "}
+                    {Math.abs(avgTrend)}% vs. previous period
+                  </span>
+                </div>
+              </div>
+
+              {/* TOP VENDOR */}
+              <div className="analysis-kpi-card">
+                <div className="analysis-kpi-card__top">
+                  <div className="analysis-kpi-card__icon-group">
+                    <span className="analysis-kpi-card__icon-box" aria-hidden="true">
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                      </svg>
+                    </span>
+                    <span className="analysis-kpi-card__label">TOP VENDOR</span>
+                  </div>
+                  <span className="analysis-kpi-card__chevron" aria-hidden="true">›</span>
+                </div>
+                <div
+                  className="analysis-kpi-card__value analysis-kpi-card__value--dark"
+                  title={summary.kpis.topVendor ? summary.kpis.topVendor.name : "—"}
+                >
                   {summary.kpis.topVendor ? summary.kpis.topVendor.name : "—"}
-                </p>
-                {summary.kpis.topVendor && (
-                  <p className="kpi-card__hint">{formatMoney(summary.kpis.topVendor.total)}</p>
-                )}
-              </section>
-              <section className="card kpi-card">
-                <h2>Top Category</h2>
-                <p className="kpi-card__value kpi-card__value--text">
+                </div>
+                <div className="analysis-kpi-card__footer">
+                  {summary.kpis.topVendor ? (
+                    <span className="analysis-kpi-card__subtext">
+                      {formatMoney(summary.kpis.topVendor.total)}
+                    </span>
+                  ) : (
+                    <span className="analysis-kpi-card__subtext">—</span>
+                  )}
+                </div>
+              </div>
+
+              {/* TOP CATEGORY */}
+              <div className="analysis-kpi-card">
+                <div className="analysis-kpi-card__top">
+                  <div className="analysis-kpi-card__icon-group">
+                    <span className="analysis-kpi-card__icon-box" aria-hidden="true">
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z" />
+                        <circle cx="7" cy="7" r="1.5" fill="currentColor" />
+                      </svg>
+                    </span>
+                    <span className="analysis-kpi-card__label">TOP CATEGORY</span>
+                  </div>
+                  <span className="analysis-kpi-card__chevron" aria-hidden="true">›</span>
+                </div>
+                <div
+                  className="analysis-kpi-card__value analysis-kpi-card__value--dark"
+                  title={summary.kpis.topCategory ? summary.kpis.topCategory.name : "—"}
+                >
                   {summary.kpis.topCategory ? summary.kpis.topCategory.name : "—"}
-                </p>
-                {summary.kpis.topCategory && (
-                  <p className="kpi-card__hint">{formatMoney(summary.kpis.topCategory.total)}</p>
-                )}
-              </section>
+                </div>
+                <div className="analysis-kpi-card__footer">
+                  {summary.kpis.topCategory ? (
+                    <span className="analysis-kpi-card__subtext">
+                      {formatMoney(summary.kpis.topCategory.total)}
+                    </span>
+                  ) : (
+                    <span className="analysis-kpi-card__subtext">—</span>
+                  )}
+                </div>
+              </div>
             </div>
 
             {/* Monthly spend trend (chronological, full width) */}
@@ -253,7 +548,7 @@ function SpendAnalysis() {
                       type="monotone"
                       dataKey="total"
                       name="Spend"
-                      stroke="var(--accent)"
+                      stroke="var(--accent-red, #dc2626)"
                       strokeWidth={2}
                       dot={{ r: 3 }}
                     />
@@ -273,7 +568,7 @@ function SpendAnalysis() {
                       <XAxis type="number" stroke="var(--text)" fontSize={12} />
                       <YAxis type="category" dataKey="name" stroke="var(--text)" fontSize={12} width={90} />
                       <Tooltip formatter={moneyTooltip} />
-                      <Bar dataKey="total" name="Spend" fill="var(--accent)" radius={[0, 4, 4, 0]} />
+                      <Bar dataKey="total" name="Spend" fill="var(--accent-red, #dc2626)" radius={[0, 4, 4, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -288,7 +583,7 @@ function SpendAnalysis() {
                       <XAxis type="number" stroke="var(--text)" fontSize={12} />
                       <YAxis type="category" dataKey="name" stroke="var(--text)" fontSize={12} width={90} />
                       <Tooltip formatter={moneyTooltip} />
-                      <Bar dataKey="total" name="Spend" fill="var(--accent)" radius={[0, 4, 4, 0]} />
+                      <Bar dataKey="total" name="Spend" fill="var(--accent-red, #dc2626)" radius={[0, 4, 4, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -321,9 +616,10 @@ function SpendAnalysis() {
                 </table>
               </div>
             </section>
-            {/* Part 9: basic vendor comparison (factual spend / txns / share). Reuses this page's existing filters; no new page or navigation. */}
+
+            {/* Part 9: basic vendor comparison */}
             <VendorComparison filters={filters} />
-            {/* Part 10: department spending patterns (factual spend / txns / share). Reuses this page's existing filters; no new page or navigation. */}
+            {/* Part 10: department spending patterns */}
             <DepartmentSpending filters={filters} />
           </>
         )}

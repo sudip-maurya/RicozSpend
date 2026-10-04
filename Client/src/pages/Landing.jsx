@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import Logo from "../components/Logo";
 
 export default function Landing() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -254,17 +255,15 @@ export default function Landing() {
       {/* NAVBAR */}
       <header className="landing-nav-header">
         <div className="landing-container landing-nav-inner">
-          <Link to="/" className="landing-brand">
-            <span className="landing-brand-mark">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 2v20" />
-                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-              </svg>
-            </span>
-            <span className="landing-brand-name">
-              Ricoz<span>Spend</span>
-            </span>
-          </Link>
+          <Logo
+            to="/"
+            size="md"
+            pill={false}
+            className="landing-brand"
+            iconClassName="landing-brand-mark"
+            textClassName="landing-brand-name"
+            accentClassName=""
+          />
 
           <nav className="landing-nav-menu">
             <a href="#features" className="landing-nav-link">Features</a>
@@ -788,15 +787,15 @@ export default function Landing() {
       <footer className="landing-footer">
         <div className="landing-container landing-footer-grid">
           <div className="landing-footer-col">
-            <div className="landing-footer-brand">
-              <span className="landing-footer-mark">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 2v20" />
-                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                </svg>
-              </span>
-              <span className="landing-footer-name">RicozSpend</span>
-            </div>
+            <Logo
+              to={null}
+              size="sm"
+              pill={false}
+              className="landing-footer-brand"
+              iconClassName="landing-footer-mark"
+              textClassName="landing-footer-name"
+              accentClassName=""
+            />
             <p className="landing-footer-tagline">Smarter Spending. Better Decisions.</p>
           </div>
 

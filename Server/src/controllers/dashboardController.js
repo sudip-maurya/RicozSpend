@@ -15,7 +15,7 @@ const startOfToday = () => {
 
 /** Resolve preset range or custom dates to [from, to) UTC window. */
 const resolveRange = (query) => {
-  const range = String(query.range || "month").toLowerCase();
+  const range = String(query.range || "last3months").toLowerCase();
 
   if (range === "custom") {
     const from = query.from ? new Date(`${query.from}T00:00:00.000Z`) : null;
@@ -49,6 +49,16 @@ const resolveRange = (query) => {
         from: new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth() - 1, 1)),
         to: new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), 1)),
       };
+    case "last3months": {
+      // Pichhle 90 din, rolling
+      const from = new Date(today.getTime() - 90 * DAY_MS);
+      return { from, to: new Date(today.getTime() + DAY_MS) };
+    }
+    case "last6months": {
+      // Pichhle 180 din, rolling
+      const from = new Date(today.getTime() - 180 * DAY_MS);
+      return { from, to: new Date(today.getTime() + DAY_MS) };
+    }
     case "quarter": {
       const quarterMonth = Math.floor(today.getUTCMonth() / 3) * 3;
       return {
@@ -138,7 +148,7 @@ const getSummary = async (req, res) => {
 
     return res.json({
       range: {
-        preset: String(req.query.range || "month").toLowerCase(),
+        preset: String(req.query.range || "last3months").toLowerCase(),
         from: from ? from.toISOString() : null,
         to: to ? to.toISOString() : null,
       },

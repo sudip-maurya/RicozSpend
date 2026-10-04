@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import NavBar from "../components/NavBar";
+import Dropdown from "../components/Dropdown";
 import TransactionFormModal from "../components/TransactionFormModal";
 import TransactionImportModal from "../components/TransactionImportModal";
 import TransactionViewModal from "../components/TransactionViewModal";
@@ -451,101 +452,47 @@ function Transactions() {
             </div>
 
             <div className="txn-filter-dropdowns-row">
-              <div className="txn-filter-select-box">
-                <span className="txn-filter-select-box__label">CATEGORY</span>
-                <select
-                  id="filter-category"
-                  className="txn-filter-select-box__input"
-                  value={filters.category}
-                  onChange={(event) => updateFilter("category", event.target.value)}
-                  aria-label="Category"
-                >
-                  <option value="">All Categories</option>
-                  {data.facets.categories.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-                <svg
-                  className="txn-filter-select-box__chevron"
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <polyline points="6 9 12 15 18 9" />
-                </svg>
-              </div>
+              <Dropdown
+                id="filter-category"
+                label="CATEGORY"
+                value={filters.category}
+                onChange={(event) => updateFilter("category", event.target.value)}
+                options={[
+                  { value: "", label: "All Categories" },
+                  ...data.facets.categories.map((option) => ({
+                    value: option,
+                    label: option,
+                  })),
+                ]}
+              />
 
-              <div className="txn-filter-select-box">
-                <span className="txn-filter-select-box__label">DEPARTMENT</span>
-                <select
-                  id="filter-department"
-                  className="txn-filter-select-box__input"
-                  value={filters.department}
-                  onChange={(event) => updateFilter("department", event.target.value)}
-                  aria-label="Department"
-                >
-                  <option value="">All Departments</option>
-                  {data.facets.departments.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-                <svg
-                  className="txn-filter-select-box__chevron"
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <polyline points="6 9 12 15 18 9" />
-                </svg>
-              </div>
+              <Dropdown
+                id="filter-department"
+                label="DEPARTMENT"
+                value={filters.department}
+                onChange={(event) => updateFilter("department", event.target.value)}
+                options={[
+                  { value: "", label: "All Departments" },
+                  ...data.facets.departments.map((option) => ({
+                    value: option,
+                    label: option,
+                  })),
+                ]}
+              />
 
-              <div className="txn-filter-select-box">
-                <span className="txn-filter-select-box__label">VENDOR</span>
-                <select
-                  id="filter-vendor"
-                  className="txn-filter-select-box__input"
-                  value={filters.vendor}
-                  onChange={(event) => updateFilter("vendor", event.target.value)}
-                  aria-label="Vendor"
-                >
-                  <option value="">All Vendors</option>
-                  {data.facets.vendors.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-                <svg
-                  className="txn-filter-select-box__chevron"
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <polyline points="6 9 12 15 18 9" />
-                </svg>
-              </div>
+              <Dropdown
+                id="filter-vendor"
+                label="VENDOR"
+                value={filters.vendor}
+                onChange={(event) => updateFilter("vendor", event.target.value)}
+                options={[
+                  { value: "", label: "All Vendors" },
+                  ...data.facets.vendors.map((option) => ({
+                    value: option,
+                    label: option,
+                  })),
+                ]}
+              />
             </div>
           </div>
 

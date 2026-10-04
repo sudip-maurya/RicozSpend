@@ -96,7 +96,7 @@ const InsightCard = ({ insight, contributions }) => {
 };
 
 /** Dashboard section - follows the dashboard's own date filter (range/from/to). */
-function SpendInsights({ range = "", from = "", to = "" }) {
+function SpendInsights({ range = "last3months", from = "", to = "" }) {
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");

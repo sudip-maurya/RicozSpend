@@ -14,6 +14,22 @@ export const formatMoney = (value) => {
   }).format(amount);
 };
 
+/** ₹23.35L / ₹1.5Cr / ₹50k - Short compact Indian notation */
+export const formatShortMoney = (value) => {
+  const num = Number(value);
+  if (!Number.isFinite(num) || num === 0) return "₹0";
+  if (Math.abs(num) >= 10000000) {
+    return `₹${(num / 10000000).toFixed(2)}Cr`;
+  }
+  if (Math.abs(num) >= 100000) {
+    return `₹${(num / 100000).toFixed(2)}L`;
+  }
+  if (Math.abs(num) >= 1000) {
+    return `₹${(num / 1000).toFixed(1)}k`;
+  }
+  return `₹${num.toFixed(0)}`;
+};
+
 /** 23/09/2026 - one consistent date format across the transactions page. */
 export const formatDate = (value) => {
   const date = new Date(value);

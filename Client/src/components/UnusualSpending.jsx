@@ -6,7 +6,7 @@ import "../styles/dashboard.css";
 
 /** Unusual Spending Alerts section (Part 7). */
 /** Follows the dashboard's own date filter (range/from/to props) */
-function UnusualSpending({ range = "", from = "", to = "" }) {
+function UnusualSpending({ range = "last3months", from = "", to = "" }) {
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");

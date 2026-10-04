@@ -73,28 +73,70 @@
 }
 
 .txn-filters .form-field {
-  gap: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+}
+
+.txn-filters .form-field__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-h);
+  line-height: 1.2;
 }
 
 .txn-filter__select,
-.txn-filter__date {
+.txn-filter__date,
+.txn-filters .form-field input,
+.txn-filters .form-field select {
   font: inherit;
-  font-size: 15px;
+  font-size: 14px;
   color: var(--text-h);
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 8px 12px;
+  height: 40px;
+  min-height: 40px;
+  max-height: 40px;
+  box-sizing: border-box;
+  line-height: normal;
+  flex: none;
 }
 
 .txn-filter__select:focus,
-.txn-filter__date:focus {
+.txn-filter__date:focus,
+.txn-filters .form-field input:focus,
+.txn-filters .form-field select:focus {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
+  border-color: var(--accent);
 }
 
 .txn-filter__date {
-  flex: 0 1 150px;
+  width: 150px;
+}
+
+.txn-filter__date::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.75;
+}
+
+.txn-filter__date::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+.txn-filter__select {
+  min-width: 140px;
+  cursor: pointer;
+}
+
+.txn-filters .btn--ghost {
+  height: 40px;
+  box-sizing: border-box;
+  padding: 8px 16px;
+  font-size: 14px;
 }
 
 .txn-filter__dash {
@@ -466,8 +508,16 @@
     grid-template-columns: 1fr;
   }
 
-  .txn-filter__date {
-    flex: 1 1 130px;
+  .txn-filters .form-field {
+    width: 100%;
+  }
+
+  .txn-filters .txn-filter__date,
+  .txn-filters .txn-filter__select {
+    width: 100%;
+    min-width: 0;
+    height: 40px;
+    flex: none;
   }
 
   .import-summary {
@@ -657,8 +707,8 @@
 
 .txn-filter-dropdowns-row {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  align-items: flex-end;
+  gap: 14px;
   width: 100%;
 }
 
