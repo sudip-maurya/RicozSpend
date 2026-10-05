@@ -224,33 +224,13 @@ html.dark .app-shell {
   background-color: var(--bg);
 }
 
-/* Navbar */
-html[data-theme="dark"] .app-nav,
-html.dark .app-nav {
-  background-color: var(--card);
-  border-bottom-color: var(--border);
-}
-
-html[data-theme="dark"] .app-nav__link,
-html.dark .app-nav__link {
-  color: var(--muted);
-}
-
-html[data-theme="dark"] .app-nav__link:hover,
-html.dark .app-nav__link:hover {
-  color: var(--text-h);
-  background-color: var(--card-muted);
-}
-
-html[data-theme="dark"] .app-nav__link--active,
-html.dark .app-nav__link--active {
-  background-color: var(--accent-red-tint) !important;
-  color: #f87171 !important;
-}
-
-html[data-theme="dark"] .app-nav__name,
-html.dark .app-nav__name {
-  color: var(--text-h);
+/* Navbar — stays the SAME red (#dc2626) as light mode in dark mode too.
+   Links / user-area keep the light-mode white-on-red treatment; only the logo
+   wordmark adapts: "Ricoz" becomes off-white #f8fafc (never pure #ffffff),
+   while "Spend" keeps its red in both modes. */
+html[data-theme="dark"] .app-nav__brand-text,
+html.dark .app-nav__brand-text {
+  color: #f8fafc;
 }
 
 html[data-theme="dark"] .role-badge,
@@ -258,18 +238,6 @@ html.dark .role-badge {
   background-color: var(--card-muted);
   border-color: var(--border);
   color: var(--muted);
-}
-
-html[data-theme="dark"] .app-nav__logout-btn,
-html.dark .app-nav__logout-btn {
-  border-color: var(--border);
-  color: var(--muted);
-}
-
-html[data-theme="dark"] .app-nav__logout-btn:hover,
-html.dark .app-nav__logout-btn:hover {
-  background-color: var(--card-muted);
-  color: #f87171;
 }
 
 /* Buttons in Dark Mode */
