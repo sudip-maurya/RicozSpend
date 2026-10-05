@@ -227,8 +227,8 @@
 /* Highlighted Budget Usage Card */
 .card.bva-kpi-card--highlight,
 .bva-kpi-card--highlight {
-  background-color: #fffdfd;
-  border-color: #fecaca;
+  background-color: var(--card, #fffdfd);
+  border-color: var(--accent-red-border, #fecaca);
   border-top: 3px solid var(--accent-red, #dc2626) !important;
 }
 

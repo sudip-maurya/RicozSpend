@@ -4,22 +4,22 @@
    ========================================================================== */
 
 :root {
-  --ds-bg-page: #f8fafc;
-  --ds-card-bg: #ffffff;
-  --ds-border: #e2e8f0;
-  --ds-border-light: #f1f5f9;
-  --ds-text-heading: #0f172a;
-  --ds-text-body: #475569;
-  --ds-text-muted: #64748b;
-  --ds-red-primary: #dc2626;
-  --ds-red-hover: #b91c1c;
-  --ds-red-tint: #fef2f2;
-  --ds-red-border: #fee2e2;
+  --ds-bg-page: var(--bg, #f8fafc);
+  --ds-card-bg: var(--card, #ffffff);
+  --ds-border: var(--border, #e2e8f0);
+  --ds-border-light: var(--border-subtle, #f1f5f9);
+  --ds-text-heading: var(--text-h, #0f172a);
+  --ds-text-body: var(--text, #334155);
+  --ds-text-muted: var(--muted, #475569);
+  --ds-red-primary: var(--accent-red, #dc2626);
+  --ds-red-hover: var(--accent-red-hover, #b91c1c);
+  --ds-red-tint: var(--accent-red-tint, #fef2f2);
+  --ds-red-border: var(--accent-red-border, #fee2e2);
   --ds-radius-card: 12px;
   --ds-radius-sm: 6px;
   --ds-radius-md: 8px;
   --ds-shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.03);
-  --ds-shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+  --ds-shadow-card: var(--shadow-card, 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05));
 }
 
 /* Page wrapper inside app-shell */
@@ -97,7 +97,7 @@
   font-size: 13.5px;
   font-weight: 500;
   color: var(--ds-text-heading);
-  background: #ffffff;
+  background: var(--card, #ffffff);
   border: 1px solid var(--ds-border);
   border-radius: var(--ds-radius-md);
   padding: 7px 12px;
@@ -131,7 +131,7 @@
   width: 38px;
   height: 38px;
   border-radius: var(--ds-radius-md);
-  background: #ffffff;
+  background: var(--card, #ffffff);
   border: 1px solid var(--ds-border);
   color: var(--ds-text-body);
   cursor: pointer;
@@ -140,7 +140,7 @@
 }
 
 .dashboard-refresh-btn:hover {
-  background: #f8fafc;
+  background: var(--card-muted, #f8fafc);
   color: var(--ds-red-primary);
   border-color: #cbd5e1;
 }
@@ -464,8 +464,8 @@
   font-weight: 600;
   padding: 1px 6px;
   border-radius: 4px;
-  background: #f1f5f9;
-  color: #64748b;
+  background: var(--card-muted, #f1f5f9);
+  color: var(--muted, #64748b);
   font-variant-numeric: tabular-nums;
 }
 
@@ -619,8 +619,8 @@
   display: inline-block;
   font-size: 12px;
   font-weight: 500;
-  color: #475569;
-  background: #f1f5f9;
+  color: var(--text, #475569);
+  background: var(--card-muted, #f1f5f9);
   border-radius: var(--ds-radius-sm);
   padding: 3px 8px;
   white-space: nowrap;
@@ -828,7 +828,7 @@
   border: 1px solid var(--ds-red-border);
   border-left: 3px solid var(--ds-red-primary);
   border-radius: var(--ds-radius-md);
-  background: #ffffff;
+  background: var(--card, #ffffff);
   text-align: left;
   transition: box-shadow 0.15s ease;
 }
@@ -936,9 +936,9 @@
   gap: 10px;
   padding: 16px;
   border: 1px solid var(--ds-border);
-  border-left: 3px solid #64748b;
+  border-left: 3px solid var(--ds-text-muted);
   border-radius: var(--ds-radius-md);
-  background: #ffffff;
+  background: var(--ds-card-bg);
   text-align: left;
   transition: box-shadow 0.15s ease;
 }
@@ -1013,7 +1013,7 @@
   display: block;
   height: 5px;
   border-radius: 999px;
-  background: #f1f5f9;
+  background: var(--ds-border-light);
   overflow: hidden;
 }
 
@@ -1081,10 +1081,10 @@
   padding: 7px 14px;
   border-radius: var(--ds-radius-md);
   border: 1px solid var(--ds-border);
-  background: #ffffff;
+  background: var(--ds-card-bg);
   color: var(--ds-text-body);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease, box-shadow 200ms ease, transform 150ms ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1092,9 +1092,9 @@
 }
 
 .btn:hover:not(:disabled) {
-  background: #f8fafc;
-  color: var(--ds-text-heading);
-  border-color: #cbd5e1;
+  background: var(--btn-ghost-hover-bg, #f8fafc);
+  color: var(--btn-ghost-hover-text, var(--ds-text-heading));
+  border-color: var(--btn-ghost-hover-border, #cbd5e1);
 }
 
 .btn--primary {
@@ -1113,12 +1113,13 @@
   background: transparent;
   border-color: var(--ds-border);
   color: var(--ds-text-body);
+  transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease, box-shadow 200ms ease, transform 150ms ease;
 }
 
 .btn--ghost:hover:not(:disabled) {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-  color: var(--ds-text-heading);
+  background: var(--btn-ghost-hover-bg, #f8fafc);
+  border-color: var(--btn-ghost-hover-border, #cbd5e1);
+  color: var(--btn-ghost-hover-text, var(--ds-text-heading));
 }
 
 /* ==========================================================================

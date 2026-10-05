@@ -20,8 +20,9 @@
   --border: #e2e8f0;
   --border-subtle: #f1f5f9;
   --text-h: #0f172a;
-  --text: #475569;
-  --muted: #64748b;
+  --text: #334155;
+  --muted: #475569;
+  --text-muted: var(--muted);
   --input-bg: #ffffff;
   --input-border: #e2e8f0;
   --input-text: #0f172a;
@@ -29,6 +30,11 @@
   --table-row-hover: #fafbfc;
   --modal-backdrop: rgba(15, 23, 42, 0.45);
   --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+
+  /* Reusable button ghost & outline hover tokens */
+  --btn-ghost-hover-bg: #f8fafc;
+  --btn-ghost-hover-border: #cbd5e1;
+  --btn-ghost-hover-text: var(--text-h);
 
   /* Legacy & Namespace Aliases */
   --ds-bg-page: var(--bg);
@@ -61,6 +67,7 @@ html.dark {
   --text-h: #f8fafc;
   --text: #cbd5e1;
   --muted: #94a3b8;
+  --text-muted: var(--muted);
   --input-bg: #161f2e;
   --input-border: #27354a;
   --input-text: #f8fafc;
@@ -73,6 +80,11 @@ html.dark {
   --accent-red-hover: #ef4444;
   --accent-red-tint: rgba(220, 38, 38, 0.16);
   --accent-red-border: rgba(220, 38, 38, 0.35);
+
+  /* Reusable button ghost hover tokens in dark mode (subtle fill + brighter border/text) */
+  --btn-ghost-hover-bg: rgba(255, 255, 255, 0.08);
+  --btn-ghost-hover-border: #3b4d6b;
+  --btn-ghost-hover-text: var(--text-h);
 
   --ds-bg-page: var(--bg);
   --ds-card-bg: var(--card);
@@ -111,7 +123,7 @@ html.theme-transitioning *::after {
               box-shadow 300ms ease !important;
 }
 
-/* Consistent 150–200ms interactive transitions for controls */
+/* Consistent ~200ms interactive transitions for controls */
 button,
 .btn,
 .app-nav__link,
@@ -121,11 +133,11 @@ button,
 input,
 select,
 .txn-btn {
-  transition: background-color 0.18s ease,
-              border-color 0.18s ease,
-              color 0.18s ease,
-              box-shadow 0.18s ease,
-              transform 0.15s ease;
+  transition: background-color 200ms ease,
+              border-color 200ms ease,
+              color 200ms ease,
+              box-shadow 200ms ease,
+              transform 150ms ease;
 }
 
 /* Subtle route change fade-in */
@@ -258,6 +270,81 @@ html[data-theme="dark"] .app-nav__logout-btn:hover,
 html.dark .app-nav__logout-btn:hover {
   background-color: var(--card-muted);
   color: #f87171;
+}
+
+/* Buttons in Dark Mode */
+html[data-theme="dark"] .btn,
+html.dark .btn {
+  background-color: var(--card);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+html[data-theme="dark"] .btn:hover:not(:disabled),
+html.dark .btn:hover:not(:disabled) {
+  background-color: var(--btn-ghost-hover-bg);
+  border-color: var(--btn-ghost-hover-border);
+  color: var(--btn-ghost-hover-text);
+}
+
+html[data-theme="dark"] .btn--ghost,
+html.dark .btn--ghost {
+  background-color: transparent;
+  border-color: var(--border);
+  color: var(--text);
+}
+
+html[data-theme="dark"] .btn--ghost:hover:not(:disabled),
+html.dark .btn--ghost:hover:not(:disabled) {
+  background-color: var(--btn-ghost-hover-bg);
+  border-color: var(--btn-ghost-hover-border);
+  color: var(--btn-ghost-hover-text);
+}
+
+/* Automatic Spend Insights in Dark Mode */
+html[data-theme="dark"] .insight-card,
+html.dark .insight-card {
+  background-color: var(--card);
+  border-color: var(--border);
+  border-left-color: var(--muted);
+  box-shadow: var(--shadow-card);
+}
+
+html[data-theme="dark"] .insight-card:hover,
+html.dark .insight-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+html[data-theme="dark"] .insight-card--warning,
+html.dark .insight-card--warning {
+  border-left-color: var(--accent-red);
+}
+
+html[data-theme="dark"] .insight-card--warning .insight-card__message,
+html.dark .insight-card--warning .insight-card__message {
+  color: #f87171;
+}
+
+html[data-theme="dark"] .insight-card--positive,
+html.dark .insight-card--positive {
+  border-left-color: #22c55e;
+}
+
+html[data-theme="dark"] .insight-card--positive .insight-card__message,
+html.dark .insight-card--positive .insight-card__message {
+  color: #4ade80;
+}
+
+html[data-theme="dark"] .insight-contribution__bar,
+html.dark .insight-contribution__bar {
+  background-color: var(--border-subtle);
+}
+
+html[data-theme="dark"] .insights-card .alerts-badge,
+html.dark .insights-card .alerts-badge {
+  background-color: var(--card-muted);
+  border-color: var(--border);
+  color: var(--text-h);
 }
 
 /* Cards & Headings */
@@ -464,10 +551,180 @@ html.dark .range-slider-rail {
   background-color: #27354a;
 }
 
+/* Transactions Page Dark Mode Overrides */
+html[data-theme="dark"] .txn-page-title,
+html.dark .txn-page-title,
+html[data-theme="dark"] .txn-count-title,
+html.dark .txn-count-title {
+  color: var(--text-h);
+}
+
+html[data-theme="dark"] .txn-page-subtitle,
+html.dark .txn-page-subtitle,
+html[data-theme="dark"] .txn-count-subtitle,
+html.dark .txn-count-subtitle {
+  color: var(--muted);
+}
+
+html[data-theme="dark"] .txn-filter-col-label,
+html.dark .txn-filter-col-label,
+html[data-theme="dark"] .txn-filter-slider-footer,
+html.dark .txn-filter-slider-footer,
+html[data-theme="dark"] .txn-filter-select-box__label,
+html.dark .txn-filter-select-box__label,
+html[data-theme="dark"] .txn-filter-select-box__chevron,
+html.dark .txn-filter-select-box__chevron,
+html[data-theme="dark"] .txn-filter-date-box__label,
+html.dark .txn-filter-date-box__label {
+  color: var(--muted);
+}
+
+html[data-theme="dark"] .txn-filter-col--date-apply,
+html.dark .txn-filter-col--date-apply {
+  border-left-color: var(--border);
+}
+
+html[data-theme="dark"] .txn-dual-slider__track,
+html.dark .txn-dual-slider__track {
+  background-color: var(--border);
+}
+
+html[data-theme="dark"] .txn-filter-select-box__input,
+html.dark .txn-filter-select-box__input,
+html[data-theme="dark"] .txn-filter-date-input,
+html.dark .txn-filter-date-input {
+  background-color: var(--input-bg);
+  border-color: var(--input-border);
+  color: var(--input-text);
+}
+
+html[data-theme="dark"] .txn-vendor-btn,
+html.dark .txn-vendor-btn,
+html[data-theme="dark"] .txn-td-amount,
+html.dark .txn-td-amount {
+  color: var(--text-h);
+}
+
+html[data-theme="dark"] .txn-td-plain,
+html.dark .txn-td-plain {
+  color: var(--text);
+}
+
+html[data-theme="dark"] .txn-td-date,
+html.dark .txn-td-date,
+html[data-theme="dark"] .txn-sort-btn,
+html.dark .txn-sort-btn {
+  color: var(--muted);
+}
+
+html[data-theme="dark"] .txn-page-indicator,
+html.dark .txn-page-indicator {
+  color: var(--text);
+}
+
+html[data-theme="dark"] .txn-state,
+html.dark .txn-state {
+  color: var(--muted);
+}
+
+html[data-theme="dark"] .txn-state__text,
+html.dark .txn-state__text {
+  color: var(--text);
+}
+
+html[data-theme="dark"] .recent-table__tag,
+html.dark .recent-table__tag {
+  background-color: var(--card-muted);
+  color: var(--text);
+}
+
+html[data-theme="dark"] .dept-rank-badge,
+html.dark .dept-rank-badge {
+  background-color: var(--card-muted);
+  color: var(--muted);
+}
+
 /* Import Page in Dark Mode */
 html[data-theme="dark"] .import-page,
 html.dark .import-page {
   background-color: var(--bg);
+}
+
+html[data-theme="dark"] .import-header__title,
+html.dark .import-header__title {
+  color: var(--text-h);
+}
+
+html[data-theme="dark"] .import-header__subtitle,
+html.dark .import-header__subtitle {
+  color: var(--muted);
+}
+
+/* Stepper in Dark Mode */
+html[data-theme="dark"] .import-stepper,
+html.dark .import-stepper {
+  background-color: var(--card);
+  border-color: var(--border);
+  box-shadow: var(--shadow-card);
+}
+
+html[data-theme="dark"] .import-step,
+html.dark .import-step {
+  color: var(--muted);
+}
+
+html[data-theme="dark"] .import-step--active,
+html.dark .import-step--active {
+  color: #f87171;
+}
+
+html[data-theme="dark"] .import-step--completed,
+html.dark .import-step--completed {
+  color: var(--text-h);
+}
+
+html[data-theme="dark"] .import-step__dot,
+html.dark .import-step__dot {
+  background-color: var(--card-muted);
+  border-color: var(--border);
+  color: var(--muted);
+}
+
+html[data-theme="dark"] .import-step--active .import-step__dot,
+html.dark .import-step--active .import-step__dot {
+  background-color: var(--accent-red);
+  color: #ffffff;
+  border-color: var(--accent-red);
+}
+
+html[data-theme="dark"] .import-step--completed .import-step__dot,
+html.dark .import-step--completed .import-step__dot {
+  background-color: var(--text-h);
+  color: var(--bg);
+  border-color: var(--text-h);
+}
+
+html[data-theme="dark"] .import-step__divider,
+html.dark .import-step__divider {
+  background-color: var(--border);
+}
+
+/* Import Card (Viewer notice and Admin upload card) in Dark Mode */
+html[data-theme="dark"] .import-card,
+html.dark .import-card {
+  background-color: var(--card);
+  border-color: var(--border);
+  box-shadow: var(--shadow-card);
+}
+
+html[data-theme="dark"] .import-card__title,
+html.dark .import-card__title {
+  color: var(--text-h);
+}
+
+html[data-theme="dark"] .import-card .card__text,
+html.dark .import-card .card__text {
+  color: var(--text);
 }
 
 html[data-theme="dark"] .import-dropzone,
@@ -508,6 +765,11 @@ html.dark .import-dropzone__browse-btn:hover {
   color: #ffffff;
 }
 
+html[data-theme="dark"] .import-dropzone__limit,
+html.dark .import-dropzone__limit {
+  color: var(--muted);
+}
+
 html[data-theme="dark"] .import-requirements,
 html.dark .import-requirements {
   background-color: var(--card-muted);
@@ -545,15 +807,43 @@ html.dark .import-file-icon {
   background-color: rgba(220, 38, 38, 0.16);
 }
 
+html[data-theme="dark"] .import-file-sub,
+html.dark .import-file-sub {
+  color: var(--muted);
+}
+
+html[data-theme="dark"] .import-file-remove,
+html.dark .import-file-remove {
+  border-color: var(--border);
+  color: var(--muted);
+}
+
+html[data-theme="dark"] .import-file-remove:hover,
+html.dark .import-file-remove:hover {
+  background-color: var(--accent-red-tint);
+  border-color: var(--accent-red-border);
+  color: #f87171;
+}
+
 html[data-theme="dark"] .import-preview-hero,
 html.dark .import-preview-hero {
   background-color: var(--card);
   border-color: var(--border);
 }
 
+html[data-theme="dark"] .import-preview-head,
+html.dark .import-preview-head {
+  border-bottom-color: var(--border-subtle);
+}
+
 html[data-theme="dark"] .import-preview-title,
 html.dark .import-preview-title {
   color: var(--text-h);
+}
+
+html[data-theme="dark"] .import-preview-subtitle,
+html.dark .import-preview-subtitle {
+  color: var(--muted);
 }
 
 html[data-theme="dark"] .import-stat-box,
@@ -605,30 +895,96 @@ html.dark .import-stat-box--invalid .import-stat-box__value {
   color: #f87171;
 }
 
+html[data-theme="dark"] .import-tabs,
+html.dark .import-tabs {
+  background-color: var(--card-muted);
+}
+
 html[data-theme="dark"] .import-tab-btn,
 html.dark .import-tab-btn {
-  background-color: var(--card-muted);
-  border-color: var(--border);
+  background-color: transparent;
   color: var(--muted);
 }
 
 html[data-theme="dark"] .import-tab-btn:hover,
 html.dark .import-tab-btn:hover {
   color: var(--text-h);
-  background-color: #1e293b;
+  background-color: rgba(255, 255, 255, 0.06);
 }
 
 html[data-theme="dark"] .import-tab-btn.is-active,
 html.dark .import-tab-btn.is-active {
   background-color: var(--card);
   color: var(--text-h);
-  border-color: var(--accent-red);
+  box-shadow: var(--shadow-card);
+}
+
+html[data-theme="dark"] .import-table-wrap,
+html.dark .import-table-wrap {
+  border-color: var(--border);
+}
+
+html[data-theme="dark"] .import-table th,
+html.dark .import-table th {
+  background-color: var(--table-header-bg);
+  border-bottom-color: var(--border);
+  color: var(--muted);
+}
+
+html[data-theme="dark"] .import-table td,
+html.dark .import-table td {
+  border-bottom-color: var(--border-subtle);
+  color: var(--text);
+}
+
+html[data-theme="dark"] .import-table tbody tr:hover,
+html.dark .import-table tbody tr:hover {
+  background-color: var(--table-row-hover);
+}
+
+html[data-theme="dark"] .import-badge--valid,
+html.dark .import-badge--valid {
+  background-color: rgba(34, 197, 94, 0.16);
+  color: #4ade80;
+}
+
+html[data-theme="dark"] .import-badge--duplicate,
+html.dark .import-badge--duplicate {
+  background-color: rgba(234, 179, 8, 0.16);
+  color: #facc15;
+}
+
+html[data-theme="dark"] .import-badge--invalid,
+html.dark .import-badge--invalid {
+  background-color: rgba(239, 68, 68, 0.16);
+  color: #f87171;
+}
+
+html[data-theme="dark"] .import-reason-tag,
+html.dark .import-reason-tag {
+  color: var(--muted);
+}
+
+html[data-theme="dark"] .import-actions-bar,
+html.dark .import-actions-bar {
+  border-top-color: var(--border-subtle);
+}
+
+html[data-theme="dark"] .import-actions-bar__notice,
+html.dark .import-actions-bar__notice {
+  color: var(--muted);
 }
 
 html[data-theme="dark"] .import-success-card,
 html.dark .import-success-card {
   background-color: var(--card);
-  border-color: #166534;
+  border-color: rgba(34, 197, 94, 0.35);
+}
+
+html[data-theme="dark"] .import-success-icon,
+html.dark .import-success-icon {
+  background-color: rgba(34, 197, 94, 0.16);
+  color: #4ade80;
 }
 
 html[data-theme="dark"] .import-success-title,
@@ -638,7 +994,74 @@ html.dark .import-success-title {
 
 html[data-theme="dark"] .import-success-desc,
 html.dark .import-success-desc {
+  color: var(--muted);
+}
+
+/* App-wide Audited Dark Mode Elements */
+html[data-theme="dark"] .card.bva-kpi-card--highlight,
+html.dark .card.bva-kpi-card--highlight,
+html[data-theme="dark"] .bva-kpi-card--highlight,
+html.dark .bva-kpi-card--highlight {
+  background-color: var(--card);
+  border-color: rgba(220, 38, 38, 0.35);
+  border-top: 3px solid var(--accent-red) !important;
+}
+
+html[data-theme="dark"] .txn-pagination-row,
+html.dark .txn-pagination-row {
+  background-color: var(--card);
+  border-top-color: var(--border);
+}
+
+html[data-theme="dark"] .txn-pagination-info,
+html.dark .txn-pagination-info {
+  color: var(--muted);
+}
+
+html[data-theme="dark"] .txn-page-btn,
+html.dark .txn-page-btn {
+  background-color: var(--card);
+  border-color: var(--border);
   color: var(--text);
+}
+
+html[data-theme="dark"] .txn-page-btn:hover:not(:disabled),
+html.dark .txn-page-btn:hover:not(:disabled) {
+  background-color: var(--card-muted);
+  color: var(--text-h);
+}
+
+html[data-theme="dark"] .txn-act-btn--view,
+html.dark .txn-act-btn--view,
+html[data-theme="dark"] .txn-act-btn--edit,
+html.dark .txn-act-btn--edit,
+html[data-theme="dark"] .txn-act-btn--cancel,
+html.dark .txn-act-btn--cancel {
+  background-color: var(--card);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+html[data-theme="dark"] .txn-act-btn--view:hover,
+html.dark .txn-act-btn--view:hover,
+html[data-theme="dark"] .txn-act-btn--edit:hover,
+html.dark .txn-act-btn--edit:hover,
+html[data-theme="dark"] .txn-act-btn--cancel:hover,
+html.dark .txn-act-btn--cancel:hover {
+  background-color: var(--card-muted);
+  border-color: #3b4d6b;
+  color: var(--text-h);
+}
+
+html[data-theme="dark"] .ricoz-logo--pill,
+html.dark .ricoz-logo--pill {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+}
+
+html[data-theme="dark"] .ricoz-logo__text,
+html.dark .ricoz-logo__text {
+  color: var(--text-h);
 }
 
 /* -----------------------------------------------------------------------------

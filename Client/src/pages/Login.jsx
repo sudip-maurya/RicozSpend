@@ -36,6 +36,13 @@ function Login() {
     api.get("/api/health").catch(() => {});
   }, []);
 
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (slowTimerRef.current) clearTimeout(slowTimerRef.current);
+    };
+  }, []);
+
   const handleOAuthClick = (provider) => {
     // TODO: Implement OAuth login flow for provider
     setToastMessage(`${provider} sign-in is coming soon.`);
@@ -101,12 +108,6 @@ function Login() {
       });
     }
   };
-
-  useEffect(() => {
-    return () => {
-      if (slowTimerRef.current) clearTimeout(slowTimerRef.current);
-    };
-  }, []);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
