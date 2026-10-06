@@ -3,10 +3,19 @@ import { Link, NavLink } from "react-router-dom";
 import "../styles/logo.css";
 
 /**
+ * App-wide logo standard.
+ * - The red icon tile renders EXACTLY 26x26 px on every page (navbar, login,
+ *   signup, landing, dashboard, ... ) — see .ricoz-logo__icon in logo.css.
+ * - The $ glyph inside it is always 15x15 px so no instance differs.
+ */
+export const LOGO_ICON_PX = 26;
+export const LOGO_GLYPH_PX = 15;
+
+/**
  * White dollar SVG icon inside red rounded square.
  * Matches the login page icon identically.
  */
-export function LogoIcon({ size = 18, className = "" }) {
+export function LogoIcon({ size = LOGO_GLYPH_PX, className = "" }) {
   return (
     <svg
       width={size}
@@ -43,9 +52,6 @@ const Logo = ({
   ariaLabel = "RicozSpend home",
   onClick,
 }) => {
-  const iconPixelSize =
-    size === "lg" ? 18 : size === "nav" ? 15 : size === "sm" ? 13 : 17;
-
   const iconClasses = iconClassName
     ? iconClassName
     : "ricoz-logo__icon login-brand__icon";
@@ -56,8 +62,12 @@ const Logo = ({
 
   const content = (
     <>
-      <span className={iconClasses} aria-hidden="true">
-        <LogoIcon size={iconPixelSize} />
+      <span
+        className={iconClasses}
+        style={{ width: `${LOGO_ICON_PX}px`, height: `${LOGO_ICON_PX}px` }}
+        aria-hidden="true"
+      >
+        <LogoIcon size={LOGO_GLYPH_PX} />
       </span>
       {showText && (
         <span className={textClasses}>

@@ -26,6 +26,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  /* App-wide standard logo size: exactly 26x26 */
+  width: 26px;
+  height: 26px;
   border-radius: 8px;
   background: linear-gradient(135deg, #e21b22 0%, #b91319 100%);
   color: #ffffff;
@@ -53,8 +56,8 @@
 }
 
 .ricoz-logo--lg .ricoz-logo__icon {
-  width: 34px;
-  height: 34px;
+  width: 26px;
+  height: 26px;
   border-radius: 8px;
 }
 
@@ -70,8 +73,8 @@
 }
 
 .ricoz-logo--md .ricoz-logo__icon {
-  width: 32px;
-  height: 32px;
+  width: 26px;
+  height: 26px;
   border-radius: 7px;
 }
 
@@ -111,8 +114,8 @@
 }
 
 .ricoz-logo--sm .ricoz-logo__icon {
-  width: 22px;
-  height: 22px;
+  width: 26px;
+  height: 26px;
   border-radius: 5px;
 }
 
