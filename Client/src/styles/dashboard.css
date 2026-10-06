@@ -312,7 +312,7 @@
   align-items: center;
   justify-content: center;
   min-height: 260px;
-  background: #fbfcfd;
+  background: var(--card-muted, #fbfcfd);
   border: 1px dashed var(--ds-border);
   border-radius: var(--ds-radius-md);
   padding: 32px 24px;
@@ -398,7 +398,7 @@
 .cat-bar-track {
   flex: 1;
   height: 12px;
-  background: #f1f5f9;
+  background: var(--border-subtle, #f1f5f9);
   border-radius: 999px;
   overflow: hidden;
   position: relative;
@@ -415,7 +415,7 @@
 }
 
 .cat-bar-fill--other {
-  background: #475569;
+  background: var(--muted, #475569);
 }
 
 .cat-bar-amount {
@@ -495,7 +495,7 @@
 .dept-progress-track {
   width: 100%;
   height: 6px;
-  background: #f1f5f9;
+  background: var(--border-subtle, #f1f5f9);
   border-radius: 999px;
   overflow: hidden;
 }
@@ -581,12 +581,12 @@
   color: var(--ds-text-muted);
   border-bottom: 1px solid var(--ds-border);
   white-space: nowrap;
-  background: #fafbfc;
+  background: var(--table-header-bg, #fafbfc);
 }
 
 .recent-table td {
   padding: 14px;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--border-subtle, #f1f5f9);
   color: var(--ds-text-body);
   vertical-align: middle;
 }
@@ -596,7 +596,7 @@
 }
 
 .recent-table tbody tr:hover {
-  background-color: #f8fafc;
+  background-color: var(--table-row-hover, #f8fafc);
 }
 
 .recent-table tbody tr:last-child td {
@@ -664,8 +664,8 @@
   align-items: center;
   gap: 18px;
   padding: 18px 22px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: var(--card-muted, #f8fafc);
+  border: 1px solid var(--border, #e2e8f0);
   border-radius: var(--ds-radius-md);
   flex-wrap: wrap;
 }
@@ -732,7 +732,7 @@
 .budget-progress__track {
   width: 100%;
   height: 8px;
-  background: #e2e8f0;
+  background: var(--border, #e2e8f0);
   border-radius: 999px;
   overflow: hidden;
 }
@@ -794,7 +794,7 @@
   padding: 10px 14px;
   border: 1px solid var(--ds-border);
   border-radius: var(--ds-radius-md);
-  background: #f8fafc;
+  background: var(--card-muted, #f8fafc);
   min-width: 150px;
   flex: 1;
 }
@@ -867,8 +867,8 @@
   font-size: 12px;
   color: var(--ds-text-muted);
   padding: 6px 0;
-  border-top: 1px solid #f1f5f9;
-  border-bottom: 1px solid #f1f5f9;
+  border-top: 1px solid var(--border-subtle, #f1f5f9);
+  border-bottom: 1px solid var(--border-subtle, #f1f5f9);
 }
 
 .alert-card__meta > div {
@@ -918,8 +918,8 @@
 
 .insights-card .alerts-badge {
   color: var(--ds-text-heading);
-  background: #f1f5f9;
-  border-color: #e2e8f0;
+  background: var(--card-muted, #f1f5f9);
+  border-color: var(--border, #e2e8f0);
 }
 
 .insights-grid {

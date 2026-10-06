@@ -334,10 +334,11 @@ function Dashboard() {
                         />
                         <Tooltip
                           contentStyle={{
-                            backgroundColor: "#ffffff",
-                            border: "1px solid #e2e8f0",
+                            backgroundColor: "var(--card)",
+                            border: "1px solid var(--border)",
                             borderRadius: "10px",
                             boxShadow: "0 4px 14px rgba(0, 0, 0, 0.08)",
+                            color: "var(--text)",
                             fontSize: "13px",
                             padding: "10px 14px",
                           }}

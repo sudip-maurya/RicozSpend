@@ -1021,6 +1021,13 @@ html.dark .txn-act-btn--cancel:hover {
   color: var(--text-h);
 }
 
+html[data-theme="dark"] .txn-act-btn--delete:hover,
+html.dark .txn-act-btn--delete:hover {
+  background-color: rgba(220, 38, 38, 0.3);
+  border-color: #ef4444;
+  color: #fca5a5;
+}
+
 html[data-theme="dark"] .ricoz-logo--pill,
 html.dark .ricoz-logo--pill {
   background-color: var(--card);

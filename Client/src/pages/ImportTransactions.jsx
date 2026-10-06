@@ -556,7 +556,7 @@ function ImportTransactions() {
                     <tbody>
                       {filteredRows.length === 0 ? (
                         <tr>
-                          <td colSpan="7" style={{ textAlign: "center", padding: "24px", color: "#64748b" }}>
+                          <td colSpan="7" style={{ textAlign: "center", padding: "24px", color: "var(--muted)" }}>
                             No rows in this filter.
                           </td>
                         </tr>

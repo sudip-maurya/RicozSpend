@@ -613,7 +613,7 @@
 }
 
 .txn-btn--outline {
-  background: #ffffff;
+  background: var(--card, #ffffff);
   border: 1.5px solid var(--txn-red-primary);
   color: var(--txn-red-primary);
 }
@@ -633,8 +633,8 @@
    Filter Bar: 4-section single row card matching reference design
    ========================================================================== */
 .txn-filter-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: var(--card, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
   border-radius: 12px;
   padding: 16px 20px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
@@ -716,9 +716,9 @@
   flex: 1;
   min-width: 0;
   position: relative;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--input-border, #e2e8f0);
   border-radius: 8px;
-  background: #ffffff;
+  background: var(--input-bg, #ffffff);
   padding: 5px 26px 5px 12px;
   height: 48px;
   box-sizing: border-box;
@@ -1013,7 +1013,7 @@
   font-size: 13px;
   font-weight: 600;
   color: var(--txn-red-primary);
-  background: #ffffff;
+  background: var(--card, #ffffff);
   border: 1.5px solid var(--txn-red-primary);
   border-radius: 8px;
   height: 40px;
@@ -1258,7 +1258,7 @@
 
 /* Table Card */
 .txn-table-card {
-  background: #ffffff;
+  background: var(--card, #ffffff);
   border: 1px solid var(--txn-card-border);
   border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
@@ -1286,7 +1286,7 @@
 }
 
 .txn-table thead {
-  background: #f9fafb;
+  background: var(--table-header-bg, #f9fafb);
 }
 
 .txn-table th {
