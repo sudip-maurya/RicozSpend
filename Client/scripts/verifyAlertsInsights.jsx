@@ -1,4 +1,4 @@
-/** Client-side verification for Part 14 (Alerts & Insights Center) and Part 15 (Alert Rules) */
+/** Client-side verification for Alerts & Insights Center and Alert Rules. */
 
 import { readFileSync } from "node:fs";
 import { StrictMode } from "react";
@@ -11,7 +11,7 @@ import { ROLES } from "../src/constants/roles";
 import AlertsInsightsCenter from "../src/pages/AlertsInsightsCenter";
 import Login from "../src/pages/Login";
 import NotFound from "../src/pages/NotFound";
-import Settings from "../src/pages/Settings";
+import AlertRulesEditor from "../src/components/AlertRulesEditor";
 import { GUARD_RESULT, resolveRouteGuard } from "../src/utils/routeGuard";
 
 let passed = 0;
@@ -49,16 +49,20 @@ const renderAt = (path, authValue) =>
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="/settings"
-              element={
-                <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
-                  <Settings />
-                </ProtectedRoute>
-              }
-            />
             <Route path="*" element={<NotFound />} />
           </Routes>
+        </AuthContext.Provider>
+      </MemoryRouter>
+    </StrictMode>
+  );
+
+/** Mirrors the admin-only mount of the Alert Rules editor inside /alerts. */
+const renderRulesEditor = (authValue) =>
+  renderToString(
+    <StrictMode>
+      <MemoryRouter initialEntries={["/alerts"]}>
+        <AuthContext.Provider value={authValue}>
+          <AlertRulesEditor />
         </AuthContext.Provider>
       </MemoryRouter>
     </StrictMode>
@@ -292,29 +296,36 @@ const main = () => {
     JSON.stringify({ warningDefs, infoDefs })
   );
 
-  // ------------------------------------- Part 15: admin Alert Rules settings
-  section("6. Settings -> Alert Rules (Part 15, Admin-only)");
+  // ------------------------------------- Admin Alert Rules editor
+  section("6. Alert Rules editor (Admin-only, mounted inside /alerts)");
 
-  const adminSettings = renderAt("/settings", userAuth(ROLES.ADMIN));
+  const adminRulesPage = renderAt("/alerts", userAuth(ROLES.ADMIN));
   check(
-    "Admin can open /settings and sees the Alert Rules editor",
-    adminSettings.includes("Settings") &&
-      adminSettings.includes("Alert Rules") &&
-      adminSettings.includes("Loading alert rules")
+    "Admin can open /alerts and gets the Alert Rules entry point",
+    adminRulesPage.includes("Alerts &amp; Insights Center") &&
+      adminRulesPage.includes("Alert Rules") &&
+      adminRulesPage.includes('aria-expanded="false"')
+  );
+  const adminRulesEditor = renderRulesEditor(userAuth(ROLES.ADMIN));
+  check(
+    "  The editor renders its loading state first (fetch only runs client-side)",
+    adminRulesEditor.includes("Alert Rules") &&
+      adminRulesEditor.includes("Loading alert rules")
   );
   check(
-    "  The Admin navbar links to /settings",
-    adminSettings.includes('href="/settings"')
+    "  The Admin navbar carries the admin-only link",
+    adminRulesPage.includes('href="/admin"')
   );
 
-  const viewerSettings = renderAt("/settings", userAuth(ROLES.VIEWER));
+  const viewerRulesPage = renderAt("/alerts", userAuth(ROLES.VIEWER));
   check(
     "Viewer never sees the Alert Rules UI",
-    !viewerSettings.includes("Alert Rules") && !viewerSettings.includes("Save alert rules")
+    !viewerRulesPage.includes("Alert Rules") &&
+      !viewerRulesPage.includes("Save alert rules")
   );
   check(
-    "  Viewer navbar has no Settings link",
-    !viewerSettings.includes('href="/settings"')
+    "  Viewer navbar has no admin-only link",
+    !viewerRulesPage.includes('href="/admin"')
   );
   check(
     "Guard results: Admin allowed, Viewer redirected, anonymous to login",
@@ -335,27 +346,26 @@ const main = () => {
       }) === GUARD_RESULT.REDIRECT_TO_LOGIN
   );
 
-  const settingsRouteIndex = appSource.indexOf('path="/settings"');
-  const settingsRouteSlice = appSource.slice(settingsRouteIndex, settingsRouteIndex + 320);
+  const editorMountIndex = pageSource.indexOf("{isAdmin && showRules && (");
   check(
-    "App.jsx imports Settings and protects /settings with allowedRoles=[Admin]",
-    appSource.includes('import Settings from "./pages/Settings"') &&
-      settingsRouteIndex >= 0 &&
-      settingsRouteSlice.includes("allowedRoles={[ROLES.ADMIN]}") &&
-      settingsRouteSlice.includes("<Settings />"),
-    settingsRouteSlice.replace(/\s+/g, " ")
+    "App serves /alerts behind ProtectedRoute and the page mounts the editor under isAdmin",
+    routeIndex >= 0 &&
+      routeSlice.includes("<ProtectedRoute>") &&
+      editorMountIndex >= 0 &&
+      pageSource.includes("<AlertRulesEditor onSaved={retry} />"),
+    pageSource.slice(editorMountIndex, editorMountIndex + 220).replace(/\s+/g, " ")
   );
   const navLinksStart = navSource.indexOf("const NAV_LINKS = [");
   const navLinksBlock = navSource.slice(navLinksStart, navSource.indexOf("];", navLinksStart));
   const adminLinksStart = navSource.indexOf("const ADMIN_LINKS = [");
   const adminLinksBlock = navSource.slice(adminLinksStart, navSource.indexOf("];", adminLinksStart));
   check(
-    "NavBar keeps Settings in the Admin-only list (never shared with Viewers)",
+    "NavBar keeps admin-only entries in ADMIN_LINKS (never shared with Viewers)",
     navLinksStart >= 0 &&
       adminLinksStart >= 0 &&
-      adminLinksBlock.includes('to: "/settings"') &&
-      !navLinksBlock.includes("/settings"),
-    JSON.stringify({ shared: navLinksBlock.includes("/settings"), admin: adminLinksBlock })
+      adminLinksBlock.includes('to: "/admin"') &&
+      !navLinksBlock.includes("/admin"),
+    JSON.stringify({ shared: navLinksBlock.includes("/admin"), admin: adminLinksBlock })
   );
 
   const rulesService = read("src/services/alertRulesService.js");
@@ -374,39 +384,38 @@ const main = () => {
       !rulesService.includes("DELETE")
   );
 
-  const settingsSource = read("src/pages/Settings.jsx");
+  const rulesEditorSource = read("src/components/AlertRulesEditor.jsx");
   check(
-    "Settings page default-exports only and renders the shared NavBar",
-    settingsSource.includes("export default Settings;") &&
-      !/export (const|let|function|class|\{)/.test(settingsSource) &&
-      settingsSource.includes("<NavBar />")
+    "AlertRulesEditor default-exports only (react-refresh rule)",
+    rulesEditorSource.includes("export default AlertRulesEditor;") &&
+      !/export (const|let|function|class|\{)/.test(rulesEditorSource)
   );
   check(
     "  Inputs are generated from the API field metadata (one per rule)",
-    settingsSource.includes("const fields = data?.fields || [];") &&
-      settingsSource.includes("fields.map((field)") &&
-      settingsSource.includes("alert-rule-${field.key}") &&
-      settingsSource.includes('type="number"') &&
-      settingsSource.includes("field.min") &&
-      settingsSource.includes("field.max")
+    rulesEditorSource.includes("const fields = data?.fields || [];") &&
+      rulesEditorSource.includes("fields.map((field)") &&
+      rulesEditorSource.includes("alert-rule-${field.key}") &&
+      rulesEditorSource.includes('type="number"') &&
+      rulesEditorSource.includes("field.min") &&
+      rulesEditorSource.includes("field.max")
   );
   check(
     "  Validation mirrors the server (numeric, range, ordering) before saving",
-    settingsSource.includes("validateRulesForm") &&
-      settingsSource.includes("must be a number.") &&
-      settingsSource.includes("must be between") &&
-      settingsSource.includes("Budget Critical must be greater than Budget Warning.") &&
-      settingsSource.includes("Budget Exceeded must be greater than or equal to Budget Critical.")
+    rulesEditorSource.includes("validateRulesForm") &&
+      rulesEditorSource.includes("must be a number.") &&
+      rulesEditorSource.includes("must be between") &&
+      rulesEditorSource.includes("Budget Critical must be greater than Budget Warning.") &&
+      rulesEditorSource.includes("Budget Exceeded must be greater than or equal to Budget Critical.")
   );
   check(
     "  Saving goes through the Admin-only service and reports the outcome",
-    settingsSource.includes("updateAlertRules(validation.values)") &&
-      settingsSource.includes("Restore defaults") &&
-      settingsSource.includes("alert--success") &&
-      settingsSource.includes("alert--error")
+    rulesEditorSource.includes("updateAlertRules(validation.values)") &&
+      rulesEditorSource.includes("Restore defaults") &&
+      rulesEditorSource.includes("alert--success") &&
+      rulesEditorSource.includes("alert--error")
   );
 
-  // ------------------------------ Part 15: alerts use the saved thresholds
+  // ------------------------------ Alerts use the saved thresholds
   section("7. Alerts center uses the live thresholds (Part 15)");
 
   check(
@@ -430,7 +439,7 @@ const main = () => {
       !pageSource.includes("2.5x the average")
   );
   check(
-    "  The alerts page stays read-only (rules are edited on Settings)",
+    "  The alerts page stays read-only (rules are edited in the Alert Rules editor)",
     !/api\.(post|put|patch|delete)/.test(pageSource) &&
       !pageSource.includes("alertRulesService")
   );
