@@ -19,7 +19,7 @@ const DATE_RANGES = [
   { value: "custom", label: "Custom Range" },
 ];
 
-/** Department Spending Patterns page (Part 13). */
+/** Department Spending Patterns page. */
 function DepartmentSpendingPatterns() {
   const [range, setRange] = useState("last3months");
   const [from, setFrom] = useState("");

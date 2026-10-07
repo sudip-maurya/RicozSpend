@@ -9,7 +9,7 @@
   --accent: #aa3bff;
   --accent-bg: rgba(170, 59, 255, 0.1);
   --accent-border: rgba(170, 59, 255, 0.5);
-  /* Part 14: severity colours for the alerts & insights center. */
+  /* Severity colours for the alerts & insights center. */
   --warning: #b45309;
   --warning-bg: rgba(180, 83, 9, 0.1);
   --warning-border: rgba(180, 83, 9, 0.4);
@@ -51,7 +51,7 @@
     --accent: #c084fc;
     --accent-bg: rgba(192, 132, 252, 0.15);
     --accent-border: rgba(192, 132, 252, 0.5);
-    /* Part 14: severity colours for the alerts & insights center. */
+    /* Severity colours for the alerts & insights center. */
     --warning: #fbbf24;
     --warning-bg: rgba(251, 191, 36, 0.12);
     --warning-border: rgba(251, 191, 36, 0.45);

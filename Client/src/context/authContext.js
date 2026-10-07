@@ -1,6 +1,6 @@
 import { createContext, useContext } from "react";
 
-/** Shared authentication context (Part 2). The provider lives in AuthProvider.jsx */
+/** Shared authentication context. The provider lives in AuthProvider.jsx */
 export const AuthContext = createContext(null);
 
 export const useAuth = () => {

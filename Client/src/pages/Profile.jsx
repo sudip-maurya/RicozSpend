@@ -9,7 +9,7 @@ const formatDate = (value) => {
   return Number.isNaN(date.getTime()) ? "Not available" : date.toLocaleString();
 };
 
-/** Basic profile page (Part 2). Read-only - no editing yet. */
+/** Basic profile page. Read-only - no editing yet. */
 function Profile() {
   const { user } = useAuth();
 

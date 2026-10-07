@@ -2,7 +2,7 @@ import NavBar from "../components/NavBar";
 import SpendInsights from "../components/SpendInsights";
 import "../styles/dashboard.css";
 
-/** Insights page (Part 8). */
+/** Insights page. */
 function Insights() {
   return (
     <div className="app-shell">

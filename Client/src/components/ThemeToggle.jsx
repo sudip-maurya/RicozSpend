@@ -1,9 +1,7 @@
 import React from "react";
 import { useTheme } from "../context/themeContext";
 
-/**
- * Modern Sun/Moon Theme Toggle Button
- */
+/** Sun/Moon theme toggle button. */
 export default function ThemeToggle({ className = "" }) {
   const { theme, isDark, toggleTheme } = useTheme();
 

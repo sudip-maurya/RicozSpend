@@ -32,10 +32,10 @@ function App() {
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
-            {/* Part 2: public page that consumes the emailed verification token */}
+            {/* Public page that consumes the emailed verification token */}
             <Route path="/verify-email" element={<VerifyEmail />} />
 
-            {/* Part 2: pages below require a valid session */}
+            {/* Pages below require a valid session */}
             <Route
               path="/dashboard"
               element={
@@ -52,7 +52,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            {/* Part 2: Admin-only page (Viewers are redirected to the Dashboard) */}
+            {/* Admin-only page (Viewers are redirected to the Dashboard) */}
             <Route
               path="/admin"
               element={
@@ -62,7 +62,7 @@ function App() {
               }
             />
 
-            {/* Part 4: Spend / Transaction management */}
+            {/* Spend / Transaction management */}
             <Route
               path="/transactions"
               element={
@@ -79,7 +79,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            {/* Part 6: Spend analysis & charts */}
+            {/* Spend analysis & charts */}
             <Route
               path="/analysis"
               element={
@@ -88,7 +88,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            {/* Part 13: department spending patterns (shared, read-only analytics) */}
+            {/* Department spending patterns (shared, read-only analytics) */}
             <Route
               path="/departments"
               element={
@@ -97,7 +97,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            {/* Part 8: automatic spend insights (reuses the Part 3 nav entry) */}
+            {/* Automatic spend insights (reuses the Dashboard nav entry) */}
             <Route
               path="/insights"
               element={
@@ -106,7 +106,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            {/* Part 14: alerts & insights center (rule-based, read-only, all roles) */}
+            {/* Alerts & insights center (rule-based, read-only, all roles) */}
             <Route
               path="/alerts"
               element={

@@ -2,19 +2,12 @@ import React from "react";
 import { Link, NavLink } from "react-router-dom";
 import "../styles/logo.css";
 
-/**
- * App-wide logo standard.
- * - The red icon tile renders EXACTLY 26x26 px on every page (navbar, login,
- *   signup, landing, dashboard, ... ) — see .ricoz-logo__icon in logo.css.
- * - The $ glyph inside it is always 15x15 px so no instance differs.
- */
+/** App logo standard: red icon tile is exactly 26x26 px on every page ($ glyph 15x15).
+ *  See .ricoz-logo__icon in logo.css. */
 export const LOGO_ICON_PX = 26;
 export const LOGO_GLYPH_PX = 15;
 
-/**
- * White dollar SVG icon inside red rounded square.
- * Matches the login page icon identically.
- */
+/** White dollar SVG icon inside the red rounded square (same as the login icon). */
 export function LogoIcon({ size = LOGO_GLYPH_PX, className = "" }) {
   return (
     <svg
@@ -35,10 +28,7 @@ export function LogoIcon({ size = LOGO_GLYPH_PX, className = "" }) {
   );
 }
 
-/**
- * Standardized RicozSpend Logo component.
- * Exact login page design: red rounded square with white $ icon + "RicozSpend" text.
- */
+/** Standardized logo: red rounded square, white $ icon + "RicozSpend" text. */
 const Logo = ({
   to = "/",
   asNavLink = false,

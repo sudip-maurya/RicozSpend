@@ -6,7 +6,7 @@ import "./../styles/transactions.css";
 
 const ACCEPT = ".csv,text/csv,text/plain";
 
-/** Import CSV modal (Part 5). */
+/** Import CSV modal. */
 function TransactionImportModal({ onClose, onImported }) {
   const [step, setStep] = useState("select"); // select | preview | done
   const [fileName, setFileName] = useState("");

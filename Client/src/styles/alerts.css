@@ -1,11 +1,6 @@
-/* ==========================================================================
-   Alerts & Insights Center Stylesheet
-   Clean Premium SaaS Style
-   ========================================================================== */
+/* ========== Alerts & Insights Center Stylesheet - Clean Premium SaaS Style ========== */
 
-/* -----------------------------------------------------------------------------
-   1. Header
-   ----------------------------------------------------------------------------- */
+/* ---------- 1. Header ---------- */
 .aic-header {
   display: flex;
   align-items: flex-start;
@@ -60,9 +55,7 @@
   background-color: var(--accent-red-tint, #fef2f2);
 }
 
-/* -----------------------------------------------------------------------------
-   2. Summary Cards (6 in a row)
-   ----------------------------------------------------------------------------- */
+/* ---------- 2. Summary Cards (6 in a row) ---------- */
 .aic-summary-grid {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
@@ -199,9 +192,7 @@
   line-height: 1.2;
 }
 
-/* -----------------------------------------------------------------------------
-   3. Compact Filter Bar
-   ----------------------------------------------------------------------------- */
+/* ---------- 3. Compact Filter Bar ---------- */
 .aic-compact-filter-bar,
 .card.aic-compact-filter-bar {
   background-color: var(--card, #ffffff);
@@ -310,9 +301,7 @@
   color: var(--text-h, #0f172a);
 }
 
-/* -----------------------------------------------------------------------------
-   4. Dark Mode Overrides
-   ----------------------------------------------------------------------------- */
+/* ---------- 4. Dark Mode Overrides ---------- */
 html[data-theme="dark"] .aic-summary-card {
   background-color: var(--card, #111827);
   border-color: var(--border, #1f293d);

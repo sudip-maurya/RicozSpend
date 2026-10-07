@@ -1,4 +1,4 @@
-/** Part 13 verification - Department Spending Patterns. */
+/** Department Spending Patterns verification. */
 const path = require("path");
 const dotenv = require("dotenv");
 
@@ -162,7 +162,7 @@ const main = async () => {
     const shareSum = (all.data?.departments || []).reduce((sum, entry) => sum + entry.percentage, 0);
     check("Percentages add up to 100", shareSum === 100, shareSum);
 
-    // ---------------------------------- highest + average (Part 13 stats)
+    // ---------------------------------- highest + average (department spending stats)
     section("Highest-spending department + average per department");
     check(
       "Highest-spending department is IT with its stats",

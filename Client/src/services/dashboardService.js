@@ -1,4 +1,4 @@
-/** Dashboard API service (Part 3). */
+/** Dashboard API service. */
 import api from "../api/client";
 import { getErrorMessage } from "../utils/apiError";
 

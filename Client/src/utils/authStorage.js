@@ -1,4 +1,4 @@
-/** Authentication session storage (Part 2). */
+/** Authentication session storage. */
 
 const TOKEN_KEY = "ricozspend.auth.token";
 const USER_KEY = "ricozspend.auth.user";

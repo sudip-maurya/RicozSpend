@@ -1,11 +1,6 @@
-/* ==========================================================================
-   Department Spending Patterns Stylesheet
-   Modern, cohesive RicozSpend red theme matching design spec.
-   ========================================================================== */
+/* ========== Department Spending Patterns Stylesheet - Modern, cohesive RicozSpend red theme matching design spec. ========== */
 
-/* -----------------------------------------------------------------------------
-   1. Page Header & Filters
-   ----------------------------------------------------------------------------- */
+/* ---------- 1. Page Header & Filters ---------- */
 .dept-header-wrap {
   display: flex;
   flex-direction: row;
@@ -75,9 +70,7 @@
   background-color: var(--accent-red-tint, #fef2f2);
 }
 
-/* -----------------------------------------------------------------------------
-   2. KPI Cards (4 in a row)
-   ----------------------------------------------------------------------------- */
+/* ---------- 2. KPI Cards (4 in a row) ---------- */
 .dept-kpi-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -188,9 +181,7 @@
   color: var(--muted, #64748b);
 }
 
-/* -----------------------------------------------------------------------------
-   3. Main 2-Column Analytics Layout
-   ----------------------------------------------------------------------------- */
+/* ---------- 3. Main 2-Column Analytics Layout ---------- */
 .dept-analytics-grid {
   display: grid;
   grid-template-columns: 1.55fr 1fr;
@@ -248,9 +239,7 @@
   white-space: nowrap;
 }
 
-/* -----------------------------------------------------------------------------
-   4. Total Spend by Department (Horizontal Ranked Bars)
-   ----------------------------------------------------------------------------- */
+/* ---------- 4. Total Spend by Department (Horizontal Ranked Bars) ---------- */
 .dept-bars-list {
   display: flex;
   flex-direction: column;
@@ -402,9 +391,7 @@
   }
 }
 
-/* -----------------------------------------------------------------------------
-   5. Department Share (Donut Chart & Legend)
-   ----------------------------------------------------------------------------- */
+/* ---------- 5. Department Share (Donut Chart & Legend) ---------- */
 .dept-right-stack {
   display: flex;
   flex-direction: column;
@@ -509,9 +496,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* -----------------------------------------------------------------------------
-   6. Key Insight Box
-   ----------------------------------------------------------------------------- */
+/* ---------- 6. Key Insight Box ---------- */
 .dept-insight-box {
   background-color: var(--accent-red-tint, #fef2f2);
   border: 1px solid var(--accent-red-border, #fee2e2);
@@ -548,9 +533,7 @@
   color: var(--text-h, #0f172a);
 }
 
-/* -----------------------------------------------------------------------------
-   7. Detailed Breakdown Table Card
-   ----------------------------------------------------------------------------- */
+/* ---------- 7. Detailed Breakdown Table Card ---------- */
 .dept-table-card {
   background-color: var(--card, #ffffff);
   border: 1px solid var(--border, #e2e8f0);
@@ -567,9 +550,7 @@
   margin-bottom: 16px;
 }
 
-/* -----------------------------------------------------------------------------
-   8. Dark Mode Overrides
-   ----------------------------------------------------------------------------- */
+/* ---------- 8. Dark Mode Overrides ---------- */
 html[data-theme="dark"] .dept-bar-track {
   background-color: #1e293b;
 }

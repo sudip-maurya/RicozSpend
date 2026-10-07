@@ -4,7 +4,7 @@ import { fetchVendorComparison } from "../services/analyticsService";
 import { formatMoney } from "../utils/format";
 import "../styles/dashboard.css";
 
-/** Vendor Comparison section (Part 9). */
+/** Vendor Comparison section. */
 const EMPTY_FILTERS = {};
 
 /** 72.46 / 0 -> "72.46%" - display only, sharing a single local helper. */
@@ -23,7 +23,7 @@ function VendorComparison({ filters = EMPTY_FILTERS }) {
   // Destructured into primitives so the effect only re-runs when a filter value changes.
   const { from = "", to = "", category = "", department = "", vendor = "" } = filters || {};
 
-  // Same in-effect async + isActive guard pattern as the Dashboard (Part 3)
+  // Same in-effect async + isActive guard pattern as the Dashboard
   useEffect(() => {
     let isActive = true;
 

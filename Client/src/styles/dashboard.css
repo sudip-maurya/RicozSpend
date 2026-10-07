@@ -1,7 +1,4 @@
-/* ==========================================================================
-   RicozSpend - Dashboard Styles
-   Modern, Premium SaaS Design System (Stripe / Linear / Fintech aesthetic)
-   ========================================================================== */
+/* ========== RicozSpend - Dashboard Styles - Modern, Premium SaaS Design System (Stripe / Linear / Fintech aesthetic) ========== */
 
 :root {
   --ds-bg-page: var(--bg, #f8fafc);
@@ -50,9 +47,7 @@
   text-align: left;
 }
 
-/* ==========================================================================
-   Dashboard Header
-   ========================================================================== */
+/* ========== Dashboard Header ========== */
 .dashboard-head {
   display: flex;
   flex-wrap: wrap;
@@ -187,9 +182,7 @@
   margin-bottom: 20px;
 }
 
-/* ==========================================================================
-   4 KPI Cards
-   ========================================================================== */
+/* ========== 4 KPI Cards ========== */
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -252,9 +245,7 @@
   line-height: 1.35;
 }
 
-/* ==========================================================================
-   Charts Section (Full-width Monthly + 2-Column Category / Dept Breakdown)
-   ========================================================================== */
+/* ========== Charts Section (Full-width Monthly + 2-Column Category / Dept Breakdown) ========== */
 .charts-container {
   display: flex;
   flex-direction: column;
@@ -514,9 +505,7 @@
   background: #94a3b8;
 }
 
-/* ==========================================================================
-   Recent Transactions Table
-   ========================================================================== */
+/* ========== Recent Transactions Table ========== */
 .recent-card {
   padding: 22px 24px;
 }
@@ -634,9 +623,7 @@
   white-space: nowrap;
 }
 
-/* ==========================================================================
-   Budget vs Actual - Visual Budget Card
-   ========================================================================== */
+/* ========== Budget vs Actual - Visual Budget Card ========== */
 .budget-card {
   padding: 24px;
   display: flex;
@@ -744,9 +731,7 @@
   transition: width 0.3s ease;
 }
 
-/* ==========================================================================
-   Unusual Spending (Compact Alert Cards)
-   ========================================================================== */
+/* ========== Unusual Spending (Compact Alert Cards) ========== */
 .alerts-card {
   padding: 24px;
 }
@@ -909,9 +894,7 @@
   gap: 12px;
 }
 
-/* ==========================================================================
-   Automatic Spend Insights (Clean Grid)
-   ========================================================================== */
+/* ========== Automatic Spend Insights (Clean Grid) ========== */
 .insights-card {
   padding: 24px;
 }
@@ -1031,9 +1014,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* ==========================================================================
-   Vendor comparison (Descriptive per-vendor spend / txns / share)
-   ========================================================================== */
+/* ========== Vendor comparison (Descriptive per-vendor spend / txns / share) ========== */
 .vendor-compare-card {
   margin-top: 24px;
 }
@@ -1122,9 +1103,7 @@
   color: var(--btn-ghost-hover-text, var(--ds-text-heading));
 }
 
-/* ==========================================================================
-   Responsive Breakpoints
-   ========================================================================== */
+/* ========== Responsive Breakpoints ========== */
 @media (max-width: 1024px) {
   .kpi-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1209,9 +1188,7 @@
   }
 }
 
-/* ==========================================================================
-   Part 14: alerts & insights center (preserved for AIC compatibility)
-   ========================================================================== */
+/* ========== Alerts & insights center (preserved for AIC compatibility) ========== */
 .aic-toolbar {
   margin: 0 0 16px;
 }
@@ -1244,7 +1221,7 @@
   color: var(--info);
 }
 
-/* Severity pill - mirrors the Part 7 badge shape, tinted per severity. */
+/* Severity pill - mirrors the Unusual Spending badge shape, tinted per severity. */
 .aic-severity {
   font-size: 11px;
   font-weight: 700;

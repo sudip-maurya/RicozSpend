@@ -1,4 +1,4 @@
-/** Transaction API service (Part 4). */
+/** Transaction API service. */
 import api from "../api/client";
 import { getErrorMessage, getFieldErrors } from "../utils/apiError";
 
@@ -52,7 +52,7 @@ export const deleteTransaction = async (id) => {
   }
 };
 
-/** POST /api/transactions/import/preview (Part 5) */
+/** POST /api/transactions/import/preview */
 export const previewCsvImport = async (csv) => {
   try {
     const { data } = await api.post("/api/transactions/import/preview", { csv });
@@ -64,7 +64,7 @@ export const previewCsvImport = async (csv) => {
   }
 };
 
-/** POST /api/transactions/import/confirm (Part 5) */
+/** POST /api/transactions/import/confirm */
 export const confirmCsvImport = async (csv) => {
   try {
     const { data } = await api.post("/api/transactions/import/confirm", { csv });

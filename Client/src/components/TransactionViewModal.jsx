@@ -1,7 +1,7 @@
 import { formatMoney, formatDate, formatDateTime } from "../utils/format";
 import "./../styles/transactions.css";
 
-/** View transaction modal (Part 4). */
+/** View transaction modal. */
 function TransactionViewModal({ transaction, onClose, onEdit }) {
   if (!transaction) return null;
 

@@ -1,4 +1,4 @@
-/** Shared display formatting (Part 4 - transactions page). */
+/** Shared display formatting (transactions page). */
 
 /** ₹75,000 / ₹1,234.5 - Indian grouping, no forced decimals. */
 export const formatMoney = (value) => {

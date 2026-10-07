@@ -1,4 +1,4 @@
-/** Budget API service (Part 9 - Budget vs Actual). */
+/** Budget API service (Budget vs Actual). */
 import api from "../api/client";
 import { getErrorMessage, getFieldErrors } from "../utils/apiError";
 

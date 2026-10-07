@@ -1,4 +1,4 @@
-/* Part 4 - Spend / Transactions page, modals and states. */
+/* Spend / Transactions page, modals and states. */
 
 .btn {
   font: inherit;
@@ -347,7 +347,7 @@
   margin: 8px 0 0;
 }
 
-/* ------------------------------------------- Part 9: budget vs actual (status) */
+/* ------------------------------------------- Budget vs actual (status) */
 .budget-status {
   font-size: 12px;
   padding: 2px 8px;
@@ -394,7 +394,7 @@
   color: var(--text-h);
 }
 
-/* ------------------------------------------------------- CSV import (Part 5) */
+/* ------------------------------------------------------- CSV import */
 .modal--wide {
   max-width: 820px;
 }
@@ -525,9 +525,7 @@
   }
 }
 
-/* ==========================================================================
-   Redesigned Spend / Transactions Styles (Login Page Red Theme)
-   ========================================================================== */
+/* ========== Redesigned Spend / Transactions Styles (Login Page Red Theme) ========== */
 
 :root {
   --txn-red-primary: #e01b22;
@@ -629,9 +627,7 @@
   cursor: not-allowed;
 }
 
-/* ==========================================================================
-   Filter Bar: 4-section single row card matching reference design
-   ========================================================================== */
+/* ========== Filter Bar: 4-section single row card matching reference design ========== */
 .txn-filter-card {
   background: var(--card, #ffffff);
   border: 1px solid var(--border, #e2e8f0);

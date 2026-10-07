@@ -10,7 +10,7 @@ import "../styles/dashboard.css";
 import "../styles/transactions.css";
 import "../styles/alerts.css";
 
-/** Alerts & Insights Center page (Part 14). */
+/** Alerts & Insights Center page. */
 
 /** Split ISO string into clean date (e.g. "04 Oct 2026") and time ("4:00 PM"). */
 const formatGeneratedSplit = (isoString) => {
@@ -135,7 +135,7 @@ const factEntries = (meta) =>
       typeof value !== "object"
   );
 
-/** Alerts & insights center page (Part 14) */
+/** Alerts & insights center page */
 function AlertsInsightsCenter() {
   const { isAdmin } = useAuth();
   const [showRules, setShowRules] = useState(false);
@@ -191,7 +191,7 @@ function AlertsInsightsCenter() {
     [allAlerts, dismissed]
   );
 
-  // Part 15: the live thresholds behind the alerts
+  // The live thresholds behind the alerts
   const rules = data?.meta?.rules || DEFAULT_ALERT_RULES;
 
   // Summary counts always describe what is currently visible (after dismissals)

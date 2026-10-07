@@ -27,7 +27,7 @@ const api = axios.create({
   },
 })
 
-// Part 2: send the JWT (issued by /api/auth/login) with every request.
+// Send the JWT (issued by /api/auth/login) with every request.
 api.interceptors.request.use((config) => {
   const token = getToken()
 
@@ -38,7 +38,7 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-// Part 2: an expired/invalid token clears the stored session (AuthProvider redirects to Login).
+// An expired/invalid token clears the stored session (AuthProvider redirects to Login).
 api.interceptors.response.use(
   (response) => response,
   (error) => {

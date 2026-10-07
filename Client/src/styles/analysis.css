@@ -1,11 +1,6 @@
-/* ==========================================================================
-   Spend Analysis Page Stylesheet
-   Cohesive RicozSpend Red Design System matching reference screenshot
-   ========================================================================== */
+/* ========== Spend Analysis Page Stylesheet - Cohesive RicozSpend Red Design System matching reference screenshot ========== */
 
-/* -----------------------------------------------------------------------------
-   1. Header
-   ----------------------------------------------------------------------------- */
+/* ---------- 1. Header ---------- */
 .analysis-header {
   display: flex;
   align-items: flex-start;
@@ -66,9 +61,7 @@
   color: var(--accent-red-hover, #b91c1c);
 }
 
-/* -----------------------------------------------------------------------------
-   2. Filter Bar (White Card)
-   ----------------------------------------------------------------------------- */
+/* ---------- 2. Filter Bar (White Card) ---------- */
 .analysis-filter-card {
   background-color: var(--card, #ffffff);
   border: 1px solid var(--border, #e2e8f0);
@@ -161,9 +154,7 @@
   min-width: 0;
 }
 
-/* -----------------------------------------------------------------------------
-   3. KPI Cards (5 in a row with left vertical red accent)
-   ----------------------------------------------------------------------------- */
+/* ---------- 3. KPI Cards (5 in a row with left vertical red accent) ---------- */
 .analysis-kpi-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -311,9 +302,7 @@
   font-weight: 500;
 }
 
-/* -----------------------------------------------------------------------------
-   4. Dark Theme Overrides
-   ----------------------------------------------------------------------------- */
+/* ---------- 4. Dark Theme Overrides ---------- */
 html[data-theme="dark"] .analysis-reset-btn {
   background-color: var(--card, #111827);
   border-color: var(--accent-red, #dc2626);

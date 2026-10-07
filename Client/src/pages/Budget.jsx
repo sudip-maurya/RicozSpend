@@ -76,7 +76,7 @@ const formatVariance = (value) => {
 /** Chart label: "Technology" or "Technology · IT" when a category is set. */
 const chartLabel = (row) => (row.category ? `${row.department} · ${row.category}` : row.department);
 
-/** Budget vs Actual page (Part 9). */
+/** Budget vs Actual page. */
 function Budget() {
   const { isAdmin } = useAuth();
   const [filters, setFilters] = useState(EMPTY_FILTERS);
@@ -90,7 +90,7 @@ function Budget() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Temporary success / error feedback (same pattern as Part 4)
+  // Temporary success / error feedback (same pattern as the Transactions page)
   const [toast, setToast] = useState("");
   const toastTimer = useRef(null);
   const showToast = useCallback((message) => {

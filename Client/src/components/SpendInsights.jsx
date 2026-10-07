@@ -4,7 +4,7 @@ import { fetchSpendInsights } from "../services/analyticsService";
 import { formatMoney } from "../utils/format";
 import "../styles/dashboard.css";
 
-/** Automatic Spend Insights (Part 8). */
+/** Automatic Spend Insights. */
 
 /** "1 transaction" / "5 transactions" */
 const plural = (count, word) => `${count} ${word}${count === 1 ? "" : "s"}`;
@@ -146,7 +146,7 @@ function SpendInsights({ range = "last3months", from = "", to = "" }) {
 
   return (
     <section className="card insights-card">
-      {/* Same head/badge layout as Part 7 (reused classes, re-tinted below). */}
+      {/* Same head/badge layout as Unusual Spending (reused classes, re-tinted below). */}
       <div className="alerts-head">
         <h2>Automatic Spend Insights</h2>
         {hasInsights && <span className="alerts-badge">{formatMoney(activity.totalSpend)}</span>}

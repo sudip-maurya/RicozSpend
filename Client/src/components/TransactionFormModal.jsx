@@ -4,7 +4,7 @@ import { createTransaction, updateTransaction } from "../services/transactionSer
 import { todayInputValue, toDateInputValue } from "../utils/format";
 import "./../styles/transactions.css";
 
-/** Add / Edit transaction modal (Part 4). */
+/** Add / Edit transaction modal. */
 function TransactionFormModal({ transaction, facets = { categories: [], departments: [] }, onClose, onSaved }) {
   const isEdit = Boolean(transaction?.id);
 

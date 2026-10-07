@@ -95,7 +95,7 @@ const BENEFITS = [
 
 const initialForm = { name: "", email: "", password: "", confirmPassword: "" };
 
-/** Signup page (Part 2). New accounts are always created with the Viewer role. */
+/** Signup page. New accounts are always created with the Viewer role. */
 function Signup() {
   const { signup, isAuthenticated, isRestoring } = useAuth();
   const navigate = useNavigate();
@@ -104,7 +104,7 @@ function Signup() {
   const [errors, setErrors] = useState({});
   const [formError, setFormError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  // Part 2 - email verification: shown after a successful signup.
+  // Email verification: shown after a successful signup.
   const [signupResult, setSignupResult] = useState(null);
   const [resendState, setResendState] = useState({ status: "idle", message: "", devUrl: "" });
   const [showPassword, setShowPassword] = useState(false);
@@ -154,7 +154,7 @@ function Signup() {
     }, 3000);
   };
 
-  // Part 2 - email verification step after a successful signup.
+  // Email verification step after a successful signup.
   if (signupResult) {
     return (
       <div className="auth-page">

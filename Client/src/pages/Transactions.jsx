@@ -63,7 +63,7 @@ const EMPTY_DATA = {
   facets: { categories: [], departments: [], vendors: [] },
 };
 
-/** Spend / Transactions page (Part 4). */
+/** Spend / Transactions page. */
 function Transactions() {
   const { isAdmin } = useAuth();
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
@@ -77,7 +77,7 @@ function Transactions() {
   const [viewTarget, setViewTarget] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isImportOpen, setIsImportOpen] = useState(false); // Part 5: CSV import
+  const [isImportOpen, setIsImportOpen] = useState(false); // CSV import
   const [isExporting, setIsExporting] = useState(false); // P2-10: CSV export
 
   // Temporary success / error feedback
@@ -771,7 +771,7 @@ function Transactions() {
           />
         )}
 
-        {/* Part 5: CSV import (Admin only: preview -> confirm -> refresh) */}
+        {/* CSV import (Admin only: preview -> confirm -> refresh) */}
         {isAdmin && isImportOpen && (
           <TransactionImportModal
             onClose={() => setIsImportOpen(false)}

@@ -1,6 +1,4 @@
-/* ==========================================================================
-   RicozSpend Standardized Dropdown & Select Design System
-   ========================================================================== */
+/* ========== RicozSpend Standardized Dropdown & Select Design System ========== */
 
 /* Container wrapping label + dropdown */
 .rs-dropdown-container {
@@ -223,9 +221,7 @@
   pointer-events: none;
 }
 
-/* ==========================================================================
-   Shared Native Select & Filter Bar Standard Classes
-   ========================================================================== */
+/* ========== Shared Native Select & Filter Bar Standard Classes ========== */
 
 /* Applied to native <select> fallbacks */
 .rs-select,

@@ -4,7 +4,7 @@ import { fetchUnusualSpending } from "../services/analyticsService";
 import { formatDate, formatMoney } from "../utils/format";
 import "../styles/dashboard.css";
 
-/** Unusual Spending Alerts section (Part 7). */
+/** Unusual Spending Alerts section. */
 /** Follows the dashboard's own date filter (range/from/to props) */
 function UnusualSpending({ range = "last3months", from = "", to = "" }) {
   const [data, setData] = useState(null);
@@ -12,7 +12,7 @@ function UnusualSpending({ range = "last3months", from = "", to = "" }) {
   const [error, setError] = useState("");
   const [reloadKey, setReloadKey] = useState(0);
 
-  // Same in-effect async + isActive guard pattern as the Dashboard (Part 3)
+  // Same in-effect async + isActive guard pattern as the Dashboard
   useEffect(() => {
     let isActive = true;
 

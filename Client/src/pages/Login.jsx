@@ -9,7 +9,7 @@ import { getErrorMessage, getFieldErrors, getStatusCode } from "../utils/apiErro
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-/** Login page (Part 2) - replaces the Part 1 placeholder. */
+/** Login page - replaces the placeholder. */
 function Login() {
   const { login, isAuthenticated, isRestoring } = useAuth();
   const navigate = useNavigate();
@@ -22,7 +22,7 @@ function Login() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSlowResponse, setIsSlowResponse] = useState(false);
   const slowTimerRef = useRef(null);
-  // Part 2 - email verification feedback + resend
+  // Email verification feedback + resend
   const [needsVerification, setNeedsVerification] = useState(false);
   const [resendState, setResendState] = useState({ status: "idle", message: "", devUrl: "" });
   const [showPassword, setShowPassword] = useState(false);

@@ -1,4 +1,4 @@
-/** Alert Rules API calls (Part 15 - Alerts Center -> Alert Rules editor). */
+/** Alert Rules API calls (Alerts Center -> Alert Rules editor). */
 
 import api from "../api/client";
 import { getErrorMessage, getFieldErrors } from "../utils/apiError";

@@ -19,7 +19,7 @@ const formatBytes = (bytes) => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
 };
 
-/** Redesigned Import Transactions page (Part 5 CSV import). */
+/** Redesigned Import Transactions page (CSV import). */
 function ImportTransactions() {
   const { isAdmin } = useAuth();
   const fileInputRef = useRef(null);

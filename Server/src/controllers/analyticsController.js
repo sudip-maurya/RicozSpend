@@ -327,7 +327,7 @@ const previousMonthKey = (key) => {
   return `${prevYear}-${String(prevMonth).padStart(2, "0")}`;
 };
 
-/** Core Part 8 spend-insights computation (the payload behind GET /api/analytics/insights) */
+/** Core spend-insights computation (payload behind GET /api/analytics/insights) */
 const computeSpendInsights = async (scope, resolved, query, options = {}) => {
   const increaseAlertThreshold = Number.isFinite(options.increaseAlertThreshold)
     ? options.increaseAlertThreshold

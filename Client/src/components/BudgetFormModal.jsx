@@ -5,7 +5,7 @@ import "../styles/transactions.css";
 
 const PERIOD_PATTERN = /^(19|20)\d{2}-(0[1-9]|1[0-2])$/;
 
-/** Add / Edit budget modal (Part 9 - Budget vs Actual). Opened without `budget` -> creates a new budget. */
+/** Add / Edit budget modal for Budget vs Actual. Opened without `budget` -> creates a new budget. */
 function BudgetFormModal({ budget, facets = { departments: [], categories: [] }, onClose, onSaved }) {
   const isEdit = Boolean(budget?.id);
 

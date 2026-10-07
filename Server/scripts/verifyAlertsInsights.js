@@ -1,4 +1,4 @@
-/** Part 14/15 verification - Alerts & Insights Center + Admin-configurable rules. */
+/** Alerts & Insights Center + Admin-configurable rules. */
 
 const path = require("path");
 const dotenv = require("dotenv");
@@ -117,7 +117,7 @@ const cleanup = async () => {
   await Transaction.deleteMany(ORG_QUERY);
   await Budget.deleteMany(ORG_QUERY);
   await User.deleteMany(ORG_QUERY);
-  // Part 15: any alert-rules document saved by the run is removed too.
+  // Any alert-rules document saved by the run is removed too.
   await AlertRule.deleteMany(ORG_QUERY);
 };
 
@@ -306,7 +306,7 @@ const main = async () => {
       JSON.stringify(data.meta.budget)
     );
 
-    // ------------------------------------------- unusual section (Part 7)
+    // ------------------------------------------- Unusual spending section
     section("Unusual spending section (Part 7 threshold)");
     const unusualSection = data.sections.unusual;
     const weird = unusualSection[0];
@@ -337,7 +337,7 @@ const main = async () => {
       JSON.stringify(data.meta.unusual)
     );
 
-    // ------------------------------------------- spending section (Part 8)
+    // ------------------------------------------- Spend insights section
     section("Spending insights section (Part 8 payload)");
     const spendingSection = data.sections.spending;
     check(
@@ -660,7 +660,7 @@ const main = async () => {
       JSON.stringify({ status: dept13.status, totalSpend: dept13.data?.totalSpend,
         departmentCount: dept13.data?.departmentCount })
     );
-    // ---------------------------- Part 15: Admin-configurable alert rules
+    // ---------------------------- Admin-configurable alert rules
     section("Alert rules (Part 15 - Admin-only, configurable thresholds)");
 
     const anonRules = await api("GET", "/api/alert-rules");

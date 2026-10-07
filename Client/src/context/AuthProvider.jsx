@@ -21,7 +21,7 @@ const toClientUser = (apiUser) =>
       }
     : null;
 
-/** Authentication state for the whole app (Part 2). */
+/** Authentication state for the whole app. */
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => toClientUser(getStoredUser()));
   const [token, setToken] = useState(() => getToken());

@@ -1,4 +1,4 @@
-/** Analytics API service (Part 6). */
+/** Analytics API service. */
 import api from "../api/client";
 import { getErrorMessage } from "../utils/apiError";
 
@@ -22,7 +22,7 @@ export const fetchAnalyticsSummary = async (query = {}) => {
   }
 };
 
-/** GET /api/analytics/unusual-spending (Part 7) */
+/** GET /api/analytics/unusual-spending */
 export const fetchUnusualSpending = async (query = {}) => {
   try {
     const params = {};
@@ -40,7 +40,7 @@ export const fetchUnusualSpending = async (query = {}) => {
   }
 };
 
-/** GET /api/analytics/insights (Part 8) Rule-based automatic insights. */
+/** GET /api/analytics/insights - rule-based automatic insights. */
 export const fetchSpendInsights = async (query = {}) => {
   try {
     const params = {};
@@ -61,7 +61,7 @@ export const fetchSpendInsights = async (query = {}) => {
   }
 };
 
-/** GET /api/analytics/vendor-comparison (Part 9) */
+/** GET /api/analytics/vendor-comparison */
 export const fetchVendorComparison = async (query = {}) => {
   try {
     const params = {};
@@ -81,7 +81,7 @@ export const fetchVendorComparison = async (query = {}) => {
   }
 };
 
-/** GET /api/insights (Part 14 - Alerts & Insights Center) */
+/** GET /api/insights - Alerts & Insights Center. */
 export const fetchAlertsCenter = async () => {
   try {
     const { data } = await api.get("/api/insights");
@@ -93,7 +93,7 @@ export const fetchAlertsCenter = async () => {
   }
 };
 
-/** GET /api/analytics/department-spending (Part 10) */
+/** GET /api/analytics/department-spending */
 export const fetchDepartmentSpending = async (query = {}) => {
   try {
     const params = {};

@@ -1,4 +1,4 @@
-/** Client-side verification for Part 2 (runs through vite's SSR build). */
+/** Client-side verification (runs through vite's SSR build). */
 
 import { StrictMode } from "react";
 import { renderToString } from "react-dom/server";
@@ -68,7 +68,7 @@ const renderAt = (path, authValue) =>
                 </ProtectedRoute>
               }
             />
-            {/* Part 13: department spending patterns (shared, read-only) */}
+            {/* Department spending patterns (shared, read-only) */}
             <Route
               path="/departments"
               element={
@@ -212,7 +212,7 @@ const main = () => {
   check("Admin-only page shows the signed-in email", adminAdmin.includes("test.person@ricozspend.test"));
   check("Admin-only page shows the Admin role badge", adminAdmin.includes("role-badge--admin"));
 
-  // -------------------------------------- Part 13: department spending patterns
+  // -------------------------------------- Department spending patterns
   section("Part 13. Department Spending Patterns page");
 
   check(

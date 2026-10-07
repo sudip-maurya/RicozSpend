@@ -32,7 +32,7 @@ const DATE_RANGES = [
   { value: "custom", label: "Custom Range" },
 ];
 
-/** Dashboard (Part 3: real spend overview backed by /api/dashboard/summary). */
+/** Dashboard - real spend overview backed by /api/dashboard/summary. */
 function Dashboard() {
   const { user } = useAuth();
 
@@ -43,7 +43,7 @@ function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Part 9: Budget vs Actual totals, loaded once (budgets are monthly).
+  // Budget vs Actual totals, loaded once (budgets are monthly).
   const [budgetSummary, setBudgetSummary] = useState(null);
 
   useEffect(() => {
@@ -479,7 +479,7 @@ function Dashboard() {
               </div>
             </section>
 
-            {/* Part 9: Budget vs Actual - visual budget card */}
+            {/* Budget vs Actual - visual budget card */}
             {budgetSummary && budgetSummary.budgetCount > 0 && (
               <section className="card budget-card">
                 <div className="budget-card__head">
@@ -539,10 +539,10 @@ function Dashboard() {
           </>
         )}
 
-        {/* Part 7: basic unusual spending alerts (rule-based, real data) */}
+        {/* Basic unusual spending alerts (rule-based, real data) */}
         <UnusualSpending range={range} from={customFrom} to={customTo} />
 
-        {/* Part 8: automatic spend insights - follows the dashboard's own date filter. */}
+        {/* Automatic spend insights - follows the dashboard's own date filter. */}
         <SpendInsights range={range} from={customFrom} to={customTo} />
       </main>
     </div>

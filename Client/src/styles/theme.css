@@ -1,10 +1,6 @@
-/* ==========================================================================
-   RicozSpend Light / Dark Theme & Smooth Transition System
-   ========================================================================== */
+/* ========== RicozSpend Light / Dark Theme & Smooth Transition System ========== */
 
-/* -----------------------------------------------------------------------------
-   1. Theme Tokens (CSS Custom Properties)
-   ----------------------------------------------------------------------------- */
+/* ---------- 1. Theme Tokens (CSS Custom Properties) ---------- */
 :root {
   /* Common Brand Accent (Red remains consistent across modes) */
   --accent-red: #dc2626;
@@ -107,9 +103,7 @@ html.dark {
   --txn-del-text: #f87171;
 }
 
-/* -----------------------------------------------------------------------------
-   2. Smooth Transitions & Motion Handling
-   ----------------------------------------------------------------------------- */
+/* ---------- 2. Smooth Transitions & Motion Handling ---------- */
 /* Transition active during theme toggle (prevents sudden flicker) */
 html.theme-transitioning,
 html.theme-transitioning *,
@@ -168,9 +162,7 @@ select,
   }
 }
 
-/* -----------------------------------------------------------------------------
-   3. Theme Toggle Button Styling (Top-Right Navbar)
-   ----------------------------------------------------------------------------- */
+/* ---------- 3. Theme Toggle Button Styling (Top-Right Navbar) ---------- */
 .theme-toggle-btn {
   display: inline-flex;
   align-items: center;
@@ -208,9 +200,7 @@ select,
   color: #64748b;
 }
 
-/* -----------------------------------------------------------------------------
-   4. Comprehensive Dark Mode Styles across App Components
-   ----------------------------------------------------------------------------- */
+/* ---------- 4. Comprehensive Dark Mode Styles across App Components ---------- */
 
 /* Body & App Shell */
 html[data-theme="dark"] body,
@@ -224,10 +214,8 @@ html.dark .app-shell {
   background-color: var(--bg);
 }
 
-/* Navbar — stays the SAME red (#dc2626) as light mode in dark mode too.
-   Links / user-area keep the light-mode white-on-red treatment; only the logo
-   wordmark adapts: "Ricoz" becomes off-white #f8fafc (never pure #ffffff),
-   while "Spend" keeps its red in both modes. */
+/* Navbar stays the same red (#dc2626) in dark mode; links keep white-on-red treatment.
+   "Ricoz" becomes off-white #f8fafc (never pure white); "Spend" stays red. */
 html[data-theme="dark"] .app-nav__brand-text,
 html.dark .app-nav__brand-text {
   color: #f8fafc;
@@ -1039,9 +1027,7 @@ html.dark .ricoz-logo__text {
   color: var(--text-h);
 }
 
-/* -----------------------------------------------------------------------------
-   5. Charts Global Dark Theming (Recharts)
-   ----------------------------------------------------------------------------- */
+/* ---------- 5. Charts Global Dark Theming (Recharts) ---------- */
 html[data-theme="dark"] .recharts-cartesian-grid line,
 html.dark .recharts-cartesian-grid line {
   stroke: var(--border) !important;

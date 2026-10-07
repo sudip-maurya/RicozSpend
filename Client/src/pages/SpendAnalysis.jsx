@@ -24,7 +24,7 @@ import "../styles/analysis.css";
 
 const EMPTY_FILTERS = { from: "", to: "", category: "", department: "", vendor: "" };
 
-/** Spend Analysis page (Part 6). */
+/** Spend Analysis page. */
 function SpendAnalysis() {
   const [filters, setFilters] = useState(EMPTY_FILTERS);
   const [summary, setSummary] = useState(null);
@@ -617,9 +617,9 @@ function SpendAnalysis() {
               </div>
             </section>
 
-            {/* Part 9: basic vendor comparison */}
+            {/* Basic vendor comparison */}
             <VendorComparison filters={filters} />
-            {/* Part 10: department spending patterns */}
+            {/* Department spending patterns */}
             <DepartmentSpending filters={filters} />
           </>
         )}

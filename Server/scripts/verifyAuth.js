@@ -109,7 +109,7 @@ const main = async () => {
   check("   Signup response exposes id/name/email/role", Boolean(signupRes.data?.user?.id && signupRes.data?.user?.name && signupRes.data?.user?.email));
   check("   Signup assigns the Viewer role", signupRes.data?.user?.role === ROLES.VIEWER, `got ${signupRes.data?.user?.role}`);
 
-  // Part 2 - email verification on signup
+  // Email verification on signup
   const viewerTokenRaw = tokenFromUrl(signupRes.data?.emailVerification?.devVerificationUrl);
   check("   Signup account starts unverified", signupRes.data?.user?.isEmailVerified === false);
   check("   Signup response marks verification as required", signupRes.data?.emailVerification?.required === true);
@@ -387,7 +387,7 @@ const main = async () => {
   const anonymousOnAdminRes = await api("GET", "/api/admin/overview");
   check("    Anonymous call to the Admin-only API gets 401", anonymousOnAdminRes.status === 401, `got ${anonymousOnAdminRes.status}`);
 
-  // ----------------------------------------------------- Part 1 regression
+  // ----------------------------------------------------- GET / regression
   section("19. Part 1 regression");
 
   const rootRes = await api("GET", "/");

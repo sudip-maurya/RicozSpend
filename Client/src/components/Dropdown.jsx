@@ -1,12 +1,7 @@
 import React, { Children, useEffect, useId, useMemo, useRef, useState } from "react";
 import "../styles/dropdown.css";
 
-/**
- * RicozSpend Standardized Dropdown Component
- *
- * Provides a modern, accessible, consistent select/dropdown experience
- * matching the RicozSpend design system.
- */
+/** Modern, accessible dropdown matching the RicozSpend design system. */
 export default function Dropdown({
   id: propId,
   name,

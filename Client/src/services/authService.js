@@ -1,4 +1,4 @@
-/** Authentication API calls (Part 2). All requests go through src/api/client.js, which attaches the JWT. */
+/** Authentication API calls. All requests go through src/api/client.js, which attaches the JWT. */
 
 import api from "../api/client";
 
@@ -11,7 +11,7 @@ export const login = (payload) => api.post(`${BASE}/login`, payload);
 /** Restores the current user from a stored JWT (used on page refresh). */
 export const fetchCurrentUser = () => api.get(`${BASE}/me`);
 
-// Part 2 - email verification
+// Email verification
 /** Consume the one-time token from the emailed verification link. */
 export const verifyEmail = (token) => api.post(`${BASE}/verify-email`, { token });
 

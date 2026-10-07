@@ -16,10 +16,10 @@ const NAV_LINKS = [
   { to: "/transactions", label: "Transactions" },
   { to: "/import", label: "Import" },
   { to: "/analysis", label: "Analysis" },
-  // Part 13: department spending patterns - same shared entry for every role.
+  // Department spending patterns - same shared entry for every role.
   { to: "/departments", label: "Departments" },
   { to: "/insights", label: "Insights" },
-  // Part 14: alerts & insights center - read-only hub for every role.
+  // Alerts & insights center - read-only hub for every role.
   { to: "/alerts", label: "Alerts" },
   { to: "/budget", label: "Budget" },
   { to: "/profile", label: "Profile" },
@@ -28,7 +28,7 @@ const NAV_LINKS = [
 /** Admin-only modules (/admin = user overview). */
 const ADMIN_LINKS = [{ to: "/admin", label: "Admin" }];
 
-/** Small shared header for the authenticated pages (Part 2). */
+/** Small shared header for the authenticated pages. */
 const NavBar = () => {
   const { user, isAdmin, logout } = useAuth();
   const navigate = useNavigate();
